@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Search, Filter, FileText, Calendar, User, DollarSign, Eye, Edit, Trash2, Download, FileDown } from 'lucide-react';
 import { useCustomer } from '../../context/CustomerContext';
+import { useSupabaseQuote } from '../../context/SupabaseQuoteContext';
 import { DeleteConfirmationModal } from '../common/DeleteConfirmationModal';
 import { Pagination } from '../common/Pagination';
 import { useDeletion } from '../../hooks/useDeletion';
@@ -33,6 +34,7 @@ export const QuoteManagement: React.FC = () => {
   const pageSize = 25;
 
   const { customers, setSelectedCustomer } = useCustomer();
+  const { setCurrentQuote } = useSupabaseQuote();
   const { deleteRecord } = useDeletion();
 
   useEffect(() => {
@@ -96,6 +98,8 @@ export const QuoteManagement: React.FC = () => {
     if (customer) {
       setSelectedCustomer(customer);
     }
+
+    setCurrentQuote(quote.quote);
 
     window.location.hash = 'quote-builder';
     setTimeout(() => {
