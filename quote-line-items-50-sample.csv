@@ -1,0 +1,51 @@
+sku,name,supplier,category,quantity,reserveqty,price,cost,stock,available,status,leadtime,quotedleadtime,warehouse,shippinginstructions,stockingrequired
+FOR-7C3Z-6584-AB,Engine Oil Filter - Heavy Duty,Ford Motor Company,Filters,25,25,28.99,14.75,45,2025-01-15,Pending,2 days,,wh-main,Standard ground shipping,false
+GM-12635273,Fuel Injector Assembly - Direct Injection,General Motors,Engine,10,10,199.99,98.50,28,2025-01-18,Pending,7 days,,wh-main,Fragile - Handle with care,false
+TOY-04465-02190,Front Brake Pad Set - Low Dust Ceramic,Toyota Motor Corporation,Brakes,15,15,99.99,52.80,32,2025-01-12,Pending,4 days,,wh-main,Standard shipping,false
+ACE-AC4815C,Cabin Air Filter - Carbon Activated,ACDelco,Filters,30,30,42.99,22.40,38,2025-01-10,Pending,3 days,,wh-main,Standard shipping,false
+DEN-234-4536,Spark Plug - Iridium Tip,Denso Corporation,Engine,100,100,16.99,8.95,120,2025-01-08,Pending,1 days,,wh-main,Standard shipping,false
+BOS-0986494623,ABS Wheel Speed Sensor - Front,Robert Bosch GmbH,Electrical,8,8,279.99,145.60,18,2025-01-20,Pending,5 days,,wh-main,Fragile electronics,false
+HON-31200-RCA-A03,Alternator Assembly - 130 Amp,Honda Motor Company,Electrical,5,5,289.99,156.80,12,2025-01-22,Pending,10 days,,wh-main,Heavy item - Palletize,false
+BMW-31316786430,Front Strut Assembly - Standard Suspension,BMW Group,Suspension,6,6,449.99,234.50,8,2025-02-01,Pending,21 days,,wh-main,Fragile - Protect shock body,false
+NIS-16546-ED025,Air Filter Element - Multi-layer,Nissan Motor Company,Filters,40,40,34.99,18.90,50,2025-01-09,Pending,5 days,,wh-main,Standard shipping,false
+HYU-35100-2E150,Ignition Coil Pack - Single Cylinder,Hyundai Motor Company,Engine,20,20,124.99,67.25,25,2025-01-16,Pending,12 days,,wh-main,Standard shipping,false
+VW-1K0615301AB,Brake Rotor - Front Vented,Volkswagen AG,Brakes,12,12,149.99,78.40,15,2025-01-25,Pending,18 days,,wh-main,Heavy item - Secure properly,false
+SUB-22401AA560,Radiator Assembly - Aluminum Core,Subaru Corporation,Engine,4,4,349.99,189.60,6,2025-02-05,Pending,25 days,,wh-main,Fragile - Protect fins,false
+MAZ-BP4K-18-741A,Oxygen Sensor - Upstream,Mazda Motor Corporation,Electrical,14,14,179.99,95.30,20,2025-01-14,Pending,8 days,,wh-main,Fragile electronics,false
+MIT-4605A540,Shock Absorber - Rear,Mitsubishi Motors,Suspension,10,10,199.99,112.75,12,2025-01-24,Pending,16 days,,wh-main,Fragile - Protect shock body,false
+LEX-90915-YZZD2,Oil Filter - Premium Synthetic,Lexus (Toyota),Filters,50,50,32.99,16.85,60,2025-01-07,Pending,3 days,,wh-main,Standard shipping,false
+FOR-6C3Z-6584-AA,Engine Oil Filter - Standard Duty,Ford Motor Company,Filters,5,0,24.99,12.50,0,2025-02-15,Price Request,30 days,,wh-main,Superseded by FOR-7C3Z-6584-AB,false
+GM-12611801,Fuel Injector Assembly - Port Injection,General Motors,Engine,3,0,179.99,89.75,2,2025-01-30,Price Request,14 days,,wh-main,Superseded by GM-12635273,false
+TOY-04465-02180,Front Brake Pad Set - Ceramic,Toyota Motor Corporation,Brakes,8,0,89.99,45.25,8,2025-01-17,Pending,7 days,,wh-main,Superseded by TOY-04465-02190,false
+HON-31200-RCA-A02,Alternator Assembly - 130 Amp,Honda Motor Company,Electrical,2,0,289.99,156.80,3,2025-01-28,Price Request,10 days,,wh-main,Superseded by HON-31200-RCA-A03,false
+BOS-0261231191,Mass Air Flow Sensor,Robert Bosch GmbH,Electrical,12,12,189.99,98.75,22,2025-01-19,Pending,6 days,,wh-main,Fragile electronics,false
+ACE-45D23516,Wiper Blade Set - 24 inch,ACDelco,Accessories,35,35,24.99,12.30,45,2025-01-06,Pending,2 days,,wh-main,Standard shipping,false
+DEN-950-0279,Fuel Pump Module Assembly,Denso Corporation,Engine,7,7,425.99,235.50,10,2025-01-27,Pending,14 days,,wh-main,Fragile - Fuel system component,false
+NGK-4589,Spark Plug - Platinum Tip,NGK Spark Plugs,Engine,80,80,12.99,6.50,100,2025-01-05,Pending,1 days,,wh-main,Standard shipping,false
+WAG-80023-TK,Thermostat Housing Assembly,Wagner Brake Products,Engine,15,15,78.99,42.50,18,2025-01-21,Pending,9 days,,wh-main,Standard shipping,false
+GAT-33719,Water Pump Assembly,Gates Corporation,Engine,9,9,156.99,89.25,12,2025-01-23,Pending,11 days,,wh-main,Standard shipping,false
+TIM-HA9,Drive Belt - Serpentine,Timken Company,Engine,25,25,45.99,23.75,35,2025-01-11,Pending,4 days,,wh-main,Standard shipping,false
+MOO-5621,Engine Mount - Front,Moog Inc,Suspension,11,11,89.99,48.50,15,2025-01-19,Pending,8 days,,wh-main,Rubber component - Protect from heat,false
+TRW-JTC1188,Ball Joint - Lower,TRW Automotive,Suspension,14,14,67.99,35.80,20,2025-01-16,Pending,7 days,,wh-main,Standard shipping,false
+KYB-334391,Strut Mount - Front,KYB Corporation,Suspension,10,10,54.99,28.90,16,2025-01-18,Pending,8 days,,wh-main,Standard shipping,false
+VAL-882-9007,Halogen Headlight Bulb - H11,Valeo SA,Electrical,60,60,18.99,9.50,80,2025-01-04,Pending,1 days,,wh-main,Fragile glass,false
+PHI-12362LL,LED Headlight Bulb - 9006,Philips Lighting,Electrical,45,45,54.99,28.75,50,2025-01-08,Pending,3 days,,wh-main,Fragile electronics,false
+EBC-DP31517C,Brake Pad Set - Redstuff Ceramic,EBC Brakes,Brakes,18,18,129.99,68.50,22,2025-01-20,Pending,10 days,,wh-main,Standard shipping,false
+RAY-580-343,Brake Caliper - Front Left,Raybestos,Brakes,6,6,189.99,102.75,8,2025-01-26,Pending,15 days,,wh-main,Heavy item,false
+WAG-MC139087,Brake Master Cylinder,Wagner Brake Products,Brakes,4,4,245.99,135.50,5,2025-02-02,Pending,20 days,,wh-main,Brake fluid component,false
+GAB-24022,Shock Absorber - Front,Gabriel Ride Control,Suspension,12,12,78.99,42.30,18,2025-01-17,Pending,8 days,,wh-main,Fragile - Protect shock body,false
+MON-171010,Suspension Strut - Rear,Monroe Ride Solutions,Suspension,8,8,145.99,78.50,10,2025-01-22,Pending,12 days,,wh-main,Fragile - Protect shock body,false
+BIL-B6-VE3-5517-H0,Shock Absorber - Heavy Duty,Bilstein,Suspension,5,5,289.99,156.75,7,2025-01-29,Pending,18 days,,wh-main,Premium suspension component,false
+EIB-5795,Control Arm - Front Lower,Eibach Springs,Suspension,9,9,168.99,92.50,12,2025-01-24,Pending,14 days,,wh-main,Heavy item,false
+MOP-K750133,Sway Bar Link Kit,Mevotech,Suspension,22,22,42.99,22.50,28,2025-01-13,Pending,6 days,,wh-main,Standard shipping,false
+RAM-RS54116,Stabilizer Bushing Set,Ramsco,Suspension,30,30,28.99,14.75,40,2025-01-10,Pending,4 days,,wh-main,Rubber components,false
+FEL-ES80571,Tie Rod End - Outer,Federal-Mogul,Suspension,16,16,54.99,28.90,20,2025-01-15,Pending,7 days,,wh-main,Standard shipping,false
+MER-MS300093,Wheel Hub Assembly - Front,Mevotech,Suspension,7,7,178.99,96.50,9,2025-01-25,Pending,14 days,,wh-main,Heavy bearing assembly,false
+SKF-BR930621,Wheel Bearing - Rear,SKF Group,Suspension,13,13,89.99,48.75,18,2025-01-19,Pending,9 days,,wh-main,Precision bearing,false
+NTN-WE60870,Wheel Hub Bearing Module,NTN Corporation,Suspension,6,6,198.99,108.50,8,2025-01-28,Pending,16 days,,wh-main,Precision bearing assembly,false
+TIM-SET424,Wheel Bearing Set,Timken Company,Suspension,10,10,125.99,68.75,14,2025-01-21,Pending,11 days,,wh-main,Precision bearing set,false
+CON-HB615073,Hub Bearing Assembly - 4WD,Continental AG,Suspension,5,5,245.99,135.50,6,2025-02-01,Pending,20 days,,wh-main,Heavy duty bearing,false
+CEN-410.62018E,CV Axle Shaft - Front,Cardone Industries,Drivetrain,8,8,189.99,102.75,10,2025-01-26,Pending,15 days,,wh-main,Heavy item - Grease component,false
+GSP-NC30145,CV Joint Boot Kit,GSP North America,Drivetrain,25,25,32.99,16.85,35,2025-01-12,Pending,5 days,,wh-main,Rubber component,false
+RHI-2108-CV,Drive Shaft Center Support,Rhino Pac,Drivetrain,6,6,156.99,85.50,8,2025-01-27,Pending,15 days,,wh-main,Heavy item,false
+NEA-FW308,Flywheel - Manual Transmission,NEAPCO,Drivetrain,3,3,425.99,235.75,4,2025-02-05,Pending,25 days,,wh-main,Very heavy item - Special handling,false

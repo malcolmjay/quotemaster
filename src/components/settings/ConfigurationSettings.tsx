@@ -1,0 +1,1090 @@
+/**
+ * Configuration Settings Page
+ * Allows admins to configure ERP API and other system settings via UI
+ */
+
+import React, { useState, useEffect } from 'react';
+import {
+  Settings,
+  Save,
+  RefreshCw,
+  TestTube,
+  CheckCircle,
+  XCircle,
+  Eye,
+  EyeOff,
+  AlertCircle,
+  History,
+  Database,
+  Shield
+} from 'lucide-react';
+import { configService, AppConfiguration, ERPApiConfig } from '../../services/configService';
+import { reinitializeERPService } from '../../services/erpApiService';
+import { logger } from '../../utils/logger';
+import { useAuth } from '../../hooks/useAuth';
+import { ApprovalLimitsSettings } from './ApprovalLimitsSettings';
+
+type TabType = 'api' | 'approval-limits';
+
+export const ConfigurationSettings: React.FC = () => {
+  const { user } = useAuth();
+  const [activeTab, setActiveTab] = useState<TabType>('api');
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [testing, setTesting] = useState(false);
+  const [showApiKey, setShowApiKey] = useState(false);
+  const [testResult, setTestResult] = useState<{
+    success: boolean;
+    message: string;
+    responseTime?: number;
+  } | null>(null);
+  const [saveMessage, setSaveMessage] = useState<string | null>(null);
+  const [auditLog, setAuditLog] = useState<any[]>([]);
+  const [showAuditLog, setShowAuditLog] = useState(false);
+
+  // ERP API Configuration
+  const [erpConfig, setErpConfig] = useState<ERPApiConfig>({
+    apiUrl: '',
+    apiKey: '',
+    timeout: 10000,
+    retryAttempts: 3,
+    cacheTtl: 300000,
+    enabled: false,
+    defaultWarehouse: 'WH01'
+  });
+
+  // Import API Configuration
+  const [importApiConfig, setImportApiConfig] = useState({
+    enabled: false,
+    username: '',
+    password: '',
+    rateLimit: 100
+  });
+
+  // Cross Reference Import API Configuration
+  const [crossRefImportApiConfig, setCrossRefImportApiConfig] = useState({
+    enabled: false,
+    username: '',
+    password: '',
+    rateLimit: 100
+  });
+
+  // Customer Import API Configuration
+  const [customerImportApiConfig, setCustomerImportApiConfig] = useState({
+    enabled: false,
+    username: '',
+    password: '',
+    rateLimit: 100
+  });
+
+  const [originalConfig, setOriginalConfig] = useState<ERPApiConfig>(erpConfig);
+  const [originalImportConfig, setOriginalImportConfig] = useState(importApiConfig);
+  const [originalCrossRefImportConfig, setOriginalCrossRefImportConfig] = useState(crossRefImportApiConfig);
+  const [originalCustomerImportConfig, setOriginalCustomerImportConfig] = useState(customerImportApiConfig);
+
+  useEffect(() => {
+    loadConfiguration();
+  }, []);
+
+  const loadConfiguration = async () => {
+    setLoading(true);
+    try {
+      logger.operation('loadConfiguration', 'start');
+
+      const config = await configService.getERPApiConfig();
+      setErpConfig(config);
+      setOriginalConfig(config);
+
+      // Load Import API config
+      const importConfigs = await configService.getConfigsByType('import_api');
+      console.log('Loaded import API configs:', importConfigs);
+      const importConfigMap = new Map(importConfigs.map(c => [c.config_key, c.config_value]));
+
+      const importApi = {
+        enabled: importConfigMap.get('import_api_enabled') === 'true',
+        username: importConfigMap.get('import_api_username') || '',
+        password: importConfigMap.get('import_api_password') || '',
+        rateLimit: parseInt(importConfigMap.get('import_api_rate_limit') || '100')
+      };
+
+      console.log('Parsed import API config:', importApi);
+      setImportApiConfig(importApi);
+      setOriginalImportConfig(importApi);
+
+      // Load Cross Reference Import API config
+      const crossRefImportConfigs = await configService.getConfigsByType('cross_ref_import_api');
+      console.log('Loaded cross ref import API configs:', crossRefImportConfigs);
+      const crossRefImportConfigMap = new Map(crossRefImportConfigs.map(c => [c.config_key, c.config_value]));
+
+      const crossRefImportApi = {
+        enabled: crossRefImportConfigMap.get('cross_ref_import_api_enabled') === 'true',
+        username: crossRefImportConfigMap.get('cross_ref_import_api_username') || '',
+        password: crossRefImportConfigMap.get('cross_ref_import_api_password') || '',
+        rateLimit: parseInt(crossRefImportConfigMap.get('cross_ref_import_api_rate_limit') || '100')
+      };
+
+      console.log('Parsed cross ref import API config:', crossRefImportApi);
+      setCrossRefImportApiConfig(crossRefImportApi);
+      setOriginalCrossRefImportConfig(crossRefImportApi);
+
+      // Load Customer Import API config
+      const customerImportConfigs = await configService.getConfigsByType('customer_import_api');
+      console.log('Loaded customer import API configs:', customerImportConfigs);
+      const customerImportConfigMap = new Map(customerImportConfigs.map(c => [c.config_key, c.config_value]));
+
+      const customerImportApi = {
+        enabled: customerImportConfigMap.get('customer_import_api_enabled') === 'true',
+        username: customerImportConfigMap.get('customer_import_api_username') || '',
+        password: customerImportConfigMap.get('customer_import_api_password') || '',
+        rateLimit: parseInt(customerImportConfigMap.get('customer_import_api_rate_limit') || '100')
+      };
+
+      console.log('Parsed customer import API config:', customerImportApi);
+      setCustomerImportApiConfig(customerImportApi);
+      setOriginalCustomerImportConfig(customerImportApi);
+
+      logger.operation('loadConfiguration', 'success');
+    } catch (error) {
+      logger.error('Failed to load configuration', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loadAuditLog = async () => {
+    try {
+      const log = await configService.getAuditLog(50);
+      setAuditLog(log);
+      setShowAuditLog(true);
+    } catch (error) {
+      logger.error('Failed to load audit log', error);
+    }
+  };
+
+  const handleSaveConfiguration = async () => {
+    if (!user) {
+      setSaveMessage('You must be logged in to save configuration');
+      return;
+    }
+
+    setSaving(true);
+    setSaveMessage(null);
+
+    try {
+      logger.operation('saveConfiguration', 'start');
+
+      const updates = [
+        { config_key: 'erp_api_url', config_value: erpConfig.apiUrl },
+        { config_key: 'erp_api_key', config_value: erpConfig.apiKey },
+        { config_key: 'erp_api_timeout', config_value: erpConfig.timeout.toString() },
+        { config_key: 'erp_api_retry_attempts', config_value: erpConfig.retryAttempts.toString() },
+        { config_key: 'erp_api_cache_ttl', config_value: erpConfig.cacheTtl.toString() },
+        { config_key: 'erp_api_enabled', config_value: erpConfig.enabled.toString() },
+        { config_key: 'default_warehouse', config_value: erpConfig.defaultWarehouse },
+        { config_key: 'import_api_enabled', config_value: importApiConfig.enabled.toString() },
+        { config_key: 'import_api_username', config_value: importApiConfig.username },
+        { config_key: 'import_api_password', config_value: importApiConfig.password },
+        { config_key: 'import_api_rate_limit', config_value: importApiConfig.rateLimit.toString() },
+        { config_key: 'cross_ref_import_api_enabled', config_value: crossRefImportApiConfig.enabled.toString() },
+        { config_key: 'cross_ref_import_api_username', config_value: crossRefImportApiConfig.username },
+        { config_key: 'cross_ref_import_api_password', config_value: crossRefImportApiConfig.password },
+        { config_key: 'cross_ref_import_api_rate_limit', config_value: crossRefImportApiConfig.rateLimit.toString() },
+        { config_key: 'customer_import_api_enabled', config_value: customerImportApiConfig.enabled.toString() },
+        { config_key: 'customer_import_api_username', config_value: customerImportApiConfig.username },
+        { config_key: 'customer_import_api_password', config_value: customerImportApiConfig.password },
+        { config_key: 'customer_import_api_rate_limit', config_value: customerImportApiConfig.rateLimit.toString() }
+      ];
+
+      const result = await configService.updateConfigs(updates, user.id);
+
+      if (result.success) {
+        setSaveMessage('Configuration saved successfully');
+        setOriginalConfig({ ...erpConfig });
+        setOriginalImportConfig({ ...importApiConfig });
+        setOriginalCrossRefImportConfig({ ...crossRefImportApiConfig });
+        setOriginalCustomerImportConfig({ ...customerImportApiConfig });
+
+        // Reinitialize ERP service with new config
+        await reinitializeERPService();
+
+        logger.operation('saveConfiguration', 'success');
+      } else {
+        setSaveMessage(`Failed to save: ${result.errors.join(', ')}`);
+        logger.error('Save configuration failed', undefined, { errors: result.errors });
+      }
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      setSaveMessage(`Error: ${errorMessage}`);
+      logger.error('Error saving configuration', error);
+    } finally {
+      setSaving(false);
+      setTimeout(() => setSaveMessage(null), 5000);
+    }
+  };
+
+  const handleTestConnection = async () => {
+    setTesting(true);
+    setTestResult(null);
+
+    try {
+      logger.operation('testERPConnection', 'start');
+
+      const result = await configService.testERPConnection(
+        erpConfig.apiUrl,
+        erpConfig.apiKey,
+        erpConfig.timeout
+      );
+
+      setTestResult(result);
+      logger.operation('testERPConnection', result.success ? 'success' : 'error', {
+        responseTime: result.responseTime
+      });
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Test failed';
+      setTestResult({
+        success: false,
+        message: errorMessage
+      });
+      logger.error('Error testing connection', error);
+    } finally {
+      setTesting(false);
+    }
+  };
+
+  const handleResetToDefaults = () => {
+    if (confirm('Reset all settings to defaults? This cannot be undone.')) {
+      setErpConfig({
+        apiUrl: '',
+        apiKey: '',
+        timeout: 10000,
+        retryAttempts: 3,
+        cacheTtl: 300000,
+        enabled: false,
+        defaultWarehouse: 'WH01'
+      });
+      setImportApiConfig({
+        enabled: false,
+        username: '',
+        password: '',
+        rateLimit: 100
+      });
+      setTestResult(null);
+    }
+  };
+
+  const hasUnsavedChanges =
+    JSON.stringify(erpConfig) !== JSON.stringify(originalConfig) ||
+    JSON.stringify(importApiConfig) !== JSON.stringify(originalImportConfig) ||
+    JSON.stringify(crossRefImportApiConfig) !== JSON.stringify(originalCrossRefImportConfig) ||
+    JSON.stringify(customerImportApiConfig) !== JSON.stringify(originalCustomerImportConfig);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <RefreshCw className="h-8 w-8 animate-spin text-blue-600" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-4xl mx-auto space-y-6">
+      {/* Header */}
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center space-x-3">
+            <Settings className="h-6 w-6 text-blue-600" />
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
+                System Configuration
+              </h1>
+              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                Configure ERP API and other system settings
+              </p>
+            </div>
+          </div>
+
+          <button
+            onClick={loadAuditLog}
+            className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition"
+          >
+            <History className="h-4 w-4" />
+            <span>View Audit Log</span>
+          </button>
+        </div>
+
+        {/* Tab Navigation */}
+        <div className="flex space-x-1 border-b border-gray-200 dark:border-gray-700">
+          <button
+            onClick={() => setActiveTab('api')}
+            className={`flex items-center space-x-2 px-4 py-2 border-b-2 transition-colors ${
+              activeTab === 'api'
+                ? 'border-blue-600 text-blue-600'
+                : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+            }`}
+          >
+            <Database className="w-4 h-4" />
+            <span>API Configuration</span>
+          </button>
+          <button
+            onClick={() => setActiveTab('approval-limits')}
+            className={`flex items-center space-x-2 px-4 py-2 border-b-2 transition-colors ${
+              activeTab === 'approval-limits'
+                ? 'border-blue-600 text-blue-600'
+                : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
+            }`}
+          >
+            <Shield className="w-4 h-4" />
+            <span>Approval Limits</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Save Message */}
+      {saveMessage && (
+        <div className={`p-4 rounded-lg ${
+          saveMessage.includes('success')
+            ? 'bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-300'
+            : 'bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-300'
+        }`}>
+          <div className="flex items-center space-x-2">
+            {saveMessage.includes('success') ? (
+              <CheckCircle className="h-5 w-5" />
+            ) : (
+              <XCircle className="h-5 w-5" />
+            )}
+            <span>{saveMessage}</span>
+          </div>
+        </div>
+      )}
+
+      {/* Tab Content */}
+      {activeTab === 'api' && (
+        <>
+          {/* Unsaved Changes Warning */}
+          {hasUnsavedChanges && (
+            <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
+              <div className="flex items-center space-x-2 text-yellow-800 dark:text-yellow-300">
+                <AlertCircle className="h-5 w-5" />
+                <span className="font-medium">You have unsaved changes</span>
+              </div>
+            </div>
+          )}
+
+          {/* ERP API Configuration */}
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+        <div className="flex items-center justify-between mb-6">
+          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+            ERP API Configuration
+          </h2>
+
+          <label className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              checked={erpConfig.enabled}
+              onChange={(e) => setErpConfig({ ...erpConfig, enabled: e.target.checked })}
+              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            />
+            <span className="text-sm text-gray-700 dark:text-gray-300">
+              Enable ERP Integration
+            </span>
+          </label>
+        </div>
+
+        <div className="space-y-4">
+          {/* API URL */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              API Base URL *
+            </label>
+            <input
+              type="url"
+              value={erpConfig.apiUrl}
+              onChange={(e) => setErpConfig({ ...erpConfig, apiUrl: e.target.value })}
+              placeholder="https://your-erp-api.com/api"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              disabled={!erpConfig.enabled}
+            />
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              The base URL for your ERP REST API (e.g., https://erp.example.com/api)
+            </p>
+          </div>
+
+          {/* API Key */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              API Key *
+            </label>
+            <div className="relative">
+              <input
+                type={showApiKey ? 'text' : 'password'}
+                value={erpConfig.apiKey}
+                onChange={(e) => setErpConfig({ ...erpConfig, apiKey: e.target.value })}
+                placeholder="Enter your ERP API key"
+                className="w-full px-3 py-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                disabled={!erpConfig.enabled}
+              />
+              <button
+                type="button"
+                onClick={() => setShowApiKey(!showApiKey)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+              >
+                {showApiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              API key for authentication (stored securely in database)
+            </p>
+          </div>
+
+          {/* Grid for numeric settings */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Timeout */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Request Timeout (ms)
+              </label>
+              <input
+                type="number"
+                value={erpConfig.timeout}
+                onChange={(e) => setErpConfig({ ...erpConfig, timeout: parseInt(e.target.value) || 10000 })}
+                min="1000"
+                max="60000"
+                step="1000"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                disabled={!erpConfig.enabled}
+              />
+            </div>
+
+            {/* Retry Attempts */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Retry Attempts
+              </label>
+              <input
+                type="number"
+                value={erpConfig.retryAttempts}
+                onChange={(e) => setErpConfig({ ...erpConfig, retryAttempts: parseInt(e.target.value) || 3 })}
+                min="0"
+                max="10"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                disabled={!erpConfig.enabled}
+              />
+            </div>
+
+            {/* Cache TTL */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Cache TTL (ms)
+              </label>
+              <input
+                type="number"
+                value={erpConfig.cacheTtl}
+                onChange={(e) => setErpConfig({ ...erpConfig, cacheTtl: parseInt(e.target.value) || 300000 })}
+                min="60000"
+                max="3600000"
+                step="60000"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                disabled={!erpConfig.enabled}
+              />
+              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+                {(erpConfig.cacheTtl / 60000).toFixed(0)} minutes
+              </p>
+            </div>
+
+            {/* Default Warehouse */}
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Default Warehouse
+              </label>
+              <input
+                type="text"
+                value={erpConfig.defaultWarehouse}
+                onChange={(e) => setErpConfig({ ...erpConfig, defaultWarehouse: e.target.value })}
+                placeholder="WH01"
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                disabled={!erpConfig.enabled}
+              />
+            </div>
+          </div>
+
+          {/* Test Connection */}
+          <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+            <button
+              onClick={handleTestConnection}
+              disabled={testing || !erpConfig.enabled || !erpConfig.apiUrl}
+              className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition"
+            >
+              {testing ? (
+                <RefreshCw className="h-4 w-4 animate-spin" />
+              ) : (
+                <TestTube className="h-4 w-4" />
+              )}
+              <span>{testing ? 'Testing...' : 'Test Connection'}</span>
+            </button>
+
+            {testResult && (
+              <div className={`mt-3 p-3 rounded-lg ${
+                testResult.success
+                  ? 'bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-300'
+                  : 'bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-300'
+              }`}>
+                <div className="flex items-center space-x-2">
+                  {testResult.success ? (
+                    <CheckCircle className="h-5 w-5" />
+                  ) : (
+                    <XCircle className="h-5 w-5" />
+                  )}
+                  <div>
+                    <p className="font-medium">{testResult.message}</p>
+                    {testResult.responseTime && (
+                      <p className="text-xs mt-1">Response time: {testResult.responseTime}ms</p>
+                    )}
+                  </div>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Import API Authentication */}
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+              Product Import API Authentication
+            </h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+              {importApiConfig.enabled ? (
+                <span className="text-green-600 dark:text-green-400">
+                  Authentication is enabled
+                </span>
+              ) : (
+                <span className="text-gray-500">
+                  Authentication is disabled
+                </span>
+              )}
+              {importApiConfig.username && (
+                <span className="ml-2">
+                  • Username: <span className="font-medium">{importApiConfig.username}</span>
+                </span>
+              )}
+            </p>
+          </div>
+
+          <label className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              checked={importApiConfig.enabled}
+              onChange={(e) => setImportApiConfig({ ...importApiConfig, enabled: e.target.checked })}
+              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            />
+            <span className="text-sm text-gray-700 dark:text-gray-300">
+              Enable Authentication
+            </span>
+          </label>
+        </div>
+
+        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
+          <div className="flex items-start space-x-2">
+            <AlertCircle className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5" />
+            <div className="text-sm text-blue-800 dark:text-blue-300">
+              <p className="font-medium mb-1">Secure Your Import API</p>
+              <p>Enable authentication to require username and password for external systems importing products via API.</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          {/* Username */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Username
+            </label>
+            <input
+              type="text"
+              value={importApiConfig.username}
+              onChange={(e) => setImportApiConfig({ ...importApiConfig, username: e.target.value })}
+              placeholder="api_user"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              disabled={!importApiConfig.enabled}
+            />
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              Username for Basic Authentication
+            </p>
+          </div>
+
+          {/* Password */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Password
+              {importApiConfig.password && originalImportConfig.password && (
+                <span className="ml-2 text-xs text-green-600 dark:text-green-400">
+                  (Configured)
+                </span>
+              )}
+            </label>
+            <div className="relative">
+              <input
+                type={showApiKey ? 'text' : 'password'}
+                value={importApiConfig.password}
+                onChange={(e) => setImportApiConfig({ ...importApiConfig, password: e.target.value })}
+                placeholder={originalImportConfig.password ? '••••••••' : 'Enter a strong password'}
+                className="w-full px-3 py-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                disabled={!importApiConfig.enabled}
+              />
+              <button
+                type="button"
+                onClick={() => setShowApiKey(!showApiKey)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                disabled={!importApiConfig.enabled}
+              >
+                {showApiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              Password for Basic Authentication (stored securely)
+            </p>
+          </div>
+
+          {/* Rate Limit */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Rate Limit (requests/hour)
+            </label>
+            <input
+              type="number"
+              value={importApiConfig.rateLimit}
+              onChange={(e) => setImportApiConfig({ ...importApiConfig, rateLimit: parseInt(e.target.value) || 100 })}
+              min="1"
+              max="10000"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              disabled={!importApiConfig.enabled}
+            />
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              Maximum API requests allowed per hour
+            </p>
+          </div>
+
+          {/* Usage Instructions */}
+          {importApiConfig.enabled && importApiConfig.username && importApiConfig.password && (
+            <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+              <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                API Usage Example:
+              </p>
+              <pre className="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-xs">
+{`curl -X POST \\
+  'YOUR_SUPABASE_URL/functions/v1/import-products' \\
+  -u '${importApiConfig.username}:${importApiConfig.password}' \\
+  -H 'Content-Type: application/json' \\
+  -d '{"products": [...]}'`}
+              </pre>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Cross Reference Import API Authentication */}
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+              Cross Reference Import API Authentication
+            </h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+              {crossRefImportApiConfig.enabled ? (
+                <span className="text-green-600 dark:text-green-400">
+                  Authentication is enabled
+                </span>
+              ) : (
+                <span className="text-gray-500">
+                  Authentication is disabled
+                </span>
+              )}
+              {crossRefImportApiConfig.username && (
+                <span className="ml-2">
+                  • Username: <span className="font-medium">{crossRefImportApiConfig.username}</span>
+                </span>
+              )}
+            </p>
+          </div>
+
+          <label className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              checked={crossRefImportApiConfig.enabled}
+              onChange={(e) => setCrossRefImportApiConfig({ ...crossRefImportApiConfig, enabled: e.target.checked })}
+              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            />
+            <span className="text-sm text-gray-700 dark:text-gray-300">
+              Enable Authentication
+            </span>
+          </label>
+        </div>
+
+        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
+          <div className="flex items-start space-x-2">
+            <AlertCircle className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5" />
+            <div className="text-sm text-blue-800 dark:text-blue-300">
+              <p className="font-medium mb-1">Secure Your Cross Reference Import API</p>
+              <p>Enable authentication to require username and password for external systems importing cross references via API.</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          {/* Username */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Username
+            </label>
+            <input
+              type="text"
+              value={crossRefImportApiConfig.username}
+              onChange={(e) => setCrossRefImportApiConfig({ ...crossRefImportApiConfig, username: e.target.value })}
+              placeholder="cross_ref_api_user"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              disabled={!crossRefImportApiConfig.enabled}
+            />
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              Username for Basic Authentication
+            </p>
+          </div>
+
+          {/* Password */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Password
+              {crossRefImportApiConfig.password && originalCrossRefImportConfig.password && (
+                <span className="ml-2 text-xs text-green-600 dark:text-green-400">
+                  (Configured)
+                </span>
+              )}
+            </label>
+            <div className="relative">
+              <input
+                type={showApiKey ? 'text' : 'password'}
+                value={crossRefImportApiConfig.password}
+                onChange={(e) => setCrossRefImportApiConfig({ ...crossRefImportApiConfig, password: e.target.value })}
+                placeholder={originalCrossRefImportConfig.password ? '••••••••' : 'Enter a strong password'}
+                className="w-full px-3 py-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                disabled={!crossRefImportApiConfig.enabled}
+              />
+              <button
+                type="button"
+                onClick={() => setShowApiKey(!showApiKey)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                disabled={!crossRefImportApiConfig.enabled}
+              >
+                {showApiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              Password for Basic Authentication (stored securely)
+            </p>
+          </div>
+
+          {/* Rate Limit */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Rate Limit (requests/hour)
+            </label>
+            <input
+              type="number"
+              value={crossRefImportApiConfig.rateLimit}
+              onChange={(e) => setCrossRefImportApiConfig({ ...crossRefImportApiConfig, rateLimit: parseInt(e.target.value) || 100 })}
+              min="1"
+              max="10000"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              disabled={!crossRefImportApiConfig.enabled}
+            />
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              Maximum API requests allowed per hour
+            </p>
+          </div>
+
+          {/* Usage Instructions */}
+          {crossRefImportApiConfig.enabled && crossRefImportApiConfig.username && crossRefImportApiConfig.password && (
+            <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+              <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                API Usage Example:
+              </p>
+              <pre className="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-xs">
+{`curl -X POST \\
+  'YOUR_SUPABASE_URL/functions/v1/import-cross-references' \\
+  -u '${crossRefImportApiConfig.username}:${crossRefImportApiConfig.password}' \\
+  -H 'Content-Type: application/json' \\
+  -d '{"cross_references": [...]}'`}
+              </pre>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Customer Import API Authentication */}
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+              Customer Import API Authentication
+            </h2>
+            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+              {customerImportApiConfig.enabled ? (
+                <span className="text-green-600 dark:text-green-400">
+                  Authentication is enabled
+                </span>
+              ) : (
+                <span className="text-gray-500">
+                  Authentication is disabled
+                </span>
+              )}
+              {customerImportApiConfig.username && (
+                <span className="ml-2">
+                  • Username: <span className="font-medium">{customerImportApiConfig.username}</span>
+                </span>
+              )}
+            </p>
+          </div>
+
+          <label className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              checked={customerImportApiConfig.enabled}
+              onChange={(e) => setCustomerImportApiConfig({ ...customerImportApiConfig, enabled: e.target.checked })}
+              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+            />
+            <span className="text-sm text-gray-700 dark:text-gray-300">
+              Enable Authentication
+            </span>
+          </label>
+        </div>
+
+        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
+          <div className="flex items-start space-x-2">
+            <AlertCircle className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5" />
+            <div className="text-sm text-blue-800 dark:text-blue-300">
+              <p className="font-medium mb-1">Secure Your Customer Import API</p>
+              <p>Enable authentication to require username and password for external systems importing customers, addresses, and contacts via API.</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          {/* Username */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Username
+            </label>
+            <input
+              type="text"
+              value={customerImportApiConfig.username}
+              onChange={(e) => setCustomerImportApiConfig({ ...customerImportApiConfig, username: e.target.value })}
+              placeholder="customer_api_user"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              disabled={!customerImportApiConfig.enabled}
+            />
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              Username for Basic Authentication
+            </p>
+          </div>
+
+          {/* Password */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Password
+              {customerImportApiConfig.password && originalCustomerImportConfig.password && (
+                <span className="ml-2 text-xs text-green-600 dark:text-green-400">
+                  (Configured)
+                </span>
+              )}
+            </label>
+            <div className="relative">
+              <input
+                type={showApiKey ? 'text' : 'password'}
+                value={customerImportApiConfig.password}
+                onChange={(e) => setCustomerImportApiConfig({ ...customerImportApiConfig, password: e.target.value })}
+                placeholder={originalCustomerImportConfig.password ? '••••••••' : 'Enter a strong password'}
+                className="w-full px-3 py-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                disabled={!customerImportApiConfig.enabled}
+              />
+              <button
+                type="button"
+                onClick={() => setShowApiKey(!showApiKey)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                disabled={!customerImportApiConfig.enabled}
+              >
+                {showApiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              Password for Basic Authentication (stored securely)
+            </p>
+          </div>
+
+          {/* Rate Limit */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              Rate Limit (requests/hour)
+            </label>
+            <input
+              type="number"
+              value={customerImportApiConfig.rateLimit}
+              onChange={(e) => setCustomerImportApiConfig({ ...customerImportApiConfig, rateLimit: parseInt(e.target.value) || 100 })}
+              min="1"
+              max="10000"
+              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              disabled={!customerImportApiConfig.enabled}
+            />
+            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              Maximum API requests allowed per hour
+            </p>
+          </div>
+
+          {/* Usage Instructions */}
+          {customerImportApiConfig.enabled && customerImportApiConfig.username && customerImportApiConfig.password && (
+            <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+              <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                API Usage Example:
+              </p>
+              <pre className="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-xs">
+{`curl -X POST \\
+  'YOUR_SUPABASE_URL/functions/v1/import-customers' \\
+  -u '${customerImportApiConfig.username}:${customerImportApiConfig.password}' \\
+  -H 'Content-Type: application/json' \\
+  -d '{
+    "customers": [{
+      "customer_number": "CUST001",
+      "name": "Example Corp",
+      "type": "Commercial",
+      "segment": "Government",
+      "addresses": [{
+        "address_line_1": "123 Main St",
+        "city": "Washington",
+        "postal_code": "20001",
+        "country": "USA",
+        "is_primary": true
+      }],
+      "contacts": [{
+        "first_name": "John",
+        "last_name": "Doe",
+        "email": "john.doe@example.com",
+        "is_primary": true
+      }]
+    }]
+  }'`}
+              </pre>
+            </div>
+          )}
+        </div>
+      </div>
+
+          {/* Action Buttons */}
+          <div className="flex items-center justify-between bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+            <button
+              onClick={handleResetToDefaults}
+              className="px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition"
+            >
+              Reset to Defaults
+            </button>
+
+            <div className="flex items-center space-x-3">
+              <button
+                onClick={loadConfiguration}
+                disabled={loading}
+                className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition"
+              >
+                <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
+                <span>Reload</span>
+          </button>
+
+          <button
+            onClick={handleSaveConfiguration}
+            disabled={saving || !hasUnsavedChanges}
+            className="flex items-center space-x-2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition"
+          >
+            {saving ? (
+              <RefreshCw className="h-4 w-4 animate-spin" />
+            ) : (
+              <Save className="h-4 w-4" />
+            )}
+            <span>{saving ? 'Saving...' : 'Save Configuration'}</span>
+          </button>
+        </div>
+      </div>
+        </>
+      )}
+
+      {activeTab === 'approval-limits' && (
+        <ApprovalLimitsSettings />
+      )}
+
+      {/* Audit Log Modal */}
+      {showAuditLog && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-4xl w-full max-h-[80vh] overflow-hidden">
+            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+              <div className="flex items-center justify-between">
+                <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+                  Configuration Audit Log
+                </h3>
+                <button
+                  onClick={() => setShowAuditLog(false)}
+                  className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                >
+                  ×
+                </button>
+              </div>
+            </div>
+
+            <div className="p-6 overflow-y-auto max-h-[60vh]">
+              {auditLog.length === 0 ? (
+                <p className="text-center text-gray-500 dark:text-gray-400 py-8">
+                  No audit log entries found
+                </p>
+              ) : (
+                <div className="space-y-3">
+                  {auditLog.map((entry) => (
+                    <div
+                      key={entry.id}
+                      className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg"
+                    >
+                      <div className="flex items-start justify-between">
+                        <div className="flex-1">
+                          <p className="font-medium text-gray-900 dark:text-white">
+                            {entry.config_key}
+                          </p>
+                          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                            {entry.change_type === 'create' && 'Created'}
+                            {entry.change_type === 'update' && (
+                              <>
+                                Changed from{' '}
+                                <span className="font-mono text-xs bg-red-100 dark:bg-red-900/30 px-1 rounded">
+                                  {entry.old_value || '(empty)'}
+                                </span>
+                                {' to '}
+                                <span className="font-mono text-xs bg-green-100 dark:bg-green-900/30 px-1 rounded">
+                                  {entry.new_value}
+                                </span>
+                              </>
+                            )}
+                            {entry.change_type === 'delete' && 'Deleted'}
+                          </p>
+                        </div>
+                        <div className="text-right text-xs text-gray-500 dark:text-gray-400">
+                          <p>{new Date(entry.changed_at).toLocaleString()}</p>
+                          {entry.profiles && (
+                            <p className="mt-1">{entry.profiles.full_name || entry.profiles.email}</p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};

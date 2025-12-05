@@ -1,0 +1,16 @@
+sku,name,supplier,category,quantity,reserveqty,price,cost,stock,available,status,leadtime,quotedleadtime,warehouse,shippinginstructions,stockingrequired
+FOR-7C3Z-6584-AB,Engine Oil Filter - Heavy Duty,Ford Motor Company,Filters,25,0,28.99,14.50,150,2025-01-20,Pending,7 days,,wh-main,Standard shipping,false
+GM-12635273,Fuel Injector Assembly - Direct Injection,General Motors,Engine,10,0,145.00,98.50,45,2025-01-22,Pending,10 days,,wh-main,Fragile - Handle with care,false
+TOY-04465-02190,Brake Pad Set - Ceramic Front,Toyota Motor Corporation,Brakes,50,0,89.99,52.80,200,2025-01-18,Pending,5 days,,wh-main,,false
+HON-06455-T2A-A01,Engine Air Filter - Performance,Honda Motor Company,Filters,30,0,32.50,18.75,120,2025-01-25,Pending,7 days,,wh-main,,false
+NIS-16546-3TA0C,Spark Plug Set - Iridium (4-pack),Nissan Motor Company,Ignition,15,0,42.99,24.50,80,2025-01-23,Pending,8 days,,wh-main,Keep dry,false
+BMW-11427622446,Oil Filter - High Performance,BMW Group,Filters,20,0,18.75,9.85,95,2025-01-21,Pending,6 days,,wh-main,,false
+MER-2780148300,Thermostat Housing Assembly,Mercedes-Benz,Cooling,8,0,165.00,112.50,32,2025-02-05,Pending,14 days,,wh-main,OEM packaging required,true
+AUD-06E115562A,Oil Pressure Sensor - Direct Fit,Audi AG,Sensors,12,0,78.50,45.20,60,2025-01-27,Pending,9 days,,wh-main,,false
+VLV-31316113,Front Brake Rotor - Vented (Pair),Volvo Car Corporation,Brakes,6,0,225.00,156.75,28,2025-02-10,Pending,16 days,,wh-east,Heavy item - Pallet required,true
+SUB-15208AA15A,Oil Filter - Standard,Subaru Corporation,Filters,40,0,12.99,6.75,175,2025-01-19,Pending,5 days,,wh-main,,false
+FOR-BT4Z-6731-A,Radiator Assembly - Aluminum Core,Ford Motor Company,Cooling,4,0,385.00,275.50,15,2025-02-15,Pending,20 days,,wh-main,Oversized - Special handling,true
+GM-23478699,Wheel Bearing Hub Assembly - Front,General Motors,Suspension,18,0,98.75,67.80,55,2025-01-26,Pending,8 days,,wh-main,,false
+TOY-90919-01253,Ignition Coil Pack - High Output,Toyota Motor Corporation,Ignition,22,0,125.50,82.35,70,2025-01-24,Pending,7 days,,wh-main,ESD sensitive,false
+HON-51350-T2A-A02,Front Shock Absorber - Gas Charged,Honda Motor Company,Suspension,14,0,145.00,98.50,42,2025-02-08,Pending,15 days,,wh-main,,false
+CHR-68105583AB,Throttle Body - Electronic,Chrysler Group LLC,Engine,5,0,295.00,215.75,18,2025-02-12,Pending,18 days,,wh-main,Return core required,true
