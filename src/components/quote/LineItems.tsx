@@ -59,38 +59,38 @@ const PriceRequestInfo: React.FC<{ itemId: string }> = ({ itemId }) => {
   if (loading || !priceRequest) return null;
 
   return (
-    <div className={`rounded-lg p-3 ${isPriceExpired ? 'bg-red-50 border border-red-200' : 'bg-emerald-50 border border-emerald-200'}`}>
+    <div className={`rounded p-3 ${isPriceExpired ? 'bg-[#f2dede] border border-[#ebccd1]' : 'bg-[#dff0d8] border border-[#d6e9c6]'}`}>
       <div className="flex items-center gap-2 mb-2">
         {isPriceExpired ? (
-          <AlertCircle className="h-4 w-4 text-red-600" />
+          <AlertCircle className="h-4 w-4 text-[#a94442]" />
         ) : (
-          <FileCheck className="h-4 w-4 text-emerald-600" />
+          <FileCheck className="h-4 w-4 text-[#3c763d]" />
         )}
-        <span className={`text-xs font-medium ${isPriceExpired ? 'text-red-800' : 'text-emerald-800'}`}>
+        <span className={`text-xs font-medium ${isPriceExpired ? 'text-[#a94442]' : 'text-[#3c763d]'}`}>
           {isPriceExpired ? 'Expired Pricing' : 'Confirmed Pricing'}
         </span>
       </div>
       <div className="grid grid-cols-4 gap-3 text-xs">
         <div>
-          <span className="text-slate-500">Supplier Price:</span>
-          <div className="font-semibold">${priceRequest.supplier_pricing?.toFixed(2)}</div>
+          <span className="text-[#666]">Supplier Price:</span>
+          <div className="font-semibold text-[#333]">${priceRequest.supplier_pricing?.toFixed(2)}</div>
         </div>
         <div>
-          <span className="text-slate-500">MOQ:</span>
-          <div className="font-semibold">{priceRequest.moq || 'N/A'}</div>
+          <span className="text-[#666]">MOQ:</span>
+          <div className="font-semibold text-[#333]">{priceRequest.moq || 'N/A'}</div>
         </div>
         <div>
-          <span className="text-slate-500">Valid Until:</span>
-          <div className={`font-semibold ${isPriceExpired ? 'text-red-600' : ''}`}>
+          <span className="text-[#666]">Valid Until:</span>
+          <div className={`font-semibold ${isPriceExpired ? 'text-[#a94442]' : 'text-[#333]'}`}>
             {priceRequest.effective_end_date || 'N/A'}
           </div>
         </div>
         {priceBreaks.length > 0 && (
           <div>
-            <span className="text-slate-500">Price Breaks:</span>
+            <span className="text-[#666]">Price Breaks:</span>
             <div className="flex gap-1 mt-0.5">
               {priceBreaks.slice(0, 2).map((pb, i) => (
-                <span key={i} className={`px-1.5 py-0.5 rounded text-xs ${isPriceExpired ? 'bg-red-100' : 'bg-emerald-100'}`}>
+                <span key={i} className={`px-1.5 py-0.5 rounded text-xs ${isPriceExpired ? 'bg-[#f2dede]' : 'bg-[#dff0d8]'}`}>
                   {pb.quantity}+ @ ${pb.price}
                 </span>
               ))}
@@ -614,50 +614,47 @@ export const LineItems: React.FC<LineItemsProps> = ({
   const expiredCount = lineItems.filter(item => isLineItemCostExpired(item)).length;
 
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
-      {/* Compact Header */}
-      <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+    <div className="bg-white dark:bg-slate-800 rounded border border-[#d4d4d4] dark:border-slate-700 shadow-sm overflow-hidden">
+      <div className="px-5 py-4 border-b border-[#d4d4d4] dark:border-slate-700 bg-[#f0f0f0] dark:bg-slate-800">
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
-              <Package className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+            <div className="w-9 h-9 rounded bg-[#d9edf7] flex items-center justify-center">
+              <Package className="w-5 h-5 text-[#31708f]" />
             </div>
             <div>
-              <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Line Items</h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400">
+              <h3 className="text-sm font-semibold text-[#333] dark:text-white">Line Items</h3>
+              <p className="text-xs text-[#666] dark:text-slate-400">
                 {lineItems.length} items
-                {expiredCount > 0 && <span className="text-red-600 ml-1">({expiredCount} expired)</span>}
+                {expiredCount > 0 && <span className="text-[#a94442] ml-1">({expiredCount} expired)</span>}
               </p>
             </div>
           </div>
 
-          {/* Action Bar */}
           <div className="flex items-center gap-2">
-            {/* Quick Search */}
             <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#999]" />
               <input
                 ref={searchInputRef}
                 type="text"
                 placeholder="Add product (Shift+S)"
                 value={newItemSku}
                 onChange={(e) => handleSkuSearch(e.target.value)}
-                className="w-56 pl-9 pr-3 py-2 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                className="w-56 pl-9 pr-3 py-2 bg-white dark:bg-slate-700 border border-[#d4d4d4] dark:border-slate-600 rounded text-sm focus:ring-2 focus:ring-[#428bca] focus:border-[#428bca]"
               />
               {showSearchResults && searchResults.length > 0 && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-xl z-20 max-h-64 overflow-y-auto">
+                <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-slate-800 border border-[#d4d4d4] dark:border-slate-700 rounded shadow-lg z-20 max-h-64 overflow-y-auto">
                   {searchResults.slice(0, 10).map((product) => (
                     <button
                       key={product.sku}
                       onClick={() => handleProductSelect(product)}
-                      className="w-full px-3 py-2.5 text-left hover:bg-slate-50 dark:hover:bg-slate-700 border-b border-slate-100 dark:border-slate-700 last:border-b-0"
+                      className="w-full px-3 py-2.5 text-left hover:bg-[#f0f0f0] dark:hover:bg-slate-700 border-b border-[#e8e8e8] dark:border-slate-700 last:border-b-0"
                     >
                       <div className="flex items-center justify-between">
                         <div>
-                          <div className="font-medium text-sm text-slate-900 dark:text-white">{product.sku}</div>
-                          <div className="text-xs text-slate-500 truncate">{product.name}</div>
+                          <div className="font-medium text-sm text-[#333] dark:text-white">{product.sku}</div>
+                          <div className="text-xs text-[#666] truncate">{product.name}</div>
                         </div>
-                        <div className="text-xs text-blue-600">${product.price?.toLocaleString()}</div>
+                        <div className="text-xs text-[#428bca]">${product.price?.toLocaleString()}</div>
                       </div>
                     </button>
                   ))}
@@ -667,16 +664,16 @@ export const LineItems: React.FC<LineItemsProps> = ({
 
             <button
               onClick={() => setShowProductModal(true)}
-              className="px-3 py-2 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
+              className="px-3 py-2 text-sm text-[#333] dark:text-slate-300 hover:bg-[#e8e8e8] dark:hover:bg-slate-700 rounded transition-colors"
             >
               Browse
             </button>
 
-            <div className="h-5 w-px bg-slate-200 dark:bg-slate-600" />
+            <div className="h-5 w-px bg-[#d4d4d4] dark:bg-slate-600" />
 
             <button
               onClick={() => { setCsvUploadMode('add'); setShowCSVUploadModal(true); }}
-              className="flex items-center gap-1.5 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
+              className="flex items-center gap-1.5 px-3 py-2 bg-[#428bca] hover:bg-[#3276b1] text-white text-sm font-medium rounded transition-colors"
             >
               <Upload className="w-4 h-4" />
               Import
@@ -685,7 +682,7 @@ export const LineItems: React.FC<LineItemsProps> = ({
             {lineItems.length > 0 && (
               <button
                 onClick={exportToCSV}
-                className="flex items-center gap-1.5 px-3 py-2 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
+                className="flex items-center gap-1.5 px-3 py-2 text-sm text-[#333] dark:text-slate-300 hover:bg-[#e8e8e8] dark:hover:bg-slate-700 rounded transition-colors"
               >
                 <Download className="w-4 h-4" />
                 Export
@@ -694,37 +691,35 @@ export const LineItems: React.FC<LineItemsProps> = ({
           </div>
         </div>
 
-        {/* Bulk Actions Bar */}
         {selectedItems.length > 0 && (
-          <div className="mt-3 flex items-center justify-between py-2 px-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
-            <span className="text-sm font-medium text-blue-800 dark:text-blue-200">
+          <div className="mt-3 flex items-center justify-between py-2 px-3 bg-[#d9edf7] dark:bg-blue-900/20 rounded border border-[#bce8f1]">
+            <span className="text-sm font-medium text-[#31708f] dark:text-blue-200">
               {selectedItems.length} selected
             </span>
             <div className="flex items-center gap-2">
-              <button onClick={() => handleBulkAction('price-request')} className="px-3 py-1.5 bg-blue-600 text-white text-xs font-medium rounded-lg hover:bg-blue-700">
+              <button onClick={() => handleBulkAction('price-request')} className="px-3 py-1.5 bg-[#428bca] text-white text-xs font-medium rounded hover:bg-[#3276b1]">
                 Request Pricing
               </button>
-              <button onClick={() => handleBulkAction('lead-time-request')} className="px-3 py-1.5 border border-blue-600 text-blue-600 text-xs font-medium rounded-lg hover:bg-blue-50">
+              <button onClick={() => handleBulkAction('lead-time-request')} className="px-3 py-1.5 border border-[#428bca] text-[#428bca] text-xs font-medium rounded hover:bg-[#d9edf7]">
                 Request Lead Time
               </button>
-              <button onClick={() => setSelectedItems([])} className="px-3 py-1.5 text-slate-600 text-xs hover:bg-slate-100 rounded-lg">
+              <button onClick={() => setSelectedItems([])} className="px-3 py-1.5 text-[#666] text-xs hover:bg-[#e8e8e8] rounded">
                 Clear
               </button>
             </div>
           </div>
         )}
 
-        {/* Compact Filters */}
         <div className="mt-3 flex items-center gap-2">
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className={`flex items-center gap-1.5 px-2.5 py-1.5 text-xs rounded-lg transition-colors ${
-              hasActiveFilters ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300' : 'text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700'
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 text-xs rounded transition-colors ${
+              hasActiveFilters ? 'bg-[#d9edf7] text-[#31708f] border border-[#bce8f1]' : 'text-[#666] hover:bg-[#e8e8e8] dark:text-slate-400 dark:hover:bg-slate-700'
             }`}
           >
             <Filter className="w-3.5 h-3.5" />
             Filters
-            {hasActiveFilters && <span className="ml-1 px-1.5 py-0.5 bg-blue-600 text-white text-xs rounded-full">{[filterProductNumber, filterSupplier, filterExpiredCost !== 'all', filterStatus !== 'all'].filter(Boolean).length}</span>}
+            {hasActiveFilters && <span className="ml-1 px-1.5 py-0.5 bg-[#428bca] text-white text-xs rounded-full">{[filterProductNumber, filterSupplier, filterExpiredCost !== 'all', filterStatus !== 'all'].filter(Boolean).length}</span>}
           </button>
 
           {showFilters && (
@@ -734,12 +729,12 @@ export const LineItems: React.FC<LineItemsProps> = ({
                 value={filterProductNumber}
                 onChange={(e) => setFilterProductNumber(e.target.value)}
                 placeholder="SKU"
-                className="w-28 px-2.5 py-1.5 text-xs border border-slate-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700"
+                className="w-28 px-2.5 py-1.5 text-xs border border-[#d4d4d4] dark:border-slate-600 rounded bg-white dark:bg-slate-700"
               />
               <select
                 value={filterSupplier}
                 onChange={(e) => setFilterSupplier(e.target.value)}
-                className="px-2.5 py-1.5 text-xs border border-slate-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700"
+                className="px-2.5 py-1.5 text-xs border border-[#d4d4d4] dark:border-slate-600 rounded bg-white dark:bg-slate-700"
               >
                 <option value="">All Suppliers</option>
                 {uniqueSuppliers.map(s => <option key={s} value={s}>{s}</option>)}
@@ -747,7 +742,7 @@ export const LineItems: React.FC<LineItemsProps> = ({
               <select
                 value={filterExpiredCost}
                 onChange={(e) => setFilterExpiredCost(e.target.value as any)}
-                className="px-2.5 py-1.5 text-xs border border-slate-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700"
+                className="px-2.5 py-1.5 text-xs border border-[#d4d4d4] dark:border-slate-600 rounded bg-white dark:bg-slate-700"
               >
                 <option value="all">All Costs</option>
                 <option value="valid">Valid</option>
@@ -756,7 +751,7 @@ export const LineItems: React.FC<LineItemsProps> = ({
               <select
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value as any)}
-                className="px-2.5 py-1.5 text-xs border border-slate-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700"
+                className="px-2.5 py-1.5 text-xs border border-[#d4d4d4] dark:border-slate-600 rounded bg-white dark:bg-slate-700"
               >
                 <option value="all">All Status</option>
                 <option value="pending">Pending</option>
@@ -764,7 +759,7 @@ export const LineItems: React.FC<LineItemsProps> = ({
                 <option value="lost">Lost</option>
               </select>
               {hasActiveFilters && (
-                <button onClick={clearFilters} className="px-2 py-1.5 text-xs text-slate-500 hover:text-slate-700">
+                <button onClick={clearFilters} className="px-2 py-1.5 text-xs text-[#666] hover:text-[#333]">
                   <X className="w-3.5 h-3.5" />
                 </button>
               )}
@@ -773,74 +768,72 @@ export const LineItems: React.FC<LineItemsProps> = ({
         </div>
       </div>
 
-      {/* Expired Cost Alert */}
       {expiredCount > 0 && (
-        <div className="mx-5 mt-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg flex items-center gap-3">
-          <AlertCircle className="w-4 h-4 text-red-600 flex-shrink-0" />
-          <p className="text-xs text-red-700 dark:text-red-300">
+        <div className="mx-5 mt-4 p-3 bg-[#f2dede] dark:bg-red-900/20 border border-[#ebccd1] dark:border-red-800 rounded flex items-center gap-3">
+          <AlertCircle className="w-4 h-4 text-[#a94442] flex-shrink-0" />
+          <p className="text-xs text-[#a94442] dark:text-red-300">
             <span className="font-medium">{expiredCount} item(s) have expired costs.</span> Review pricing before submitting.
           </p>
         </div>
       )}
 
-      {/* Table */}
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
-            <tr className="bg-slate-50 dark:bg-slate-700/50 border-b border-slate-200 dark:border-slate-700">
+            <tr className="bg-[#f0f0f0] dark:bg-slate-700/50 border-b border-[#d4d4d4] dark:border-slate-700">
               <th className="w-10 px-4 py-3">
                 <input
                   type="checkbox"
-                  className="rounded border-slate-300 text-blue-600"
+                  className="rounded border-[#d4d4d4] text-[#428bca]"
                   checked={selectedItems.length === lineItems.length && lineItems.length > 0}
                   onChange={(e) => setSelectedItems(e.target.checked ? lineItems.map(item => item.id) : [])}
                 />
               </th>
-              <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide">Product</th>
-              <th className="px-3 py-3 text-center text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide w-20">Qty</th>
-              <th className="px-3 py-3 text-right text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide w-24">Price</th>
-              <th className="px-3 py-3 text-right text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide w-24">Cost</th>
-              <th className="px-3 py-3 text-right text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide w-28">Subtotal</th>
-              <th className="px-3 py-3 text-center text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide w-16">Stock</th>
-              <th className="px-3 py-3 text-center text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide w-24">Lead</th>
-              <th className="px-3 py-3 text-center text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide w-28">Status</th>
-              <th className="px-3 py-3 text-center text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide w-16"></th>
+              <th className="px-4 py-3 text-left text-xs font-semibold text-[#666] dark:text-slate-400 uppercase tracking-wide">Product</th>
+              <th className="px-3 py-3 text-center text-xs font-semibold text-[#666] dark:text-slate-400 uppercase tracking-wide w-20">Qty</th>
+              <th className="px-3 py-3 text-right text-xs font-semibold text-[#666] dark:text-slate-400 uppercase tracking-wide w-24">Price</th>
+              <th className="px-3 py-3 text-right text-xs font-semibold text-[#666] dark:text-slate-400 uppercase tracking-wide w-24">Cost</th>
+              <th className="px-3 py-3 text-right text-xs font-semibold text-[#666] dark:text-slate-400 uppercase tracking-wide w-28">Subtotal</th>
+              <th className="px-3 py-3 text-center text-xs font-semibold text-[#666] dark:text-slate-400 uppercase tracking-wide w-16">Stock</th>
+              <th className="px-3 py-3 text-center text-xs font-semibold text-[#666] dark:text-slate-400 uppercase tracking-wide w-24">Lead</th>
+              <th className="px-3 py-3 text-center text-xs font-semibold text-[#666] dark:text-slate-400 uppercase tracking-wide w-28">Status</th>
+              <th className="px-3 py-3 text-center text-xs font-semibold text-[#666] dark:text-slate-400 uppercase tracking-wide w-16"></th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
+          <tbody className="divide-y divide-[#e8e8e8] dark:divide-slate-700">
             {filteredLineItems.map((item, index) => (
               <React.Fragment key={item.id}>
                 <tr className={`transition-colors ${
-                  expandedItem === item.id ? 'bg-blue-50/50 dark:bg-blue-900/10' :
-                  selectedItems.includes(item.id) ? 'bg-blue-50/30 dark:bg-blue-900/5' :
-                  'hover:bg-slate-50 dark:hover:bg-slate-700/50'
-                } ${isLineItemCostExpired(item) ? 'bg-red-50/30 dark:bg-red-900/10' : ''}`}>
+                  expandedItem === item.id ? 'bg-[#d9edf7]/50 dark:bg-blue-900/10' :
+                  selectedItems.includes(item.id) ? 'bg-[#d9edf7]/30 dark:bg-blue-900/5' :
+                  'hover:bg-[#f5f5f5] dark:hover:bg-slate-700/50'
+                } ${isLineItemCostExpired(item) ? 'bg-[#f2dede]/30 dark:bg-red-900/10' : ''}`}>
                   <td className="px-4 py-3">
                     <input
                       type="checkbox"
                       checked={selectedItems.includes(item.id)}
                       onChange={() => handleItemSelect(item.id)}
-                      className="rounded border-slate-300 text-blue-600"
+                      className="rounded border-[#d4d4d4] text-[#428bca]"
                     />
                   </td>
 
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
-                      <button onClick={() => toggleExpanded(item.id)} className="p-0.5 hover:bg-slate-100 dark:hover:bg-slate-700 rounded">
-                        {expandedItem === item.id ? <ChevronDown className="w-4 h-4 text-slate-400" /> : <ChevronRight className="w-4 h-4 text-slate-400" />}
+                      <button onClick={() => toggleExpanded(item.id)} className="p-0.5 hover:bg-[#e8e8e8] dark:hover:bg-slate-700 rounded">
+                        {expandedItem === item.id ? <ChevronDown className="w-4 h-4 text-[#999]" /> : <ChevronRight className="w-4 h-4 text-[#999]" />}
                       </button>
                       <div className="min-w-0">
                         <div className="flex items-center gap-1.5">
-                          <span className="font-semibold text-sm text-slate-900 dark:text-white">{item.sku}</span>
+                          <span className="font-semibold text-sm text-[#333] dark:text-white">{item.sku}</span>
                           {hasRelationships(item.sku) && (
-                            <button onClick={() => setShowSupersessionModal(item.id)} className="text-amber-600" title="Alternatives available">
+                            <button onClick={() => setShowSupersessionModal(item.id)} className="text-[#f0ad4e]" title="Alternatives available">
                               <AlertCircle className="w-3.5 h-3.5" />
                             </button>
                           )}
-                          {item.isReplacement && <span className="px-1.5 py-0.5 bg-amber-100 text-amber-700 text-xs rounded">Replacement</span>}
+                          {item.isReplacement && <span className="px-1.5 py-0.5 bg-[#fcf8e3] text-[#8a6d3b] text-xs rounded border border-[#faebcc]">Replacement</span>}
                         </div>
-                        <div className="text-xs text-slate-500 dark:text-slate-400 truncate max-w-xs">{item.name}</div>
-                        <div className="text-xs text-blue-600">{item.supplier}</div>
+                        <div className="text-xs text-[#666] dark:text-slate-400 truncate max-w-xs">{item.name}</div>
+                        <div className="text-xs text-[#428bca]">{item.supplier}</div>
                       </div>
                     </div>
                   </td>
@@ -857,7 +850,7 @@ export const LineItems: React.FC<LineItemsProps> = ({
                           li.id === item.id ? { ...li, qty: newQty, cost: newCost, subtotal: li.price * newQty, available: getNextAvailableDate(li.sku, newQty), selectedPriceBreak: optimalPriceBreak } : li
                         ));
                       }}
-                      className="w-16 px-2 py-1.5 border border-slate-200 dark:border-slate-600 rounded text-center text-sm bg-white dark:bg-slate-700"
+                      className="w-16 px-2 py-1.5 border border-[#d4d4d4] dark:border-slate-600 rounded text-center text-sm bg-white dark:bg-slate-700"
                       min="1"
                     />
                   </td>
@@ -870,22 +863,22 @@ export const LineItems: React.FC<LineItemsProps> = ({
                         onChange={(e) => setTempPrice(parseFloat(e.target.value) || 0)}
                         onBlur={() => handlePriceEdit(item.id, tempPrice)}
                         onKeyDown={(e) => e.key === 'Enter' && handlePriceEdit(item.id, tempPrice)}
-                        className="w-20 px-2 py-1 border border-blue-500 rounded text-right text-sm"
+                        className="w-20 px-2 py-1 border border-[#428bca] rounded text-right text-sm"
                         autoFocus
                         step="0.01"
                       />
                     ) : (
                       <button
                         onClick={() => { setEditingPrice(item.id); setTempPrice(item.price); }}
-                        className="w-full text-right hover:bg-slate-100 dark:hover:bg-slate-700 px-2 py-1 rounded"
+                        className="w-full text-right hover:bg-[#e8e8e8] dark:hover:bg-slate-700 px-2 py-1 rounded"
                       >
                         {item.price === 0 ? (
-                          <span className="text-slate-400 text-sm italic">Enter</span>
+                          <span className="text-[#999] text-sm italic">Enter</span>
                         ) : (
                           <>
-                            <span className="font-medium text-sm">${item.price.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                            <span className="font-medium text-sm text-[#333]">${item.price.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
                             {item.cost > 0 && (
-                              <div className={`text-xs ${((item.price - item.cost) / item.price) * 100 >= 20 ? 'text-emerald-600' : ((item.price - item.cost) / item.price) * 100 >= 10 ? 'text-slate-500' : 'text-red-600'}`}>
+                              <div className={`text-xs ${((item.price - item.cost) / item.price) * 100 >= 20 ? 'text-[#3c763d]' : ((item.price - item.cost) / item.price) * 100 >= 10 ? 'text-[#666]' : 'text-[#a94442]'}`}>
                                 {(((item.price - item.cost) / item.price) * 100).toFixed(1)}%
                               </div>
                             )}
@@ -895,26 +888,26 @@ export const LineItems: React.FC<LineItemsProps> = ({
                     )}
                   </td>
 
-                  <td className={`px-3 py-3 text-right ${isLineItemCostExpired(item) ? 'bg-red-50 dark:bg-red-900/20' : ''}`}>
-                    <button onClick={() => setShowPriceBreakModal(item.id)} className="text-right hover:bg-slate-100 dark:hover:bg-slate-700 px-2 py-1 rounded group">
-                      <span className={`font-medium text-sm ${isLineItemCostExpired(item) ? 'text-red-700' : ''}`}>
+                  <td className={`px-3 py-3 text-right ${isLineItemCostExpired(item) ? 'bg-[#f2dede] dark:bg-red-900/20' : ''}`}>
+                    <button onClick={() => setShowPriceBreakModal(item.id)} className="text-right hover:bg-[#e8e8e8] dark:hover:bg-slate-700 px-2 py-1 rounded group">
+                      <span className={`font-medium text-sm ${isLineItemCostExpired(item) ? 'text-[#a94442]' : 'text-[#333]'}`}>
                         ${item.cost.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                       </span>
-                      <ChevronDown className="w-3 h-3 inline ml-0.5 text-slate-400" />
+                      <ChevronDown className="w-3 h-3 inline ml-0.5 text-[#999]" />
                     </button>
-                    {isLineItemCostExpired(item) && <div className="text-xs text-red-600 font-medium mt-0.5">EXPIRED</div>}
+                    {isLineItemCostExpired(item) && <div className="text-xs text-[#a94442] font-medium mt-0.5">EXPIRED</div>}
                   </td>
 
                   <td className="px-3 py-3 text-right">
-                    <span className="font-semibold text-sm text-slate-900 dark:text-white">
+                    <span className="font-semibold text-sm text-[#333] dark:text-white">
                       ${item.subtotal.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                     </span>
                   </td>
 
                   <td className="px-3 py-3 text-center">
                     <div className="flex items-center justify-center gap-1">
-                      <div className={`w-1.5 h-1.5 rounded-full ${item.stock > 10 ? 'bg-emerald-500' : item.stock > 0 ? 'bg-amber-500' : 'bg-red-500'}`}></div>
-                      <span className="text-sm text-slate-700 dark:text-slate-300">{item.stock}</span>
+                      <div className={`w-1.5 h-1.5 rounded-full ${item.stock > 10 ? 'bg-[#5cb85c]' : item.stock > 0 ? 'bg-[#f0ad4e]' : 'bg-[#d9534f]'}`}></div>
+                      <span className="text-sm text-[#333] dark:text-slate-300">{item.stock}</span>
                     </div>
                   </td>
 
@@ -924,7 +917,7 @@ export const LineItems: React.FC<LineItemsProps> = ({
                       value={item.quotedLeadTime || ''}
                       onChange={(e) => setLineItems(prev => prev.map(li => li.id === item.id ? { ...li, quotedLeadTime: e.target.value } : li))}
                       placeholder={item.leadTime}
-                      className="w-20 px-2 py-1 border border-slate-200 dark:border-slate-600 rounded text-center text-xs bg-white dark:bg-slate-700"
+                      className="w-20 px-2 py-1 border border-[#d4d4d4] dark:border-slate-600 rounded text-center text-xs bg-white dark:bg-slate-700"
                     />
                   </td>
 
@@ -933,10 +926,10 @@ export const LineItems: React.FC<LineItemsProps> = ({
                       value={item.status}
                       onChange={(e) => handleStatusChange(item.id, e.target.value)}
                       className={`px-2 py-1 border rounded text-xs font-medium ${
-                        item.status === 'Won' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
-                        item.status === 'Lost' ? 'bg-red-50 text-red-700 border-red-200' :
-                        item.status === 'Price Request' ? 'bg-blue-50 text-blue-700 border-blue-200' :
-                        'bg-slate-50 text-slate-700 border-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:border-slate-600'
+                        item.status === 'Won' ? 'bg-[#dff0d8] text-[#3c763d] border-[#d6e9c6]' :
+                        item.status === 'Lost' ? 'bg-[#f2dede] text-[#a94442] border-[#ebccd1]' :
+                        item.status === 'Price Request' ? 'bg-[#d9edf7] text-[#31708f] border-[#bce8f1]' :
+                        'bg-[#f5f5f5] text-[#333] border-[#d4d4d4] dark:bg-slate-700 dark:text-slate-300 dark:border-slate-600'
                       }`}
                     >
                       <option value="Pending">Pending</option>
@@ -951,25 +944,25 @@ export const LineItems: React.FC<LineItemsProps> = ({
                   <td className="px-3 py-3 text-center relative" ref={actionMenuOpen === item.id ? actionMenuRef : null}>
                     <button
                       onClick={() => setActionMenuOpen(actionMenuOpen === item.id ? null : item.id)}
-                      className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-colors"
+                      className="p-1.5 hover:bg-[#e8e8e8] dark:hover:bg-slate-700 rounded transition-colors"
                     >
-                      <MoreHorizontal className="w-4 h-4 text-slate-500" />
+                      <MoreHorizontal className="w-4 h-4 text-[#666]" />
                     </button>
                     {actionMenuOpen === item.id && (
-                      <div className="absolute right-0 top-full mt-1 w-40 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg z-20">
-                        <button onClick={() => { onProductSelect(item); onSetUpdatePriceCallback({ callback: updateItemPrice, itemId: item.id }); onShowCostAnalysis(true); setActionMenuOpen(null); }} className="w-full px-3 py-2 text-left text-sm hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center gap-2">
+                      <div className="absolute right-0 top-full mt-1 w-40 bg-white dark:bg-slate-800 border border-[#d4d4d4] dark:border-slate-700 rounded shadow-lg z-20">
+                        <button onClick={() => { onProductSelect(item); onSetUpdatePriceCallback({ callback: updateItemPrice, itemId: item.id }); onShowCostAnalysis(true); setActionMenuOpen(null); }} className="w-full px-3 py-2 text-left text-sm hover:bg-[#f0f0f0] dark:hover:bg-slate-700 flex items-center gap-2 text-[#333] dark:text-white">
                           <Calculator className="w-4 h-4" /> Cost Analysis
                         </button>
-                        <button onClick={() => { setShowHistoryModal(item.id); setActionMenuOpen(null); }} className="w-full px-3 py-2 text-left text-sm hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center gap-2">
+                        <button onClick={() => { setShowHistoryModal(item.id); setActionMenuOpen(null); }} className="w-full px-3 py-2 text-left text-sm hover:bg-[#f0f0f0] dark:hover:bg-slate-700 flex items-center gap-2 text-[#333] dark:text-white">
                           <Eye className="w-4 h-4" /> View History
                         </button>
                         {supplyPeriodMonths > 12 && (
-                          <button onClick={() => { onShowMultiYearPricing && onShowMultiYearPricing(item); setActionMenuOpen(null); }} className="w-full px-3 py-2 text-left text-sm hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center gap-2">
+                          <button onClick={() => { onShowMultiYearPricing && onShowMultiYearPricing(item); setActionMenuOpen(null); }} className="w-full px-3 py-2 text-left text-sm hover:bg-[#f0f0f0] dark:hover:bg-slate-700 flex items-center gap-2 text-[#333] dark:text-white">
                             <Calendar className="w-4 h-4" /> Multi-Year Pricing
                           </button>
                         )}
-                        <div className="border-t border-slate-100 dark:border-slate-700" />
-                        <button onClick={() => handleDeleteItem(item.id)} className="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-2">
+                        <div className="border-t border-[#e8e8e8] dark:border-slate-700" />
+                        <button onClick={() => handleDeleteItem(item.id)} className="w-full px-3 py-2 text-left text-sm text-[#a94442] hover:bg-[#f2dede] dark:hover:bg-red-900/20 flex items-center gap-2">
                           <Trash2 className="w-4 h-4" /> Delete
                         </button>
                       </div>
@@ -977,30 +970,29 @@ export const LineItems: React.FC<LineItemsProps> = ({
                   </td>
                 </tr>
 
-                {/* Expanded Row */}
                 {expandedItem === item.id && (
-                  <tr className="bg-slate-50/50 dark:bg-slate-700/30">
+                  <tr className="bg-[#f5f5f5]/50 dark:bg-slate-700/30">
                     <td colSpan={10} className="px-6 py-4">
                       <div className="space-y-3">
                         <PriceRequestInfo itemId={item.id} />
 
                         {item.crossReference && (
-                          <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
-                            <div className="text-xs font-medium text-blue-800 dark:text-blue-200 mb-1">Cross-Reference</div>
+                          <div className="bg-[#d9edf7] dark:bg-blue-900/20 border border-[#bce8f1] dark:border-blue-800 rounded p-3">
+                            <div className="text-xs font-medium text-[#31708f] dark:text-blue-200 mb-1">Cross-Reference</div>
                             <div className="grid grid-cols-3 gap-4 text-xs">
-                              {item.crossReference.customer_part_number && <div><span className="text-slate-500">Customer Part:</span> {item.crossReference.customer_part_number}</div>}
-                              {item.crossReference.supplier_part_number && <div><span className="text-slate-500">Supplier Part:</span> {item.crossReference.supplier_part_number}</div>}
-                              <div><span className="text-slate-500">Internal:</span> {item.crossReference.internal_part_number}</div>
+                              {item.crossReference.customer_part_number && <div><span className="text-[#666]">Customer Part:</span> <span className="text-[#333]">{item.crossReference.customer_part_number}</span></div>}
+                              {item.crossReference.supplier_part_number && <div><span className="text-[#666]">Supplier Part:</span> <span className="text-[#333]">{item.crossReference.supplier_part_number}</span></div>}
+                              <div><span className="text-[#666]">Internal:</span> <span className="text-[#333]">{item.crossReference.internal_part_number}</span></div>
                             </div>
                           </div>
                         )}
 
                         {item.isReplacement && (
-                          <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
-                            <div className="text-xs font-medium text-amber-800 mb-1">Replacement Details</div>
+                          <div className="bg-[#fcf8e3] border border-[#faebcc] rounded p-3">
+                            <div className="text-xs font-medium text-[#8a6d3b] mb-1">Replacement Details</div>
                             <div className="grid grid-cols-2 gap-4 text-xs">
-                              <div><span className="text-slate-500">Original:</span> {item.originalCustomerSku} - {item.originalCustomerName}</div>
-                              <div><span className="text-slate-500">Reason:</span> {item.replacementReason}</div>
+                              <div><span className="text-[#666]">Original:</span> <span className="text-[#333]">{item.originalCustomerSku} - {item.originalCustomerName}</span></div>
+                              <div><span className="text-[#666]">Reason:</span> <span className="text-[#333]">{item.replacementReason}</span></div>
                             </div>
                           </div>
                         )}
@@ -1008,11 +1000,11 @@ export const LineItems: React.FC<LineItemsProps> = ({
                         <div className="grid grid-cols-2 gap-4">
                           {customerAddresses.length > 0 && (
                             <div>
-                              <label className="block text-xs font-medium text-slate-600 mb-1">Ship-To Address</label>
+                              <label className="block text-xs font-medium text-[#666] mb-1">Ship-To Address</label>
                               <select
                                 value={item.ship_to_address_id || ''}
                                 onChange={(e) => setLineItems(prev => prev.map(li => li.id === item.id ? { ...li, ship_to_address_id: e.target.value || null } : li))}
-                                className="w-full px-3 py-2 border border-slate-200 dark:border-slate-600 rounded-lg text-xs bg-white dark:bg-slate-700"
+                                className="w-full px-3 py-2 border border-[#d4d4d4] dark:border-slate-600 rounded text-xs bg-white dark:bg-slate-700"
                               >
                                 <option value="">Primary address</option>
                                 {customerAddresses.map((addr) => (
@@ -1024,24 +1016,24 @@ export const LineItems: React.FC<LineItemsProps> = ({
                             </div>
                           )}
                           <div>
-                            <label className="block text-xs font-medium text-slate-600 mb-1">Shipping Instructions</label>
+                            <label className="block text-xs font-medium text-[#666] mb-1">Shipping Instructions</label>
                             <textarea
                               value={item.shippingInstructions || ''}
                               onChange={(e) => setLineItems(prev => prev.map(li => li.id === item.id ? { ...li, shippingInstructions: e.target.value } : li))}
                               placeholder="Special instructions..."
                               rows={2}
-                              className="w-full px-3 py-2 border border-slate-200 dark:border-slate-600 rounded-lg text-xs bg-white dark:bg-slate-700"
+                              className="w-full px-3 py-2 border border-[#d4d4d4] dark:border-slate-600 rounded text-xs bg-white dark:bg-slate-700"
                             />
                           </div>
                         </div>
 
                         {getLineItemCostDates(item).to && (
-                          <div className={`rounded-lg p-3 ${isLineItemCostExpired(item) ? 'bg-red-50 border border-red-200' : 'bg-slate-100 border border-slate-200'}`}>
+                          <div className={`rounded p-3 ${isLineItemCostExpired(item) ? 'bg-[#f2dede] border border-[#ebccd1]' : 'bg-[#f5f5f5] border border-[#d4d4d4]'}`}>
                             <div className="flex items-center justify-between">
-                              <span className="text-xs font-medium text-slate-600">Cost Effective Period</span>
-                              {isLineItemCostExpired(item) && <span className="text-xs text-red-600 font-medium">EXPIRED</span>}
+                              <span className="text-xs font-medium text-[#666]">Cost Effective Period</span>
+                              {isLineItemCostExpired(item) && <span className="text-xs text-[#a94442] font-medium">EXPIRED</span>}
                             </div>
-                            <div className="text-xs text-slate-500 mt-1">
+                            <div className="text-xs text-[#666] mt-1">
                               {getLineItemCostDates(item).from && new Date(getLineItemCostDates(item).from!).toLocaleDateString()} to {new Date(getLineItemCostDates(item).to!).toLocaleDateString()}
                             </div>
                           </div>
@@ -1057,14 +1049,14 @@ export const LineItems: React.FC<LineItemsProps> = ({
               <tr>
                 <td colSpan={10} className="px-6 py-16 text-center">
                   <div className="flex flex-col items-center">
-                    <Package className="h-12 w-12 text-slate-300 mb-3" />
-                    <h3 className="text-sm font-medium text-slate-900 dark:text-white mb-1">No items yet</h3>
-                    <p className="text-sm text-slate-500 mb-4">Add products to build your quote</p>
+                    <Package className="h-12 w-12 text-[#d4d4d4] mb-3" />
+                    <h3 className="text-sm font-medium text-[#333] dark:text-white mb-1">No items yet</h3>
+                    <p className="text-sm text-[#666] mb-4">Add products to build your quote</p>
                     <div className="flex gap-2">
-                      <button onClick={() => setShowProductModal(true)} className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700">
+                      <button onClick={() => setShowProductModal(true)} className="px-4 py-2 bg-[#428bca] text-white text-sm rounded hover:bg-[#3276b1]">
                         <Plus className="h-4 w-4 mr-1.5 inline" /> Add Product
                       </button>
-                      <button onClick={() => { setCsvUploadMode('add'); setShowCSVUploadModal(true); }} className="px-4 py-2 border border-slate-300 text-slate-700 text-sm rounded-lg hover:bg-slate-50">
+                      <button onClick={() => { setCsvUploadMode('add'); setShowCSVUploadModal(true); }} className="px-4 py-2 border border-[#d4d4d4] text-[#333] text-sm rounded hover:bg-[#f0f0f0]">
                         <Upload className="h-4 w-4 mr-1.5 inline" /> Import CSV
                       </button>
                     </div>
@@ -1076,10 +1068,10 @@ export const LineItems: React.FC<LineItemsProps> = ({
             {lineItems.length > 0 && filteredLineItems.length === 0 && (
               <tr>
                 <td colSpan={10} className="px-6 py-12 text-center">
-                  <Filter className="h-10 w-10 text-slate-300 mx-auto mb-3" />
-                  <h3 className="text-sm font-medium text-slate-900 dark:text-white mb-1">No matches</h3>
-                  <p className="text-sm text-slate-500 mb-3">Adjust your filters</p>
-                  <button onClick={clearFilters} className="px-3 py-1.5 text-sm text-blue-600 hover:bg-blue-50 rounded-lg">Clear Filters</button>
+                  <Filter className="h-10 w-10 text-[#d4d4d4] mx-auto mb-3" />
+                  <h3 className="text-sm font-medium text-[#333] dark:text-white mb-1">No matches</h3>
+                  <p className="text-sm text-[#666] mb-3">Adjust your filters</p>
+                  <button onClick={clearFilters} className="px-3 py-1.5 text-sm text-[#428bca] hover:bg-[#d9edf7] rounded">Clear Filters</button>
                 </td>
               </tr>
             )}
@@ -1087,7 +1079,6 @@ export const LineItems: React.FC<LineItemsProps> = ({
         </table>
       </div>
 
-      {/* Modals */}
       {showProductModal && <ProductModal onClose={() => setShowProductModal(false)} onProductSelect={handleProductSelect} />}
       {showPriceBreakModal && (() => {
         const item = lineItems.find(i => i.id === showPriceBreakModal);

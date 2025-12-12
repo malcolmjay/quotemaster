@@ -205,19 +205,19 @@ export const QuoteSummary: React.FC<QuoteSummaryProps> = ({ lineItems = [], onSa
       <head>
         <title>Quote - ${new Date().toLocaleDateString()}</title>
         <style>
-          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 40px; color: #1e293b; }
-          .header { border-bottom: 2px solid #3b82f6; padding-bottom: 20px; margin-bottom: 30px; }
-          .company-name { font-size: 24px; font-weight: 700; color: #1e293b; }
-          .quote-info { color: #64748b; font-size: 14px; margin-top: 8px; }
+          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 40px; color: #333; }
+          .header { border-bottom: 2px solid #428bca; padding-bottom: 20px; margin-bottom: 30px; }
+          .company-name { font-size: 24px; font-weight: 700; color: #333; }
+          .quote-info { color: #666; font-size: 14px; margin-top: 8px; }
           .line-items { width: 100%; border-collapse: collapse; margin: 24px 0; font-size: 13px; }
-          .line-items th { background: #f8fafc; padding: 12px 16px; text-align: left; border-bottom: 2px solid #e2e8f0; font-weight: 600; color: #475569; }
-          .line-items td { padding: 12px 16px; border-bottom: 1px solid #e2e8f0; }
-          .line-items tr:hover { background: #f8fafc; }
+          .line-items th { background: #f0f0f0; padding: 12px 16px; text-align: left; border-bottom: 2px solid #d4d4d4; font-weight: 600; color: #333; }
+          .line-items td { padding: 12px 16px; border-bottom: 1px solid #e8e8e8; }
+          .line-items tr:hover { background: #f5f5f5; }
           .text-right { text-align: right; }
           .totals { margin-top: 24px; display: flex; justify-content: flex-end; }
-          .totals-box { background: #f8fafc; padding: 20px; border-radius: 8px; min-width: 280px; }
+          .totals-box { background: #f0f0f0; padding: 20px; border-radius: 4px; min-width: 280px; border: 1px solid #d4d4d4; }
           .total-row { display: flex; justify-content: space-between; padding: 8px 0; }
-          .total-row.final { border-top: 2px solid #e2e8f0; margin-top: 8px; padding-top: 16px; font-weight: 700; font-size: 18px; color: #3b82f6; }
+          .total-row.final { border-top: 2px solid #d4d4d4; margin-top: 8px; padding-top: 16px; font-weight: 700; font-size: 18px; color: #428bca; }
         </style>
       </head>
       <body>
@@ -281,40 +281,37 @@ export const QuoteSummary: React.FC<QuoteSummaryProps> = ({ lineItems = [], onSa
   };
 
   return (
-    <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
-      {/* Compact Header with Stats */}
-      <div className="px-5 py-4 bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
+    <div className="bg-white dark:bg-slate-800 rounded border border-[#d4d4d4] dark:border-slate-700 shadow-sm overflow-hidden">
+      <div className="px-5 py-4 bg-[#f0f0f0] dark:bg-slate-800 border-b border-[#d4d4d4] dark:border-slate-700">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
-              <FileText className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+            <div className="w-9 h-9 rounded bg-[#dff0d8] flex items-center justify-center">
+              <FileText className="w-5 h-5 text-[#3c763d]" />
             </div>
             <div>
-              <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Quote Summary</h3>
-              <p className="text-xs text-slate-500 dark:text-slate-400">{totalLineItems} items</p>
+              <h3 className="text-sm font-semibold text-[#333] dark:text-white">Quote Summary</h3>
+              <p className="text-xs text-[#666] dark:text-slate-400">{totalLineItems} items</p>
             </div>
           </div>
 
-          {/* Message */}
           {saveMessage && (
-            <div className={`px-3 py-1.5 rounded-lg text-sm font-medium ${
+            <div className={`px-3 py-1.5 rounded text-sm font-medium ${
               saveMessage.includes('saved') || saveMessage.includes('created') || saveMessage.includes('approved') || saveMessage.includes('submitted')
-                ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300'
-                : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
+                ? 'bg-[#dff0d8] text-[#3c763d] border border-[#d6e9c6]'
+                : 'bg-[#f2dede] text-[#a94442] border border-[#ebccd1]'
             }`}>
               {saveMessage}
             </div>
           )}
 
-          {/* Action Buttons */}
           <div className="flex items-center gap-2">
             <button
               onClick={handleSaveDraft}
               disabled={saving}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`flex items-center gap-2 px-4 py-2 rounded text-sm font-medium transition-colors ${
                 saving
-                  ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
-                  : 'border border-slate-300 text-slate-700 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700'
+                  ? 'bg-[#e8e8e8] text-[#999] cursor-not-allowed'
+                  : 'border border-[#d4d4d4] text-[#333] hover:bg-[#f0f0f0] dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700'
               }`}
             >
               <Save className="w-4 h-4" />
@@ -324,10 +321,10 @@ export const QuoteSummary: React.FC<QuoteSummaryProps> = ({ lineItems = [], onSa
             <button
               onClick={handleBookQuote}
               disabled={saving || !currentQuote}
-              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+              className={`flex items-center gap-2 px-4 py-2 rounded text-sm font-medium transition-colors ${
                 saving || !currentQuote
-                  ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
-                  : 'bg-emerald-600 text-white hover:bg-emerald-700'
+                  ? 'bg-[#e8e8e8] text-[#999] cursor-not-allowed'
+                  : 'bg-[#5cb85c] text-white hover:bg-[#449d44]'
               }`}
             >
               <Send className="w-4 h-4" />
@@ -336,7 +333,7 @@ export const QuoteSummary: React.FC<QuoteSummaryProps> = ({ lineItems = [], onSa
 
             <button
               onClick={generateQuotePDF}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
+              className="flex items-center gap-2 px-4 py-2 bg-[#428bca] hover:bg-[#3276b1] text-white rounded text-sm font-medium transition-colors"
             >
               <Download className="w-4 h-4" />
               PDF
@@ -345,71 +342,69 @@ export const QuoteSummary: React.FC<QuoteSummaryProps> = ({ lineItems = [], onSa
         </div>
       </div>
 
-      {/* Stats Grid */}
       <div className="p-5">
         <div className="grid grid-cols-5 gap-4">
-          <div className="bg-slate-50 dark:bg-slate-700/50 rounded-lg p-4 text-center">
+          <div className="bg-[#f5f5f5] dark:bg-slate-700/50 rounded p-4 text-center border border-[#e8e8e8] dark:border-slate-600">
             <div className="flex items-center justify-center gap-2 mb-2">
-              <DollarSign className="w-4 h-4 text-slate-500" />
-              <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Cost</span>
+              <DollarSign className="w-4 h-4 text-[#666]" />
+              <span className="text-xs font-medium text-[#666] dark:text-slate-400">Cost</span>
             </div>
-            <div className="text-lg font-bold text-slate-900 dark:text-white">
+            <div className="text-lg font-bold text-[#333] dark:text-white">
               ${totalCost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
           </div>
 
-          <div className="bg-amber-50 dark:bg-amber-900/20 rounded-lg p-4 text-center">
+          <div className="bg-[#fcf8e3] dark:bg-amber-900/20 rounded p-4 text-center border border-[#faebcc] dark:border-amber-800">
             <div className="flex items-center justify-center gap-2 mb-2">
-              <PiggyBank className="w-4 h-4 text-amber-600" />
-              <span className="text-xs font-medium text-amber-600 dark:text-amber-400">Carrying</span>
+              <PiggyBank className="w-4 h-4 text-[#8a6d3b]" />
+              <span className="text-xs font-medium text-[#8a6d3b] dark:text-amber-400">Carrying</span>
             </div>
-            <div className="text-lg font-bold text-amber-700 dark:text-amber-300">
+            <div className="text-lg font-bold text-[#8a6d3b] dark:text-amber-300">
               ${totalCarryingCost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
           </div>
 
-          <div className="bg-sky-50 dark:bg-sky-900/20 rounded-lg p-4 text-center">
+          <div className="bg-[#d9edf7] dark:bg-sky-900/20 rounded p-4 text-center border border-[#bce8f1] dark:border-sky-800">
             <div className="flex items-center justify-center gap-2 mb-2">
-              <Truck className="w-4 h-4 text-sky-600" />
-              <span className="text-xs font-medium text-sky-600 dark:text-sky-400">Freight</span>
+              <Truck className="w-4 h-4 text-[#31708f]" />
+              <span className="text-xs font-medium text-[#31708f] dark:text-sky-400">Freight</span>
             </div>
-            <div className="text-lg font-bold text-sky-700 dark:text-sky-300">
+            <div className="text-lg font-bold text-[#31708f] dark:text-sky-300">
               ${totalFreightOut.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
           </div>
 
-          <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 text-center">
+          <div className="bg-[#d9edf7] dark:bg-blue-900/20 rounded p-4 text-center border border-[#bce8f1] dark:border-blue-800">
             <div className="flex items-center justify-center gap-2 mb-2">
-              <FileText className="w-4 h-4 text-blue-600" />
-              <span className="text-xs font-medium text-blue-600 dark:text-blue-400">Total</span>
+              <FileText className="w-4 h-4 text-[#428bca]" />
+              <span className="text-xs font-medium text-[#428bca] dark:text-blue-400">Total</span>
             </div>
-            <div className="text-lg font-bold text-blue-700 dark:text-blue-300">
+            <div className="text-lg font-bold text-[#428bca] dark:text-blue-300">
               ${total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
           </div>
 
-          <div className={`rounded-lg p-4 text-center ${
-            grossProfit >= 0 ? 'bg-emerald-50 dark:bg-emerald-900/20' : 'bg-red-50 dark:bg-red-900/20'
+          <div className={`rounded p-4 text-center border ${
+            grossProfit >= 0 ? 'bg-[#dff0d8] border-[#d6e9c6] dark:bg-emerald-900/20 dark:border-emerald-800' : 'bg-[#f2dede] border-[#ebccd1] dark:bg-red-900/20 dark:border-red-800'
           }`}>
             <div className="flex items-center justify-center gap-2 mb-2">
-              <TrendingUp className={`w-4 h-4 ${grossProfit >= 0 ? 'text-emerald-600' : 'text-red-600'}`} />
+              <TrendingUp className={`w-4 h-4 ${grossProfit >= 0 ? 'text-[#3c763d]' : 'text-[#a94442]'}`} />
               <span className={`text-xs font-medium ${
-                grossProfit >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'
+                grossProfit >= 0 ? 'text-[#3c763d] dark:text-emerald-400' : 'text-[#a94442] dark:text-red-400'
               }`}>
                 Profit ({totalMargin.toFixed(1)}%)
               </span>
             </div>
             <div className={`text-lg font-bold ${
-              grossProfit >= 0 ? 'text-emerald-700 dark:text-emerald-300' : 'text-red-700 dark:text-red-300'
+              grossProfit >= 0 ? 'text-[#3c763d] dark:text-emerald-300' : 'text-[#a94442] dark:text-red-300'
             }`}>
               ${grossProfit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
           </div>
         </div>
 
-        {/* Approval Status */}
         {currentQuote && (
-          <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700">
+          <div className="mt-4 pt-4 border-t border-[#d4d4d4] dark:border-slate-700">
             <ApprovalStatus
               quoteId={currentQuote.id}
               quoteValue={total}
@@ -423,45 +418,44 @@ export const QuoteSummary: React.FC<QuoteSummaryProps> = ({ lineItems = [], onSa
         )}
       </div>
 
-      {/* Negative Margin Modal */}
       {showNegativeMarginModal && (
         <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-xl max-w-md w-full mx-4 overflow-hidden">
-            <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
+          <div className="bg-white dark:bg-slate-800 rounded shadow-xl max-w-md w-full mx-4 overflow-hidden border border-[#d4d4d4] dark:border-slate-700">
+            <div className="px-5 py-4 border-b border-[#d4d4d4] dark:border-slate-700 flex items-center justify-between bg-[#f0f0f0] dark:bg-slate-800">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center">
-                  <AlertTriangle className="w-5 h-5 text-red-600" />
+                <div className="w-10 h-10 bg-[#f2dede] rounded-full flex items-center justify-center">
+                  <AlertTriangle className="w-5 h-5 text-[#a94442]" />
                 </div>
-                <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Negative Margin</h2>
+                <h2 className="text-lg font-semibold text-[#333] dark:text-white">Negative Margin</h2>
               </div>
-              <button onClick={() => setShowNegativeMarginModal(false)} className="p-1 hover:bg-slate-100 dark:hover:bg-slate-700 rounded">
-                <X className="w-5 h-5 text-slate-500" />
+              <button onClick={() => setShowNegativeMarginModal(false)} className="p-1 hover:bg-[#e8e8e8] dark:hover:bg-slate-700 rounded">
+                <X className="w-5 h-5 text-[#666]" />
               </button>
             </div>
 
             <div className="p-5 space-y-4">
-              <p className="text-sm text-slate-600 dark:text-slate-300">
+              <p className="text-sm text-[#666] dark:text-slate-300">
                 This quote has a negative gross margin and cannot be booked. Please review the pricing.
               </p>
 
-              <div className="bg-slate-50 dark:bg-slate-700/50 rounded-lg p-4 space-y-2">
+              <div className="bg-[#f5f5f5] dark:bg-slate-700/50 rounded p-4 space-y-2 border border-[#e8e8e8] dark:border-slate-600">
                 <div className="flex justify-between text-sm">
-                  <span className="text-slate-500">Quote Total</span>
-                  <span className="font-medium">${subtotal.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                  <span className="text-[#666]">Quote Total</span>
+                  <span className="font-medium text-[#333] dark:text-white">${subtotal.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-slate-500">Total Cost</span>
-                  <span className="font-medium">${totalCost.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                  <span className="text-[#666]">Total Cost</span>
+                  <span className="font-medium text-[#333] dark:text-white">${totalCost.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
                 </div>
-                <div className="flex justify-between text-sm pt-2 border-t border-slate-200 dark:border-slate-600">
-                  <span className="text-red-600 font-medium">Gross Profit</span>
-                  <span className="text-red-600 font-bold">${grossProfit.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                <div className="flex justify-between text-sm pt-2 border-t border-[#d4d4d4] dark:border-slate-600">
+                  <span className="text-[#a94442] font-medium">Gross Profit</span>
+                  <span className="text-[#a94442] font-bold">${grossProfit.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
                 </div>
               </div>
 
               <button
                 onClick={() => setShowNegativeMarginModal(false)}
-                className="w-full px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+                className="w-full px-4 py-2.5 bg-[#428bca] hover:bg-[#3276b1] text-white rounded font-medium transition-colors"
               >
                 Review Pricing
               </button>

@@ -8,7 +8,7 @@ import { MultiYearPricing } from './MultiYearPricing';
 import { useSupabaseQuote } from '../../context/SupabaseQuoteContext';
 import { useCustomer } from '../../context/CustomerContext';
 import { supabase } from '../../lib/supabase';
-import { Plus, ChevronDown, ChevronRight, FileText, Settings } from 'lucide-react';
+import { Plus, ChevronDown, ChevronRight, Settings } from 'lucide-react';
 
 export const QuoteBuilder: React.FC = () => {
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -39,7 +39,6 @@ export const QuoteBuilder: React.FC = () => {
     const focusQuoteId = sessionStorage.getItem('focusQuoteId');
     if (focusQuoteId && !currentQuote) {
       sessionStorage.removeItem('focusQuoteId');
-
       const quoteToFocus = quotes.find(q => q.id === focusQuoteId);
       if (quoteToFocus) {
         console.log('Restoring focus to quote:', quoteToFocus.quote_number);
@@ -133,11 +132,14 @@ export const QuoteBuilder: React.FC = () => {
     setShowMultiYearPricing(false);
   };
 
-  const getStatusColor = (status: string) => {
+  const getStatusBadge = (status: string) => {
     switch (status) {
-      case 'pending_approval': return 'bg-amber-100 text-amber-800 border-amber-200';
-      case 'approved': return 'bg-emerald-100 text-emerald-800 border-emerald-200';
-      default: return 'bg-slate-100 text-slate-700 border-slate-200';
+      case 'pending_approval':
+        return 'bg-amber-100 text-amber-800 border border-amber-300';
+      case 'approved':
+        return 'bg-green-100 text-green-800 border border-green-300';
+      default:
+        return 'bg-gray-100 text-gray-700 border border-gray-300';
     }
   };
 
@@ -150,51 +152,56 @@ export const QuoteBuilder: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 dark:bg-slate-900">
+    <div className="min-h-screen bg-[#f0f0f0]">
       {isLoadingQuote && (
-        <div className="fixed top-0 left-0 right-0 z-50 bg-blue-600 text-white px-4 py-2 text-sm flex items-center justify-center gap-2">
+        <div className="fixed top-0 left-0 right-0 z-50 bg-[#428bca] text-white px-4 py-2 text-sm flex items-center justify-center gap-2">
           <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
           Loading quote data...
         </div>
       )}
 
-      {/* Streamlined Header */}
-      <div className="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-40">
-        <div className="px-6 py-3">
+      {/* Oro-style Header */}
+      <div className="bg-white border-b border-[#d4d4d4] sticky top-0 z-40">
+        <div className="px-5 py-3">
+          {/* Breadcrumb */}
+          <div className="text-xs text-[#999] mb-2">
+            Sales / Quotes
+          </div>
+
           <div className="flex items-center justify-between">
-            {/* Left: Title & Status */}
             <div className="flex items-center gap-4">
-              <div>
-                <h1 className="text-lg font-semibold text-slate-900 dark:text-white">
-                  {currentQuote ? `Quote ${currentQuote.quote_number}` : 'New Quote'}
-                </h1>
-                {currentQuote && (
-                  <div className="flex items-center gap-2 mt-0.5">
-                    <span className={`inline-flex items-center px-2 py-0.5 rounded text-xs font-medium border ${getStatusColor(currentQuote.quote_status)}`}>
-                      {getStatusLabel(currentQuote.quote_status)}
-                    </span>
-                    <span className="text-xs text-slate-500 dark:text-slate-400">
-                      {new Date(currentQuote.created_at).toLocaleDateString()}
-                      {createdByEmail && ` by ${createdByEmail}`}
-                    </span>
-                  </div>
+              <h1 className="text-xl font-normal text-[#333]">
+                {currentQuote ? (
+                  <span>Quote <span className="font-semibold">{currentQuote.quote_number}</span></span>
+                ) : (
+                  'New Quote'
                 )}
-              </div>
+              </h1>
+              {currentQuote && (
+                <span className={`px-2.5 py-1 rounded text-xs font-medium ${getStatusBadge(currentQuote.quote_status)}`}>
+                  {getStatusLabel(currentQuote.quote_status)}
+                </span>
+              )}
+              {currentQuote && (
+                <span className="text-xs text-[#666]">
+                  Created {new Date(currentQuote.created_at).toLocaleDateString()}
+                  {createdByEmail && ` by ${createdByEmail}`}
+                </span>
+              )}
             </div>
 
-            {/* Right: Actions */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2">
               <button
                 onClick={() => setShowQuoteDetails(!showQuoteDetails)}
-                className="flex items-center gap-2 px-3 py-1.5 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
+                className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-[#666] hover:text-[#333] hover:bg-[#f5f5f5] rounded border border-transparent hover:border-[#d4d4d4] transition-colors"
               >
                 <Settings className="w-4 h-4" />
-                <span>Quote Settings</span>
-                {showQuoteDetails ? <ChevronDown className="w-4 h-4" /> : <ChevronRight className="w-4 h-4" />}
+                Options
+                {showQuoteDetails ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
               </button>
               <button
                 onClick={handleNewQuote}
-                className="flex items-center gap-2 px-4 py-1.5 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
+                className="flex items-center gap-1.5 px-4 py-1.5 bg-[#428bca] hover:bg-[#3276b1] text-white text-sm font-medium rounded transition-colors"
               >
                 <Plus className="w-4 h-4" />
                 New Quote
@@ -205,66 +212,60 @@ export const QuoteBuilder: React.FC = () => {
       </div>
 
       {/* Main Content */}
-      <div className="p-6 space-y-4">
-        {/* Collapsible Customer Selection */}
-        <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+      <div className="p-5 space-y-4">
+        {/* Customer Selection Panel */}
+        <div className="bg-white rounded border border-[#d4d4d4] overflow-hidden">
           <button
             onClick={() => setShowCustomerDetails(!showCustomerDetails)}
-            className="w-full px-5 py-3 flex items-center justify-between hover:bg-slate-50 dark:hover:bg-slate-750 transition-colors"
+            className="w-full px-4 py-3 flex items-center justify-between hover:bg-[#fafafa] transition-colors border-b border-[#eee]"
           >
             <div className="flex items-center gap-3">
-              <div className={`w-8 h-8 rounded-lg flex items-center justify-center ${
-                selectedCustomer ? 'bg-emerald-100 text-emerald-600' : 'bg-slate-100 text-slate-400'
-              }`}>
-                <FileText className="w-4 h-4" />
-              </div>
+              <div className={`w-2 h-2 rounded-full ${selectedCustomer ? 'bg-green-500' : 'bg-[#d4d4d4]'}`}></div>
               <div className="text-left">
-                <div className="text-sm font-medium text-slate-900 dark:text-white">
+                <div className="text-sm font-medium text-[#333]">
                   {selectedCustomer ? selectedCustomer.name : 'Select Customer'}
                 </div>
                 {selectedCustomer && (
-                  <div className="text-xs text-slate-500 dark:text-slate-400">
-                    {selectedCustomer.customer_number}
+                  <div className="text-xs text-[#666]">
+                    #{selectedCustomer.customer_number}
                     {selectedCustomer.contract_number && ` | Contract: ${selectedCustomer.contract_number}`}
                   </div>
                 )}
               </div>
             </div>
             <div className="flex items-center gap-2">
-              {selectedCustomer && (
+              {selectedCustomer?.tier && (
                 <span className={`px-2 py-0.5 rounded text-xs font-medium ${
-                  selectedCustomer.tier === 'platinum' ? 'bg-slate-800 text-white' :
-                  selectedCustomer.tier === 'gold' ? 'bg-amber-100 text-amber-800' :
-                  selectedCustomer.tier === 'silver' ? 'bg-slate-200 text-slate-700' :
-                  'bg-blue-100 text-blue-800'
+                  selectedCustomer.tier === 'platinum' ? 'bg-[#1a3a5c] text-white' :
+                  selectedCustomer.tier === 'gold' ? 'bg-[#c9a227] text-white' :
+                  selectedCustomer.tier === 'silver' ? 'bg-[#8d8d8d] text-white' :
+                  'bg-[#428bca] text-white'
                 }`}>
-                  {selectedCustomer.tier?.charAt(0).toUpperCase() + selectedCustomer.tier?.slice(1)}
+                  {selectedCustomer.tier.charAt(0).toUpperCase() + selectedCustomer.tier.slice(1)}
                 </span>
               )}
               {showCustomerDetails ? (
-                <ChevronDown className="w-5 h-5 text-slate-400" />
+                <ChevronDown className="w-4 h-4 text-[#999]" />
               ) : (
-                <ChevronRight className="w-5 h-5 text-slate-400" />
+                <ChevronRight className="w-4 h-4 text-[#999]" />
               )}
             </div>
           </button>
 
           {showCustomerDetails && (
-            <div className="px-5 pb-5 border-t border-slate-100 dark:border-slate-700">
-              <div className="pt-4">
-                <CustomerSelector />
-              </div>
+            <div className="px-4 pb-4 pt-3">
+              <CustomerSelector />
             </div>
           )}
         </div>
 
-        {/* Collapsible Quote Details */}
+        {/* Quote Details Panel */}
         {showQuoteDetails && (
-          <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
-            <div className="px-5 py-4 border-b border-slate-100 dark:border-slate-700">
-              <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Quote Details & Settings</h3>
+          <div className="bg-white rounded border border-[#d4d4d4] overflow-hidden">
+            <div className="px-4 py-3 bg-[#fafafa] border-b border-[#eee]">
+              <h3 className="text-sm font-medium text-[#333]">Quote Options</h3>
             </div>
-            <div className="p-5">
+            <div className="p-4">
               <QuoteDetails
                 quoteStatus="draft"
                 onSupplyPeriodChange={setSupplyPeriodMonths}
@@ -273,7 +274,7 @@ export const QuoteBuilder: React.FC = () => {
           </div>
         )}
 
-        {/* Line Items - Primary Focus */}
+        {/* Line Items */}
         <LineItems
           onProductSelect={setSelectedProduct}
           onShowCostAnalysis={setShowCostAnalysis}
