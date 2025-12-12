@@ -161,7 +161,7 @@ export const QuoteBuilder: React.FC = () => {
       )}
 
       {/* Oro-style Header */}
-      <div className="bg-white border-b border-[#d4d4d4] sticky top-0 z-40">
+      <div className="bg-white border-b border-[#d4d4d4]">
         <div className="px-5 py-3">
           {/* Breadcrumb */}
           <div className="text-xs text-[#999] mb-2">
