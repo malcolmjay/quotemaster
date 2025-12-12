@@ -24,8 +24,9 @@ const CrossReferenceManagement = lazy(() => import('./components/management/Cros
 const ItemRelationshipManagement = lazy(() => import('./components/management/ItemRelationshipManagement'));
 const UserManagement = lazy(() => import('./components/management/UserManagement').then(m => ({ default: m.UserManagement })));
 const CustomerManagement = lazy(() => import('./components/management/CustomerManagement').then(m => ({ default: m.CustomerManagement })));
+const RestLogs = lazy(() => import('./components/logs/RestLogs').then(m => ({ default: m.RestLogs })));
 
-export type ActiveTab = 'quote-builder' | 'product-catalog' | 'cross-reference' | 'customer-profile' | 'customer-management' | 'quote-management' | 'training-guide' | 'pending-approvals' | 'price-requests' | 'settings' | 'product-import' | 'product-management' | 'cross-reference-management' | 'item-relationships' | 'user-management';
+export type ActiveTab = 'quote-builder' | 'product-catalog' | 'cross-reference' | 'customer-profile' | 'customer-management' | 'quote-management' | 'training-guide' | 'pending-approvals' | 'price-requests' | 'settings' | 'product-import' | 'product-management' | 'cross-reference-management' | 'item-relationships' | 'user-management' | 'rest-logs';
 
 function App() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('quote-builder');
@@ -34,7 +35,7 @@ function App() {
   React.useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash.replace('#', '');
-      if (hash && ['quote-builder', 'product-catalog', 'customer-profile', 'customer-management', 'quote-management', 'training-guide', 'pending-approvals', 'price-requests', 'settings', 'product-import', 'product-management', 'cross-reference-management', 'item-relationships', 'user-management'].includes(hash)) {
+      if (hash && ['quote-builder', 'product-catalog', 'customer-profile', 'customer-management', 'quote-management', 'training-guide', 'pending-approvals', 'price-requests', 'settings', 'product-import', 'product-management', 'cross-reference-management', 'item-relationships', 'user-management', 'rest-logs'].includes(hash)) {
         setActiveTab(hash as ActiveTab);
       }
     };
@@ -66,6 +67,7 @@ function App() {
         {activeTab === 'item-relationships' && <ItemRelationshipManagement />}
         {activeTab === 'user-management' && <UserManagement />}
         {activeTab === 'customer-management' && <CustomerManagement />}
+        {activeTab === 'rest-logs' && <RestLogs />}
       </Suspense>
     );
   };

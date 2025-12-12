@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FileText, BarChart3, FolderOpen, BookOpen, Menu, X, Shield, DollarSign, Settings, Database, Edit3, Link2, GitBranch, Users, Building } from 'lucide-react';
+import { FileText, BarChart3, FolderOpen, BookOpen, Menu, X, Shield, DollarSign, Settings, Database, Edit3, Link2, GitBranch, Users, Building, Activity } from 'lucide-react';
 import { ActiveTab } from '../../App';
 
 interface NavigationProps {
@@ -22,6 +22,7 @@ export const Navigation: React.FC<NavigationProps> = ({ activeTab, onTabChange }
     { id: 'item-relationships', label: 'Item Relationships', icon: GitBranch },
     { id: 'product-import', label: 'Product Import', icon: Database },
     { id: 'user-management', label: 'User Management', icon: Users },
+    { id: 'rest-logs', label: 'REST Logs', icon: Activity },
     { id: 'training-guide', label: 'Training Guide', icon: BookOpen },
     { id: 'settings', label: 'Settings', icon: Settings }
   ] as const;
