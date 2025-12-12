@@ -214,7 +214,7 @@ export const QuoteBuilder: React.FC = () => {
       {/* Main Content */}
       <div className="p-5 space-y-4">
         {/* Customer Selection Panel */}
-        <div className="bg-white rounded border border-[#d4d4d4] overflow-hidden">
+        <div className="bg-white rounded border border-[#d4d4d4]">
           <button
             onClick={() => setShowCustomerDetails(!showCustomerDetails)}
             className="w-full px-4 py-3 flex items-center justify-between hover:bg-[#fafafa] transition-colors border-b border-[#eee]"
