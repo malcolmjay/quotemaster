@@ -653,6 +653,13 @@ export const approveQuote = async (
       .from('quotes')
       .update({ quote_status: 'approved' })
       .eq('id', quoteId)
+
+    // Trigger quote export asynchronously
+    import('../services/quoteExportService').then(({ quoteExportService }) => {
+      quoteExportService.exportQuote(quoteId).catch(error => {
+        console.error('Failed to export approved quote:', error)
+      })
+    })
   }
 
   return { approvalAction, updatedApproval }

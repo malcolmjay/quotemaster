@@ -77,10 +77,20 @@ export const ConfigurationSettings: React.FC = () => {
     rateLimit: 100
   });
 
+  // Quote Export REST API Configuration
+  const [quoteExportApiConfig, setQuoteExportApiConfig] = useState({
+    enabled: false,
+    url: '',
+    username: '',
+    password: '',
+    timeout: 30000
+  });
+
   const [originalConfig, setOriginalConfig] = useState<ERPApiConfig>(erpConfig);
   const [originalImportConfig, setOriginalImportConfig] = useState(importApiConfig);
   const [originalCrossRefImportConfig, setOriginalCrossRefImportConfig] = useState(crossRefImportApiConfig);
   const [originalCustomerImportConfig, setOriginalCustomerImportConfig] = useState(customerImportApiConfig);
+  const [originalQuoteExportApiConfig, setOriginalQuoteExportApiConfig] = useState(quoteExportApiConfig);
 
   useEffect(() => {
     loadConfiguration();
@@ -143,6 +153,23 @@ export const ConfigurationSettings: React.FC = () => {
       setCustomerImportApiConfig(customerImportApi);
       setOriginalCustomerImportConfig(customerImportApi);
 
+      // Load Quote Export API config
+      const quoteExportConfigs = await configService.getConfigsByType('quote_export_api');
+      console.log('Loaded quote export API configs:', quoteExportConfigs);
+      const quoteExportConfigMap = new Map(quoteExportConfigs.map(c => [c.config_key, c.config_value]));
+
+      const quoteExportApi = {
+        enabled: quoteExportConfigMap.get('quote_export_api_enabled') === 'true',
+        url: quoteExportConfigMap.get('quote_export_api_url') || '',
+        username: quoteExportConfigMap.get('quote_export_api_username') || '',
+        password: quoteExportConfigMap.get('quote_export_api_password') || '',
+        timeout: parseInt(quoteExportConfigMap.get('quote_export_api_timeout') || '30000')
+      };
+
+      console.log('Parsed quote export API config:', quoteExportApi);
+      setQuoteExportApiConfig(quoteExportApi);
+      setOriginalQuoteExportApiConfig(quoteExportApi);
+
       logger.operation('loadConfiguration', 'success');
     } catch (error) {
       logger.error('Failed to load configuration', error);
@@ -192,7 +219,12 @@ export const ConfigurationSettings: React.FC = () => {
         { config_key: 'customer_import_api_enabled', config_value: customerImportApiConfig.enabled.toString() },
         { config_key: 'customer_import_api_username', config_value: customerImportApiConfig.username },
         { config_key: 'customer_import_api_password', config_value: customerImportApiConfig.password },
-        { config_key: 'customer_import_api_rate_limit', config_value: customerImportApiConfig.rateLimit.toString() }
+        { config_key: 'customer_import_api_rate_limit', config_value: customerImportApiConfig.rateLimit.toString() },
+        { config_key: 'quote_export_api_enabled', config_value: quoteExportApiConfig.enabled.toString() },
+        { config_key: 'quote_export_api_url', config_value: quoteExportApiConfig.url },
+        { config_key: 'quote_export_api_username', config_value: quoteExportApiConfig.username },
+        { config_key: 'quote_export_api_password', config_value: quoteExportApiConfig.password },
+        { config_key: 'quote_export_api_timeout', config_value: quoteExportApiConfig.timeout.toString() }
       ];
 
       const result = await configService.updateConfigs(updates, user.id);
@@ -203,6 +235,7 @@ export const ConfigurationSettings: React.FC = () => {
         setOriginalImportConfig({ ...importApiConfig });
         setOriginalCrossRefImportConfig({ ...crossRefImportApiConfig });
         setOriginalCustomerImportConfig({ ...customerImportApiConfig });
+        setOriginalQuoteExportApiConfig({ ...quoteExportApiConfig });
 
         // Reinitialize ERP service with new config
         await reinitializeERPService();
@@ -276,7 +309,8 @@ export const ConfigurationSettings: React.FC = () => {
     JSON.stringify(erpConfig) !== JSON.stringify(originalConfig) ||
     JSON.stringify(importApiConfig) !== JSON.stringify(originalImportConfig) ||
     JSON.stringify(crossRefImportApiConfig) !== JSON.stringify(originalCrossRefImportConfig) ||
-    JSON.stringify(customerImportApiConfig) !== JSON.stringify(originalCustomerImportConfig);
+    JSON.stringify(customerImportApiConfig) !== JSON.stringify(originalCustomerImportConfig) ||
+    JSON.stringify(quoteExportApiConfig) !== JSON.stringify(originalQuoteExportApiConfig);
 
   if (loading) {
     return (
@@ -981,6 +1015,177 @@ export const ConfigurationSettings: React.FC = () => {
       }]
     }]
   }'`}
+              </pre>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Quote Export REST API Configuration */}
+      <div className="bg-white rounded border border-[#d4d4d4] p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="text-lg font-medium text-[#333]">
+              Quote Export REST API
+            </h2>
+            <p className="text-sm text-[#666] mt-1">
+              {quoteExportApiConfig.enabled ? (
+                <span className="text-[#3c763d]">
+                  Outbound integration is enabled
+                </span>
+              ) : (
+                <span className="text-[#666]">
+                  Outbound integration is disabled
+                </span>
+              )}
+              {quoteExportApiConfig.url && (
+                <span className="ml-2">
+                  • Endpoint: <span className="font-medium">{quoteExportApiConfig.url}</span>
+                </span>
+              )}
+            </p>
+          </div>
+
+          <label className="flex items-center space-x-2">
+            <input
+              type="checkbox"
+              checked={quoteExportApiConfig.enabled}
+              onChange={(e) => setQuoteExportApiConfig({ ...quoteExportApiConfig, enabled: e.target.checked })}
+              className="rounded border-[#d4d4d4] text-[#428bca] focus:ring-[#428bca]"
+            />
+            <span className="text-sm text-[#333]">
+              Enable Integration
+            </span>
+          </label>
+        </div>
+
+        <div className="bg-[#d9edf7] text-[#31708f] border border-[#bce8f1] rounded p-4 mb-6">
+          <div className="flex items-start space-x-2">
+            <AlertCircle className="h-5 w-5 mt-0.5" />
+            <div className="text-sm">
+              <p className="font-medium mb-1">Automatic Quote Export</p>
+              <p>When enabled, approved quotes will be automatically sent to the configured REST endpoint. Quote updates after approval will also trigger an export.</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          {/* API URL */}
+          <div>
+            <label className="block text-sm font-medium text-[#333] mb-2">
+              REST Endpoint URL *
+            </label>
+            <input
+              type="url"
+              value={quoteExportApiConfig.url}
+              onChange={(e) => setQuoteExportApiConfig({ ...quoteExportApiConfig, url: e.target.value })}
+              placeholder="https://your-erp.com/api/quotes/import"
+              className="w-full px-3 py-2 border border-[#d4d4d4] rounded focus:ring-2 focus:ring-[#428bca] focus:border-[#428bca] bg-white text-[#333]"
+              disabled={!quoteExportApiConfig.enabled}
+            />
+            <p className="text-xs text-[#666] mt-1">
+              The REST endpoint where approved quote data will be sent
+            </p>
+          </div>
+
+          {/* Username */}
+          <div>
+            <label className="block text-sm font-medium text-[#333] mb-2">
+              Username
+            </label>
+            <input
+              type="text"
+              value={quoteExportApiConfig.username}
+              onChange={(e) => setQuoteExportApiConfig({ ...quoteExportApiConfig, username: e.target.value })}
+              placeholder="api_user"
+              className="w-full px-3 py-2 border border-[#d4d4d4] rounded focus:ring-2 focus:ring-[#428bca] focus:border-[#428bca] bg-white text-[#333]"
+              disabled={!quoteExportApiConfig.enabled}
+            />
+            <p className="text-xs text-[#666] mt-1">
+              Username for Basic Authentication (leave empty if not required)
+            </p>
+          </div>
+
+          {/* Password */}
+          <div>
+            <label className="block text-sm font-medium text-[#333] mb-2">
+              Password
+              {quoteExportApiConfig.password && originalQuoteExportApiConfig.password && (
+                <span className="ml-2 text-xs text-[#3c763d]">
+                  (Configured)
+                </span>
+              )}
+            </label>
+            <div className="relative">
+              <input
+                type={showApiKey ? 'text' : 'password'}
+                value={quoteExportApiConfig.password}
+                onChange={(e) => setQuoteExportApiConfig({ ...quoteExportApiConfig, password: e.target.value })}
+                placeholder={originalQuoteExportApiConfig.password ? '••••••••' : 'Enter password if required'}
+                className="w-full px-3 py-2 pr-10 border border-[#d4d4d4] rounded focus:ring-2 focus:ring-[#428bca] focus:border-[#428bca] bg-white text-[#333]"
+                disabled={!quoteExportApiConfig.enabled}
+              />
+              <button
+                type="button"
+                onClick={() => setShowApiKey(!showApiKey)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#666] hover:text-[#333]"
+                disabled={!quoteExportApiConfig.enabled}
+              >
+                {showApiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
+            <p className="text-xs text-[#666] mt-1">
+              Password for Basic Authentication (stored securely)
+            </p>
+          </div>
+
+          {/* Timeout */}
+          <div>
+            <label className="block text-sm font-medium text-[#333] mb-2">
+              Request Timeout (ms)
+            </label>
+            <input
+              type="number"
+              value={quoteExportApiConfig.timeout}
+              onChange={(e) => setQuoteExportApiConfig({ ...quoteExportApiConfig, timeout: parseInt(e.target.value) || 30000 })}
+              min="5000"
+              max="120000"
+              step="1000"
+              className="w-full px-3 py-2 border border-[#d4d4d4] rounded focus:ring-2 focus:ring-[#428bca] focus:border-[#428bca] bg-white text-[#333]"
+              disabled={!quoteExportApiConfig.enabled}
+            />
+            <p className="text-xs text-[#666] mt-1">
+              {(quoteExportApiConfig.timeout / 1000).toFixed(0)} seconds
+            </p>
+          </div>
+
+          {/* Data Format Example */}
+          {quoteExportApiConfig.enabled && quoteExportApiConfig.url && (
+            <div className="pt-4 border-t border-[#d4d4d4]">
+              <p className="text-sm font-medium text-[#333] mb-2">
+                Quote Data Format (JSON):
+              </p>
+              <pre className="bg-gray-900 text-green-400 p-4 rounded overflow-x-auto text-xs">
+{`{
+  "quoteNumber": "Q-2024-0001",
+  "customerId": "CUST001",
+  "customerName": "Example Corp",
+  "quoteDate": "2024-01-15T10:30:00Z",
+  "totalValue": 15000.00,
+  "totalCost": 12000.00,
+  "totalMargin": 20.00,
+  "status": "approved",
+  "lineItems": [
+    {
+      "sku": "PART-001",
+      "productName": "Example Product",
+      "quantity": 100,
+      "unitPrice": 150.00,
+      "unitCost": 120.00,
+      "subtotal": 15000.00
+    }
+  ]
+}`}
               </pre>
             </div>
           )}

@@ -79,6 +79,15 @@ export const QuoteSummary: React.FC<QuoteSummaryProps> = ({ lineItems = [], onSa
         await updateCurrentQuote(quoteData);
         await syncLineItems(lineItems, currentQuote.id);
         setSaveMessage(`Quote ${currentQuote.quote_number} saved`);
+
+        // If quote is already approved, trigger export
+        if (currentQuote.quote_status === 'approved') {
+          import('../../services/quoteExportService').then(({ quoteExportService }) => {
+            quoteExportService.exportQuote(currentQuote.id).catch(error => {
+              console.error('Failed to export updated approved quote:', error);
+            });
+          });
+        }
       } else {
         const newQuote = await createNewQuote(quoteData);
         await syncLineItems(lineItems, newQuote.id);
