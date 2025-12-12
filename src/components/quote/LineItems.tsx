@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Package, Plus, Upload, Search, ChevronDown, Trash2, Calendar, AlertCircle, Eye, Calculator, FileCheck, Filter, X, Download, ChevronRight, MoreHorizontal } from 'lucide-react';
+import { Package, Plus, Upload, Search, ChevronDown, Trash2, Calendar, AlertCircle, Eye, Calculator, FileCheck, Filter, X, Download, ChevronRight } from 'lucide-react';
 import { ProductModal } from '../catalog/ProductModal';
 import { PriceBreakModal } from './PriceBreakModal';
 import { SupersessionModal } from './SupersessionModal';
@@ -147,10 +147,8 @@ export const LineItems: React.FC<LineItemsProps> = ({
   const [filterExpiredCost, setFilterExpiredCost] = useState<'all' | 'expired' | 'valid'>('all');
   const [filterStatus, setFilterStatus] = useState<'all' | 'pending' | 'approved' | 'lost'>('all');
   const [showFilters, setShowFilters] = useState(false);
-  const [actionMenuOpen, setActionMenuOpen] = useState<string | null>(null);
 
   const searchInputRef = useRef<HTMLInputElement>(null);
-  const actionMenuRef = useRef<HTMLDivElement>(null);
 
   const { addLineItem, updateLineItem } = useQuote();
   const { inventory, reserveInventory, getNextAvailableDate } = useInventory();
@@ -212,16 +210,6 @@ export const LineItems: React.FC<LineItemsProps> = ({
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, []);
-
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (actionMenuRef.current && !actionMenuRef.current.contains(event.target as Node)) {
-        setActionMenuOpen(null);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   const allProducts = products.map(product => ({
@@ -941,32 +929,30 @@ export const LineItems: React.FC<LineItemsProps> = ({
                     </select>
                   </td>
 
-                  <td className="px-3 py-3 text-center relative" ref={actionMenuOpen === item.id ? actionMenuRef : null}>
-                    <button
-                      onClick={() => setActionMenuOpen(actionMenuOpen === item.id ? null : item.id)}
-                      className="p-1.5 hover:bg-[#e8e8e8] dark:hover:bg-slate-700 rounded transition-colors"
-                    >
-                      <MoreHorizontal className="w-4 h-4 text-[#666]" />
-                    </button>
-                    {actionMenuOpen === item.id && (
-                      <div className="absolute right-0 top-full mt-1 w-40 bg-white dark:bg-slate-800 border border-[#d4d4d4] dark:border-slate-700 rounded shadow-lg z-20">
-                        <button onClick={() => { onProductSelect(item); onSetUpdatePriceCallback({ callback: updateItemPrice, itemId: item.id }); onShowCostAnalysis(true); setActionMenuOpen(null); }} className="w-full px-3 py-2 text-left text-sm hover:bg-[#f0f0f0] dark:hover:bg-slate-700 flex items-center gap-2 text-[#333] dark:text-white">
-                          <Calculator className="w-4 h-4" /> Cost Analysis
-                        </button>
-                        <button onClick={() => { setShowHistoryModal(item.id); setActionMenuOpen(null); }} className="w-full px-3 py-2 text-left text-sm hover:bg-[#f0f0f0] dark:hover:bg-slate-700 flex items-center gap-2 text-[#333] dark:text-white">
-                          <Eye className="w-4 h-4" /> View History
-                        </button>
-                        {supplyPeriodMonths > 12 && (
-                          <button onClick={() => { onShowMultiYearPricing && onShowMultiYearPricing(item); setActionMenuOpen(null); }} className="w-full px-3 py-2 text-left text-sm hover:bg-[#f0f0f0] dark:hover:bg-slate-700 flex items-center gap-2 text-[#333] dark:text-white">
-                            <Calendar className="w-4 h-4" /> Multi-Year Pricing
-                          </button>
-                        )}
-                        <div className="border-t border-[#e8e8e8] dark:border-slate-700" />
-                        <button onClick={() => handleDeleteItem(item.id)} className="w-full px-3 py-2 text-left text-sm text-[#a94442] hover:bg-[#f2dede] dark:hover:bg-red-900/20 flex items-center gap-2">
-                          <Trash2 className="w-4 h-4" /> Delete
-                        </button>
-                      </div>
-                    )}
+                  <td className="px-3 py-3 text-center">
+                    <div className="flex items-center justify-center gap-1">
+                      <button
+                        onClick={() => { onProductSelect(item); onSetUpdatePriceCallback({ callback: updateItemPrice, itemId: item.id }); onShowCostAnalysis(true); }}
+                        className="p-1.5 hover:bg-[#e8e8e8] dark:hover:bg-slate-700 rounded transition-colors"
+                        title="Cost Analysis"
+                      >
+                        <Calculator className="w-4 h-4 text-[#666] dark:text-slate-400" />
+                      </button>
+                      <button
+                        onClick={() => setShowHistoryModal(item.id)}
+                        className="p-1.5 hover:bg-[#e8e8e8] dark:hover:bg-slate-700 rounded transition-colors"
+                        title="View History"
+                      >
+                        <Eye className="w-4 h-4 text-[#666] dark:text-slate-400" />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteItem(item.id)}
+                        className="p-1.5 hover:bg-[#f2dede] dark:hover:bg-red-900/20 rounded transition-colors"
+                        title="Delete"
+                      >
+                        <Trash2 className="w-4 h-4 text-[#a94442] dark:text-red-400" />
+                      </button>
+                    </div>
                   </td>
                 </tr>
 
