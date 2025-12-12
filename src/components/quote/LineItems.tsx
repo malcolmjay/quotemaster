@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Package, Plus, Upload, Search, ChevronDown, Trash2, Calendar, AlertCircle, Eye, Calculator, FileCheck, Filter, X, Download } from 'lucide-react';
+import { Package, Plus, Upload, Search, ChevronDown, Trash2, Calendar, AlertCircle, Eye, Calculator, FileCheck, Filter, X, Download, ChevronRight, MoreHorizontal } from 'lucide-react';
 import { ProductModal } from '../catalog/ProductModal';
 import { PriceBreakModal } from './PriceBreakModal';
 import { SupersessionModal } from './SupersessionModal';
@@ -12,7 +12,7 @@ import { useInventory } from '../../context/InventoryContext';
 import { useCustomer } from '../../context/CustomerContext';
 import { useDeletion } from '../../hooks/useDeletion';
 import { useProducts } from '../../hooks/useSupabaseData';
-import { createLostDetailsTable, supabase } from '../../lib/supabase';
+import { supabase } from '../../lib/supabase';
 
 const PriceRequestInfo: React.FC<{ itemId: string }> = ({ itemId }) => {
   const [priceRequest, setPriceRequest] = React.useState<any>(null);
@@ -40,10 +40,7 @@ const PriceRequestInfo: React.FC<{ itemId: string }> = ({ itemId }) => {
     loadPriceRequest();
   }, [itemId]);
 
-  type PriceBreak = {
-    quantity: number;
-    price: number;
-  };
+  type PriceBreak = { quantity: number; price: number };
 
   const priceBreaks = React.useMemo(() => {
     return Array.isArray(priceRequest?.price_breaks)
@@ -59,90 +56,48 @@ const PriceRequestInfo: React.FC<{ itemId: string }> = ({ itemId }) => {
     return endDate < today;
   }, [priceRequest]);
 
-  if (loading) {
-    return null;
-  }
-
-  if (!priceRequest) {
-    return null;
-  }
-
-  const bgColor = isPriceExpired ? 'bg-red-50' : 'bg-green-50';
-  const borderColor = isPriceExpired ? 'border-red-200' : 'border-green-200';
-  const iconColor = isPriceExpired ? 'text-red-700' : 'text-green-700';
-  const textColor = isPriceExpired ? 'text-red-900' : 'text-green-900';
-  const labelColor = isPriceExpired ? 'text-red-700' : 'text-green-700';
-  const badgeColor = isPriceExpired ? 'bg-red-200 text-red-800' : 'bg-green-200 text-green-800';
+  if (loading || !priceRequest) return null;
 
   return (
-    <div className={`${bgColor} border ${borderColor} rounded-lg p-3`}>
-      <div className="flex items-center space-x-2 mb-3">
+    <div className={`rounded-lg p-3 ${isPriceExpired ? 'bg-red-50 border border-red-200' : 'bg-emerald-50 border border-emerald-200'}`}>
+      <div className="flex items-center gap-2 mb-2">
         {isPriceExpired ? (
-          <AlertCircle className={`h-4 w-4 ${iconColor}`} />
+          <AlertCircle className="h-4 w-4 text-red-600" />
         ) : (
-          <FileCheck className={`h-4 w-4 ${iconColor}`} />
+          <FileCheck className="h-4 w-4 text-emerald-600" />
         )}
-        <h4 className={`font-medium text-sm ${textColor}`}>
-          {isPriceExpired ? 'Expired Price Request' : 'Completed Price Request'}
-        </h4>
-        <span className={`text-xs ${badgeColor} px-2 py-0.5 rounded-full`}>
-          {isPriceExpired ? 'EXPIRED' : `Completed ${new Date(priceRequest.completed_at).toLocaleDateString()}`}
+        <span className={`text-xs font-medium ${isPriceExpired ? 'text-red-800' : 'text-emerald-800'}`}>
+          {isPriceExpired ? 'Expired Pricing' : 'Confirmed Pricing'}
         </span>
       </div>
-      {isPriceExpired && (
-        <div className="mb-3 p-2 bg-red-100 border border-red-300 rounded text-xs text-red-800">
-          <strong>Warning:</strong> This pricing has expired. Please create a new price request to get updated pricing.
-        </div>
-      )}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-xs">
+      <div className="grid grid-cols-4 gap-3 text-xs">
         <div>
-          <span className={`${labelColor} font-medium`}>Supplier:</span>
-          <div className={textColor}>{priceRequest.supplier_name || 'N/A'}</div>
+          <span className="text-slate-500">Supplier Price:</span>
+          <div className="font-semibold">${priceRequest.supplier_pricing?.toFixed(2)}</div>
         </div>
         <div>
-          <span className={`${labelColor} font-medium`}>Supplier Pricing:</span>
-          <div className={`${textColor} font-semibold`}>
-            ${priceRequest.supplier_pricing?.toFixed(2) || 'N/A'}
+          <span className="text-slate-500">MOQ:</span>
+          <div className="font-semibold">{priceRequest.moq || 'N/A'}</div>
+        </div>
+        <div>
+          <span className="text-slate-500">Valid Until:</span>
+          <div className={`font-semibold ${isPriceExpired ? 'text-red-600' : ''}`}>
+            {priceRequest.effective_end_date || 'N/A'}
           </div>
         </div>
-        <div>
-          <span className={`${labelColor} font-medium`}>MOQ:</span>
-          <div className={textColor}>{priceRequest.moq || 'N/A'}</div>
-        </div>
-        <div>
-          <span className={`${labelColor} font-medium`}>Buyer:</span>
-          <div className={textColor}>{priceRequest.buyer_name || 'N/A'}</div>
-        </div>
+        {priceBreaks.length > 0 && (
+          <div>
+            <span className="text-slate-500">Price Breaks:</span>
+            <div className="flex gap-1 mt-0.5">
+              {priceBreaks.slice(0, 2).map((pb, i) => (
+                <span key={i} className={`px-1.5 py-0.5 rounded text-xs ${isPriceExpired ? 'bg-red-100' : 'bg-emerald-100'}`}>
+                  {pb.quantity}+ @ ${pb.price}
+                </span>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
-      {(priceRequest.effective_start_date || priceRequest.effective_end_date) && (
-        <div className="mt-3 text-xs">
-          <span className={`${labelColor} font-medium`}>Effective Period:</span>
-          <div className={`${textColor} ${isPriceExpired ? 'font-semibold' : ''}`}>
-            {priceRequest.effective_start_date || 'N/A'} to {priceRequest.effective_end_date || 'N/A'}
-          </div>
-        </div>
-      )}
-      {priceRequest.supplier_quote_number && (
-        <div className="mt-3 text-xs">
-          <span className={`${labelColor} font-medium`}>Supplier Quote #:</span>
-          <div className={textColor}>{priceRequest.supplier_quote_number}</div>
-        </div>
-      )}
-      {priceBreaks.length > 0 && (
-        <div className="mt-3">
-          <span className={`text-xs ${labelColor} font-medium`}>Price Breaks:</span>
-          <div className="mt-1 flex flex-wrap gap-2">
-            {priceBreaks.map((pb, i) => (
-              <span
-                key={i}
-                className={`px-2 py-1 ${isPriceExpired ? 'bg-red-100 text-red-900' : 'bg-green-100 text-green-900'} rounded text-xs font-medium`}
-              >
-                {pb.quantity}+ @ ${pb.price.toFixed(2)}
-              </span>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 };
@@ -187,16 +142,15 @@ export const LineItems: React.FC<LineItemsProps> = ({
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [showLostDetailsModal, setShowLostDetailsModal] = useState<string | null>(null);
   const [customerAddresses, setCustomerAddresses] = useState<any[]>([]);
-
-  // Filter state
   const [filterProductNumber, setFilterProductNumber] = useState('');
   const [filterSupplier, setFilterSupplier] = useState('');
   const [filterExpiredCost, setFilterExpiredCost] = useState<'all' | 'expired' | 'valid'>('all');
   const [filterStatus, setFilterStatus] = useState<'all' | 'pending' | 'approved' | 'lost'>('all');
   const [showFilters, setShowFilters] = useState(false);
+  const [actionMenuOpen, setActionMenuOpen] = useState<string | null>(null);
 
-  // Ref for search input
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const actionMenuRef = useRef<HTMLDivElement>(null);
 
   const { addLineItem, updateLineItem } = useQuote();
   const { inventory, reserveInventory, getNextAvailableDate } = useInventory();
@@ -206,20 +160,12 @@ export const LineItems: React.FC<LineItemsProps> = ({
 
   const getLineItemCostDates = (item: any) => {
     if (item.cost_effective_from && item.cost_effective_to) {
-      return {
-        from: item.cost_effective_from,
-        to: item.cost_effective_to
-      };
+      return { from: item.cost_effective_from, to: item.cost_effective_to };
     }
-
     const product = products.find(p => p.sku === item.sku);
     if (product?.cost_effective_from && product?.cost_effective_to) {
-      return {
-        from: product.cost_effective_from,
-        to: product.cost_effective_to
-      };
+      return { from: product.cost_effective_from, to: product.cost_effective_to };
     }
-
     return { from: null, to: null };
   };
 
@@ -232,55 +178,30 @@ export const LineItems: React.FC<LineItemsProps> = ({
     return endDate < today;
   };
 
-  // Filter line items
   const filteredLineItems = lineItems.filter(item => {
-    // Product Number filter
-    if (filterProductNumber && !item.sku.toLowerCase().includes(filterProductNumber.toLowerCase())) {
-      return false;
-    }
-
-    // Supplier filter
-    if (filterSupplier && !item.supplier.toLowerCase().includes(filterSupplier.toLowerCase())) {
-      return false;
-    }
-
-    // Expired Cost filter
+    if (filterProductNumber && !item.sku.toLowerCase().includes(filterProductNumber.toLowerCase())) return false;
+    if (filterSupplier && !item.supplier.toLowerCase().includes(filterSupplier.toLowerCase())) return false;
     if (filterExpiredCost !== 'all') {
       const isExpired = isLineItemCostExpired(item);
       if (filterExpiredCost === 'expired' && !isExpired) return false;
       if (filterExpiredCost === 'valid' && isExpired) return false;
     }
-
-    // Status filter
     if (filterStatus !== 'all') {
       const itemStatus = item.status || 'pending';
       if (filterStatus !== itemStatus.toLowerCase()) return false;
     }
-
     return true;
   });
 
-  // Get unique suppliers for filter dropdown
   const uniqueSuppliers = Array.from(new Set(lineItems.map(item => item.supplier))).sort();
-
-  // Clear all filters
   const clearFilters = () => {
     setFilterProductNumber('');
     setFilterSupplier('');
     setFilterExpiredCost('all');
     setFilterStatus('all');
   };
-
-  // Check if any filters are active
   const hasActiveFilters = filterProductNumber || filterSupplier || filterExpiredCost !== 'all' || filterStatus !== 'all';
 
-  // Create lost_details table on component mount if it doesn't exist
-  React.useEffect(() => {
-    // Migration files should be run manually in Supabase SQL Editor
-    // No automatic table creation needed here
-  }, []);
-
-  // Hotkey listener for Shift+S
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.shiftKey && e.key === 'S' && !e.ctrlKey && !e.metaKey && !e.altKey) {
@@ -289,9 +210,18 @@ export const LineItems: React.FC<LineItemsProps> = ({
         searchInputRef.current?.select();
       }
     };
-
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (actionMenuRef.current && !actionMenuRef.current.contains(event.target as Node)) {
+        setActionMenuOpen(null);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
   const allProducts = products.map(product => ({
@@ -310,48 +240,42 @@ export const LineItems: React.FC<LineItemsProps> = ({
   const [crossReferences, setCrossReferences] = useState<any[]>([]);
 
   useEffect(() => {
+    const loadCrossReferences = async () => {
+      try {
+        const { data, error } = await supabase.from('cross_references').select('*');
+        if (error) throw error;
+        setCrossReferences(data || []);
+      } catch (error) {
+        console.error('Error loading cross references:', error);
+      }
+    };
     loadCrossReferences();
   }, []);
 
   useEffect(() => {
     if (selectedCustomer?.customer_number) {
-      loadCustomerAddresses(selectedCustomer.customer_number);
+      const loadCustomerAddresses = async () => {
+        try {
+          const { data, error } = await supabase
+            .from('customer_addresses')
+            .select('*')
+            .eq('customer_number', selectedCustomer.customer_number)
+            .eq('is_shipping', true)
+            .order('is_primary', { ascending: false });
+          if (error) throw error;
+          setCustomerAddresses(data || []);
+        } catch (error) {
+          console.error('Error loading customer addresses:', error);
+          setCustomerAddresses([]);
+        }
+      };
+      loadCustomerAddresses();
     } else {
       setCustomerAddresses([]);
     }
   }, [selectedCustomer]);
 
-  const loadCrossReferences = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('cross_references')
-        .select('*');
-
-      if (error) throw error;
-      setCrossReferences(data || []);
-    } catch (error) {
-      console.error('Error loading cross references:', error);
-    }
-  };
-
-  const loadCustomerAddresses = async (customerNumber: string) => {
-    try {
-      const { data, error } = await supabase
-        .from('customer_addresses')
-        .select('*')
-        .eq('customer_number', customerNumber)
-        .eq('is_shipping', true)
-        .order('is_primary', { ascending: false });
-
-      if (error) throw error;
-      setCustomerAddresses(data || []);
-    } catch (error) {
-      console.error('Error loading customer addresses:', error);
-      setCustomerAddresses([]);
-    }
-  };
-
-  const supplierPriceBreaks = {
+  const supplierPriceBreaks: Record<string, Array<{ minQty: number; maxQty: number; unitCost: number; description: string; discount: number }>> = {
     'GM-12635273': [
       { minQty: 1, maxQty: 3, unitCost: 98.50, description: 'Standard pricing', discount: 0 },
       { minQty: 4, maxQty: 9, unitCost: 92.00, description: '4+ units - 6.6% discount', discount: 6.6 },
@@ -365,9 +289,8 @@ export const LineItems: React.FC<LineItemsProps> = ({
   };
 
   const getOptimalPriceBreak = (sku: string, quantity: number) => {
-    const priceBreaks = supplierPriceBreaks[sku as keyof typeof supplierPriceBreaks];
+    const priceBreaks = supplierPriceBreaks[sku];
     if (!priceBreaks) return null;
-    
     return priceBreaks.find(pb => quantity >= pb.minQty && quantity <= pb.maxQty) || priceBreaks[0];
   };
 
@@ -377,15 +300,15 @@ export const LineItems: React.FC<LineItemsProps> = ({
   };
 
   const handleItemSelect = (itemId: string) => {
-    setSelectedItems(prev => 
-      prev.includes(itemId) 
+    setSelectedItems(prev =>
+      prev.includes(itemId)
         ? prev.filter(id => id !== itemId)
         : [...prev, itemId]
     );
   };
 
   const handleBulkAction = async (action: string) => {
-    const statusMap = {
+    const statusMap: Record<string, string> = {
       'price-request': 'Price Request',
       'lead-time-request': 'Lead Time Request',
       'new-item-request': 'Item Load',
@@ -398,12 +321,10 @@ export const LineItems: React.FC<LineItemsProps> = ({
       return;
     }
 
-    const newStatus = statusMap[action as keyof typeof statusMap];
+    const newStatus = statusMap[action];
     if (newStatus) {
       setLineItems(prev => prev.map(item =>
-        selectedItems.includes(item.id)
-          ? { ...item, status: newStatus }
-          : item
+        selectedItems.includes(item.id) ? { ...item, status: newStatus } : item
       ));
     }
 
@@ -431,7 +352,6 @@ export const LineItems: React.FC<LineItemsProps> = ({
       }
 
       const selectedLineItems = lineItems.filter(item => selectedItems.includes(item.id));
-
       if (selectedLineItems.length === 0) {
         alert('No items selected');
         return;
@@ -441,13 +361,12 @@ export const LineItems: React.FC<LineItemsProps> = ({
       const hasUnsavedItems = selectedLineItems.some(item => !uuidRegex.test(item.id));
 
       if (hasUnsavedItems) {
-        alert('Please save the quote first before requesting pricing. Some line items have not been saved to the database yet.');
+        alert('Please save the quote first before requesting pricing.');
         return;
       }
 
       for (const item of selectedLineItems) {
         const product = products.find(p => p.sku === item.sku);
-
         const priceRequestData = {
           quote_id: currentQuote.id,
           quote_line_item_id: item.id,
@@ -463,45 +382,24 @@ export const LineItems: React.FC<LineItemsProps> = ({
           requested_by: user.id
         };
 
-        console.log('Creating price request with data:', priceRequestData);
-
         const { data: priceRequest, error: priceRequestError } = await supabase
           .from('price_requests')
           .insert(priceRequestData)
           .select()
           .single();
 
-        if (priceRequestError) {
-          console.error('Price request error:', priceRequestError);
-          throw new Error(`Failed to create price request: ${priceRequestError.message}`);
-        }
+        if (priceRequestError) throw new Error(`Failed to create price request: ${priceRequestError.message}`);
 
-        if (!priceRequest) {
-          throw new Error('Price request created but no data returned');
-        }
-
-        const { error: updateError } = await supabase
+        await supabase
           .from('quote_line_items')
-          .update({
-            status: 'price_request',
-            price_request_id: priceRequest.id,
-            updated_at: new Date().toISOString()
-          })
+          .update({ status: 'price_request', price_request_id: priceRequest.id, updated_at: new Date().toISOString() })
           .eq('id', item.id);
-
-        if (updateError) {
-          console.error('Line item update error:', updateError);
-          throw new Error(`Failed to update line item: ${updateError.message}`);
-        }
       }
 
       setLineItems(prev => prev.map(item =>
-        selectedItems.includes(item.id)
-          ? { ...item, status: 'Price Request' }
-          : item
+        selectedItems.includes(item.id) ? { ...item, status: 'Price Request' } : item
       ));
       setSelectedItems([]);
-
       alert(`Successfully created ${selectedLineItems.length} price request(s)`);
     } catch (error: any) {
       console.error('Error creating price requests:', error);
@@ -513,38 +411,15 @@ export const LineItems: React.FC<LineItemsProps> = ({
     if (newStatus === 'Lost') {
       setShowLostDetailsModal(itemId);
     } else {
-      setLineItems(prev => prev.map(item => 
+      setLineItems(prev => prev.map(item =>
         item.id === itemId ? { ...item, status: newStatus } : item
       ));
     }
   };
 
-  const handleLostDetailsCancel = () => {
-    setShowLostDetailsModal(null);
-  };
-
-  const handleLostDetailsSave = (itemId: string, lostDetails: any) => {
-    // Update the line item status to Lost
-    setLineItems(prev => prev.map(item => 
-      item.id === itemId ? { ...item, status: 'Lost' } : item
-    ));
-    
-    // Close the modal
-    setShowLostDetailsModal(null);
-    
-    // Here you would typically save the lost details to the database
-    console.log('Lost details saved:', lostDetails);
-  };
-
   const handlePriceEdit = (itemId: string, newPrice: number) => {
-    setLineItems(prev => prev.map(item => 
-      item.id === itemId 
-        ? { 
-            ...item, 
-            price: newPrice, 
-            subtotal: newPrice * item.qty 
-          } 
-        : item
+    setLineItems(prev => prev.map(item =>
+      item.id === itemId ? { ...item, price: newPrice, subtotal: newPrice * item.qty } : item
     ));
     setEditingPrice(null);
   };
@@ -572,7 +447,7 @@ export const LineItems: React.FC<LineItemsProps> = ({
 
       const combinedResults = [...productResults];
       crossRefResults.forEach(crossRef => {
-        if (!combinedResults.find(p => p.sku === crossRef.sku)) {
+        if (crossRef && !combinedResults.find(p => p.sku === crossRef.sku)) {
           combinedResults.push(crossRef);
         }
       });
@@ -628,24 +503,13 @@ export const LineItems: React.FC<LineItemsProps> = ({
 
   const handleCSVUpload = (items: any[], mode: 'add' | 'update') => {
     if (mode === 'add') {
-      items.forEach(item => {
-        setLineItems(prev => [...prev, item]);
-      });
+      items.forEach(item => setLineItems(prev => [...prev, item]));
     } else {
-      // Update mode - match by ID or SKU
       items.forEach(updateItem => {
         setLineItems(prev => prev.map(existingItem => {
-          // Match by ID first (if it's a valid database ID), then by SKU
-          const matches = updateItem.id === existingItem.id ||
-                         (updateItem.sku === existingItem.sku && !updateItem.id);
-
+          const matches = updateItem.id === existingItem.id || (updateItem.sku === existingItem.sku && !updateItem.id);
           if (matches) {
-            return {
-              ...existingItem,
-              ...updateItem,
-              id: existingItem.id, // Preserve original ID
-              subtotal: updateItem.price * updateItem.qty
-            };
+            return { ...existingItem, ...updateItem, id: existingItem.id, subtotal: updateItem.price * updateItem.qty };
           }
           return existingItem;
         }));
@@ -660,53 +524,17 @@ export const LineItems: React.FC<LineItemsProps> = ({
       return;
     }
 
-    // Define CSV headers
-    const headers = [
-      'id',
-      'sku',
-      'name',
-      'supplier',
-      'category',
-      'qty',
-      'price',
-      'cost',
-      'status',
-      'leadTime',
-      'quotedLeadTime',
-      'shippingInstructions',
-      'ship_to_address_id',
-      'customerPartNumber',
-      'warehouse',
-      'stock',
-      'available'
-    ];
-
-    // Create CSV rows
+    const headers = ['id', 'sku', 'name', 'supplier', 'category', 'qty', 'price', 'cost', 'status', 'leadTime', 'quotedLeadTime', 'shippingInstructions', 'ship_to_address_id', 'customerPartNumber', 'warehouse', 'stock', 'available'];
     const rows = lineItems.map(item => [
-      item.id || '',
-      item.sku || '',
-      item.name || '',
-      item.supplier || '',
-      item.category || '',
-      item.qty || '',
-      item.price || '',
-      item.cost || '',
-      item.status || '',
-      item.leadTime || '',
-      item.quotedLeadTime || '',
-      item.shippingInstructions || '',
-      item.ship_to_address_id || '',
-      item.customerPartNumber || '',
-      item.warehouse || '',
-      item.stock || '',
-      item.available || ''
+      item.id || '', item.sku || '', item.name || '', item.supplier || '', item.category || '', item.qty || '',
+      item.price || '', item.cost || '', item.status || '', item.leadTime || '', item.quotedLeadTime || '',
+      item.shippingInstructions || '', item.ship_to_address_id || '', item.customerPartNumber || '', item.warehouse || '',
+      item.stock || '', item.available || ''
     ]);
 
-    // Combine headers and rows
     const csvContent = [
       headers.join(','),
       ...rows.map(row => row.map(cell => {
-        // Escape commas and quotes in cell values
         const cellStr = String(cell);
         if (cellStr.includes(',') || cellStr.includes('"') || cellStr.includes('\n')) {
           return `"${cellStr.replace(/"/g, '""')}"`;
@@ -715,7 +543,6 @@ export const LineItems: React.FC<LineItemsProps> = ({
       }).join(','))
     ].join('\n');
 
-    // Create and download file
     const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
     const url = window.URL.createObjectURL(blob);
     const link = document.createElement('a');
@@ -727,42 +554,24 @@ export const LineItems: React.FC<LineItemsProps> = ({
 
   const handleDeleteItem = (itemId: string) => {
     setShowDeleteModal(itemId);
+    setActionMenuOpen(null);
   };
 
   const confirmDeleteItem = async () => {
     if (!showDeleteModal) return;
-
     setDeleteLoading(true);
     try {
-      const itemToDelete = lineItems.find(item => item.id === showDeleteModal);
-      console.log('🗑️ Deleting line item:', itemToDelete);
-
-      // Check if this is a local item (starts with "local-") or a database UUID
       const isLocalItem = showDeleteModal.startsWith('local-');
-
       if (isLocalItem) {
-        // Just remove from local state
-        console.log('📝 Deleting local-only line item (not yet in database)');
         setLineItems(prev => prev.filter(item => item.id !== showDeleteModal));
       } else {
-        // This is a database record - delete from database
-        console.log('📤 Deleting from database:', showDeleteModal);
-        const result = await deleteRecord('quote_line_items', showDeleteModal, {
-          type: 'hard',
-          reason: 'User deleted line item from quote'
-        });
-
-        if (!result.success) {
-          console.error('❌ Database deletion failed:', result.errors);
-        } else {
-          console.log('✅ Line item deleted from database successfully');
-          // Remove from local state only after successful database deletion
+        const result = await deleteRecord('quote_line_items', showDeleteModal, { type: 'hard', reason: 'User deleted line item from quote' });
+        if (result.success) {
           setLineItems(prev => prev.filter(item => item.id !== showDeleteModal));
         }
       }
-
     } catch (error) {
-      console.error('❌ Error deleting line item:', error);
+      console.error('Error deleting line item:', error);
     } finally {
       setDeleteLoading(false);
       setShowDeleteModal(null);
@@ -770,53 +579,31 @@ export const LineItems: React.FC<LineItemsProps> = ({
   };
 
   const handlePriceBreakSelect = (itemId: string, priceBreak: any) => {
-    setLineItems(prev => prev.map(item => 
-      item.id === itemId 
-        ? { 
-            ...item, 
-            cost: priceBreak.unitCost,
-            price: Math.round(priceBreak.unitCost * 1.25),
-            subtotal: Math.round(priceBreak.unitCost * 1.25) * item.qty,
-            selectedPriceBreak: priceBreak
-          } 
-        : item
+    setLineItems(prev => prev.map(item =>
+      item.id === itemId ? {
+        ...item, cost: priceBreak.unitCost, price: Math.round(priceBreak.unitCost * 1.25),
+        subtotal: Math.round(priceBreak.unitCost * 1.25) * item.qty, selectedPriceBreak: priceBreak
+      } : item
     ));
     setShowPriceBreakModal(null);
   };
 
   const handleSupersessionSelect = (itemId: string, replacement: any) => {
-    setLineItems(prev => prev.map(item => 
-      item.id === itemId 
-        ? { 
-            ...item,
-            originalCustomerSku: item.originalCustomerSku || item.sku,
-            originalCustomerName: item.originalCustomerName || item.name,
-            sku: replacement.sku,
-            name: replacement.name,
-            supplier: replacement.supplier,
-            cost: replacement.cost,
-            price: Math.round(replacement.cost * 1.25),
-            subtotal: Math.round(replacement.cost * 1.25) * item.qty,
-            stock: replacement.stock,
-            leadTime: replacement.leadTime,
-            isReplacement: true,
-            replacementType: replacement.relationshipType,
-            replacementReason: replacement.reason
-          } 
-        : item
+    setLineItems(prev => prev.map(item =>
+      item.id === itemId ? {
+        ...item, originalCustomerSku: item.originalCustomerSku || item.sku, originalCustomerName: item.originalCustomerName || item.name,
+        sku: replacement.sku, name: replacement.name, supplier: replacement.supplier, cost: replacement.cost,
+        price: Math.round(replacement.cost * 1.25), subtotal: Math.round(replacement.cost * 1.25) * item.qty,
+        stock: replacement.stock, leadTime: replacement.leadTime, isReplacement: true,
+        replacementType: replacement.relationshipType, replacementReason: replacement.reason
+      } : item
     ));
     setShowSupersessionModal(null);
   };
 
   const updateItemPrice = (itemId: string, newPrice: number) => {
-    setLineItems(prev => prev.map(item => 
-      item.id === itemId 
-        ? { 
-            ...item, 
-            price: newPrice, 
-            subtotal: newPrice * item.qty 
-          } 
-        : item
+    setLineItems(prev => prev.map(item =>
+      item.id === itemId ? { ...item, price: newPrice, subtotal: newPrice * item.qty } : item
     ));
   };
 
@@ -824,342 +611,241 @@ export const LineItems: React.FC<LineItemsProps> = ({
     setExpandedItem(expandedItem === itemId ? null : itemId);
   };
 
+  const expiredCount = lineItems.filter(item => isLineItemCostExpired(item)).length;
+
   return (
-    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg">
-      {/* Header Section - Simplified */}
-      <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Line Items</h3>
-            <p className="text-xs text-gray-600 dark:text-gray-300 mt-1">Add and configure products for this quote</p>
+    <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+      {/* Compact Header */}
+      <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800">
+        <div className="flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-lg bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
+              <Package className="w-5 h-5 text-blue-600 dark:text-blue-400" />
+            </div>
+            <div>
+              <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Line Items</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400">
+                {lineItems.length} items
+                {expiredCount > 0 && <span className="text-red-600 ml-1">({expiredCount} expired)</span>}
+              </p>
+            </div>
           </div>
-          
-          {/* Action Buttons - Simplified */}
-          <div className="flex items-center space-x-3">
+
+          {/* Action Bar */}
+          <div className="flex items-center gap-2">
+            {/* Quick Search */}
             <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
               <input
                 ref={searchInputRef}
                 type="text"
-                placeholder="Search products... (Shift+S)"
+                placeholder="Add product (Shift+S)"
                 value={newItemSku}
                 onChange={(e) => handleSkuSearch(e.target.value)}
-                className="w-64 px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-sm bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                className="w-56 pl-9 pr-3 py-2 bg-white dark:bg-slate-700 border border-slate-200 dark:border-slate-600 rounded-lg text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
               />
-              <Search className="absolute right-3 top-2.5 h-4 w-4 text-gray-400" />
-              
               {showSearchResults && searchResults.length > 0 && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg z-10 max-h-60 overflow-y-auto">
-                  {searchResults.map((product) => (
+                <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-xl z-20 max-h-64 overflow-y-auto">
+                  {searchResults.slice(0, 10).map((product) => (
                     <button
                       key={product.sku}
                       onClick={() => handleProductSelect(product)}
-                      className="w-full px-4 py-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700 border-b border-gray-100 dark:border-gray-600 last:border-b-0"
+                      className="w-full px-3 py-2.5 text-left hover:bg-slate-50 dark:hover:bg-slate-700 border-b border-slate-100 dark:border-slate-700 last:border-b-0"
                     >
-                      <div className="font-medium text-sm text-gray-900 dark:text-white">{product.sku}</div>
-                      <div className="text-xs text-gray-600 dark:text-gray-300 truncate">{product.displayName || product.name}</div>
-                      <div className="text-xs text-blue-600">{product.supplier} • ${product.price.toLocaleString()}</div>
-                      {product.matchedReference && (
-                        <div className="flex items-center gap-2 mt-1">
-                          <span className="text-xs text-blue-600 bg-blue-50 dark:bg-blue-900 px-2 py-0.5 rounded">
-                            Cross-Ref: {product.matchedReference.customer_part_number || product.matchedReference.supplier_part_number}
-                          </span>
-                          {product.matchedReference.type && (
-                            <span className="text-xs font-medium px-2 py-0.5 rounded bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300">
-                              {product.matchedReference.type}
-                            </span>
-                          )}
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <div className="font-medium text-sm text-slate-900 dark:text-white">{product.sku}</div>
+                          <div className="text-xs text-slate-500 truncate">{product.name}</div>
                         </div>
-                      )}
+                        <div className="text-xs text-blue-600">${product.price?.toLocaleString()}</div>
+                      </div>
                     </button>
                   ))}
                 </div>
               )}
             </div>
-            
+
             <button
               onClick={() => setShowProductModal(true)}
-              className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              className="px-3 py-2 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
             >
-              Browse Catalog
+              Browse
+            </button>
+
+            <div className="h-5 w-px bg-slate-200 dark:bg-slate-600" />
+
+            <button
+              onClick={() => { setCsvUploadMode('add'); setShowCSVUploadModal(true); }}
+              className="flex items-center gap-1.5 px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white text-sm font-medium rounded-lg transition-colors"
+            >
+              <Upload className="w-4 h-4" />
+              Import
             </button>
 
             {lineItems.length > 0 && (
-              <>
-                <button
-                  onClick={exportToCSV}
-                  className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
-                >
-                  <Download className="h-4 w-4 mr-2 inline" />
-                  Export CSV
-                </button>
-
-                <button
-                  onClick={() => {
-                    setCsvUploadMode('update');
-                    setShowCSVUploadModal(true);
-                  }}
-                  className="px-3 py-2 border border-blue-600 text-blue-600 rounded-lg text-sm font-medium hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
-                >
-                  <Upload className="h-4 w-4 mr-2 inline" />
-                  Update CSV
-                </button>
-              </>
+              <button
+                onClick={exportToCSV}
+                className="flex items-center gap-1.5 px-3 py-2 text-sm text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-700 rounded-lg transition-colors"
+              >
+                <Download className="w-4 h-4" />
+                Export
+              </button>
             )}
-
-            <button
-              onClick={() => {
-                setCsvUploadMode('add');
-                setShowCSVUploadModal(true);
-              }}
-              className="px-3 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"
-            >
-              <Upload className="h-4 w-4 mr-2 inline" />
-              Import CSV
-            </button>
           </div>
         </div>
-        
-        {/* Bulk Actions - Only show when items selected */}
+
+        {/* Bulk Actions Bar */}
         {selectedItems.length > 0 && (
-          <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-            <div className="flex items-center justify-between">
-              <span className="text-sm font-medium text-blue-900">
-                {selectedItems.length} item{selectedItems.length > 1 ? 's' : ''} selected
-              </span>
-              <div className="flex items-center space-x-2">
-                <button
-                  onClick={() => handleBulkAction('price-request')}
-                  className="px-3 py-1 bg-blue-600 text-white rounded text-sm hover:bg-blue-700 transition-colors"
-                >
-                  Request Pricing
-                </button>
-                <button
-                  onClick={() => handleBulkAction('lead-time-request')}
-                  className="px-3 py-1 border border-blue-600 text-blue-600 rounded text-sm hover:bg-blue-50 transition-colors"
-                >
-                  Request Lead Time
-                </button>
-                <button
-                  onClick={() => setSelectedItems([])}
-                  className="px-3 py-1 border border-gray-300 text-gray-700 rounded text-sm hover:bg-gray-50 transition-colors"
-                >
-                  Clear Selection
-                </button>
-              </div>
+          <div className="mt-3 flex items-center justify-between py-2 px-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg">
+            <span className="text-sm font-medium text-blue-800 dark:text-blue-200">
+              {selectedItems.length} selected
+            </span>
+            <div className="flex items-center gap-2">
+              <button onClick={() => handleBulkAction('price-request')} className="px-3 py-1.5 bg-blue-600 text-white text-xs font-medium rounded-lg hover:bg-blue-700">
+                Request Pricing
+              </button>
+              <button onClick={() => handleBulkAction('lead-time-request')} className="px-3 py-1.5 border border-blue-600 text-blue-600 text-xs font-medium rounded-lg hover:bg-blue-50">
+                Request Lead Time
+              </button>
+              <button onClick={() => setSelectedItems([])} className="px-3 py-1.5 text-slate-600 text-xs hover:bg-slate-100 rounded-lg">
+                Clear
+              </button>
             </div>
           </div>
         )}
 
-        {/* Filter Section */}
-        <div className="mt-4">
+        {/* Compact Filters */}
+        <div className="mt-3 flex items-center gap-2">
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className="flex items-center space-x-2 px-3 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-600 rounded-lg transition-colors"
+            className={`flex items-center gap-1.5 px-2.5 py-1.5 text-xs rounded-lg transition-colors ${
+              hasActiveFilters ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300' : 'text-slate-600 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-700'
+            }`}
           >
-            <Filter className="w-4 h-4" />
-            <span>Filters</span>
-            {hasActiveFilters && (
-              <span className="bg-blue-600 text-white text-xs px-2 py-0.5 rounded-full">
-                Active
-              </span>
-            )}
+            <Filter className="w-3.5 h-3.5" />
+            Filters
+            {hasActiveFilters && <span className="ml-1 px-1.5 py-0.5 bg-blue-600 text-white text-xs rounded-full">{[filterProductNumber, filterSupplier, filterExpiredCost !== 'all', filterStatus !== 'all'].filter(Boolean).length}</span>}
           </button>
 
           {showFilters && (
-            <div className="mt-3 p-4 bg-gray-50 dark:bg-gray-700 border border-gray-200 dark:border-gray-600 rounded-lg space-y-3">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
-                {/* Product Number Filter */}
-                <div>
-                  <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Product Number
-                  </label>
-                  <input
-                    type="text"
-                    value={filterProductNumber}
-                    onChange={(e) => setFilterProductNumber(e.target.value)}
-                    placeholder="Filter by SKU..."
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                  />
-                </div>
-
-                {/* Supplier Filter */}
-                <div>
-                  <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Supplier
-                  </label>
-                  <select
-                    value={filterSupplier}
-                    onChange={(e) => setFilterSupplier(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="">All Suppliers</option>
-                    {uniqueSuppliers.map(supplier => (
-                      <option key={supplier} value={supplier}>{supplier}</option>
-                    ))}
-                  </select>
-                </div>
-
-                {/* Expired Cost Filter */}
-                <div>
-                  <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Cost Status
-                  </label>
-                  <select
-                    value={filterExpiredCost}
-                    onChange={(e) => setFilterExpiredCost(e.target.value as any)}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="all">All Costs</option>
-                    <option value="valid">Valid Costs</option>
-                    <option value="expired">Expired Costs</option>
-                  </select>
-                </div>
-
-                {/* Status Filter */}
-                <div>
-                  <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
-                    Status
-                  </label>
-                  <select
-                    value={filterStatus}
-                    onChange={(e) => setFilterStatus(e.target.value as any)}
-                    className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
-                  >
-                    <option value="all">All Status</option>
-                    <option value="pending">Pending</option>
-                    <option value="approved">Approved</option>
-                    <option value="lost">Lost</option>
-                  </select>
-                </div>
-              </div>
-
-              {/* Filter Actions */}
+            <>
+              <input
+                type="text"
+                value={filterProductNumber}
+                onChange={(e) => setFilterProductNumber(e.target.value)}
+                placeholder="SKU"
+                className="w-28 px-2.5 py-1.5 text-xs border border-slate-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700"
+              />
+              <select
+                value={filterSupplier}
+                onChange={(e) => setFilterSupplier(e.target.value)}
+                className="px-2.5 py-1.5 text-xs border border-slate-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700"
+              >
+                <option value="">All Suppliers</option>
+                {uniqueSuppliers.map(s => <option key={s} value={s}>{s}</option>)}
+              </select>
+              <select
+                value={filterExpiredCost}
+                onChange={(e) => setFilterExpiredCost(e.target.value as any)}
+                className="px-2.5 py-1.5 text-xs border border-slate-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700"
+              >
+                <option value="all">All Costs</option>
+                <option value="valid">Valid</option>
+                <option value="expired">Expired</option>
+              </select>
+              <select
+                value={filterStatus}
+                onChange={(e) => setFilterStatus(e.target.value as any)}
+                className="px-2.5 py-1.5 text-xs border border-slate-200 dark:border-slate-600 rounded-lg bg-white dark:bg-slate-700"
+              >
+                <option value="all">All Status</option>
+                <option value="pending">Pending</option>
+                <option value="approved">Approved</option>
+                <option value="lost">Lost</option>
+              </select>
               {hasActiveFilters && (
-                <div className="flex items-center justify-between pt-3 border-t border-gray-200 dark:border-gray-600">
-                  <span className="text-xs text-gray-600 dark:text-gray-400">
-                    Showing {filteredLineItems.length} of {lineItems.length} items
-                  </span>
-                  <button
-                    onClick={clearFilters}
-                    className="flex items-center space-x-1 px-3 py-1 text-xs text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition-colors"
-                  >
-                    <X className="w-3 h-3" />
-                    <span>Clear Filters</span>
-                  </button>
-                </div>
+                <button onClick={clearFilters} className="px-2 py-1.5 text-xs text-slate-500 hover:text-slate-700">
+                  <X className="w-3.5 h-3.5" />
+                </button>
               )}
-            </div>
+            </>
           )}
         </div>
       </div>
 
       {/* Expired Cost Alert */}
-      {lineItems.some(item => isLineItemCostExpired(item)) && (
-        <div className="mx-6 mt-4 mb-2 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
-          <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-          <div className="flex-1">
-            <h3 className="text-sm font-semibold text-red-800 mb-1">Expired Product Costs Detected</h3>
-            <p className="text-sm text-red-700">
-              One or more line items have expired cost effective dates. Please review and update the affected products to reflect current pricing.
-            </p>
-          </div>
+      {expiredCount > 0 && (
+        <div className="mx-5 mt-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg flex items-center gap-3">
+          <AlertCircle className="w-4 h-4 text-red-600 flex-shrink-0" />
+          <p className="text-xs text-red-700 dark:text-red-300">
+            <span className="font-medium">{expiredCount} item(s) have expired costs.</span> Review pricing before submitting.
+          </p>
         </div>
       )}
 
-      {/* Data Table - Clean and Focused */}
+      {/* Table */}
       <div className="overflow-x-auto">
         <table className="w-full">
-          <thead className="bg-gray-50 border-b border-gray-200">
-            <tr>
-              <th className="w-12 px-4 py-3 text-left">
+          <thead>
+            <tr className="bg-slate-50 dark:bg-slate-700/50 border-b border-slate-200 dark:border-slate-700">
+              <th className="w-10 px-4 py-3">
                 <input
                   type="checkbox"
-                  className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
-                  onChange={(e) => {
-                    if (e.target.checked) {
-                      setSelectedItems(lineItems.map(item => item.id));
-                    } else {
-                      setSelectedItems([]);
-                    }
-                  }}
+                  className="rounded border-slate-300 text-blue-600"
+                  checked={selectedItems.length === lineItems.length && lineItems.length > 0}
+                  onChange={(e) => setSelectedItems(e.target.checked ? lineItems.map(item => item.id) : [])}
                 />
               </th>
-              <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Product</th>
-              <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Qty</th>
-              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Unit Price</th>
-              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Cost</th>
-              <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Subtotal</th>
-              <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Stock</th>
-              <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Lead</th>
-              <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-              <th className="px-4 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+              <th className="px-4 py-3 text-left text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide">Product</th>
+              <th className="px-3 py-3 text-center text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide w-20">Qty</th>
+              <th className="px-3 py-3 text-right text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide w-24">Price</th>
+              <th className="px-3 py-3 text-right text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide w-24">Cost</th>
+              <th className="px-3 py-3 text-right text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide w-28">Subtotal</th>
+              <th className="px-3 py-3 text-center text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide w-16">Stock</th>
+              <th className="px-3 py-3 text-center text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide w-24">Lead</th>
+              <th className="px-3 py-3 text-center text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide w-28">Status</th>
+              <th className="px-3 py-3 text-center text-xs font-semibold text-slate-600 dark:text-slate-400 uppercase tracking-wide w-16"></th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-gray-200">
+          <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
             {filteredLineItems.map((item, index) => (
               <React.Fragment key={item.id}>
                 <tr className={`transition-colors ${
-                  expandedItem === item.id ? 'bg-blue-50 dark:bg-blue-900/20' :
-                  index % 2 === 0 ? 'bg-white dark:bg-gray-800 hover:bg-gray-50 dark:hover:bg-gray-750' : 'bg-gray-50 dark:bg-gray-700 hover:bg-gray-100 dark:hover:bg-gray-650'
-                } ${
-                  selectedItems.includes(item.id) ? 'ring-2 ring-blue-500 ring-inset' : ''
-                }`}>
-                  <td className="px-4 py-4">
+                  expandedItem === item.id ? 'bg-blue-50/50 dark:bg-blue-900/10' :
+                  selectedItems.includes(item.id) ? 'bg-blue-50/30 dark:bg-blue-900/5' :
+                  'hover:bg-slate-50 dark:hover:bg-slate-700/50'
+                } ${isLineItemCostExpired(item) ? 'bg-red-50/30 dark:bg-red-900/10' : ''}`}>
+                  <td className="px-4 py-3">
                     <input
                       type="checkbox"
                       checked={selectedItems.includes(item.id)}
                       onChange={() => handleItemSelect(item.id)}
-                      className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                      className="rounded border-slate-300 text-blue-600"
                     />
                   </td>
-                  
-                  {/* Product Column - Primary Information */}
-                  <td className="px-4 py-4">
-                    <div className="flex items-start space-x-3">
-                      <button
-                        onClick={() => toggleExpanded(item.id)}
-                        className="mt-1 p-1 hover:bg-gray-100 rounded transition-colors"
-                      >
-                        <ChevronDown className={`h-4 w-4 text-gray-400 transition-transform ${
-                          expandedItem === item.id ? 'rotate-180' : ''
-                        }`} />
+
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-2">
+                      <button onClick={() => toggleExpanded(item.id)} className="p-0.5 hover:bg-slate-100 dark:hover:bg-slate-700 rounded">
+                        {expandedItem === item.id ? <ChevronDown className="w-4 h-4 text-slate-400" /> : <ChevronRight className="w-4 h-4 text-slate-400" />}
                       </button>
-                      
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center space-x-2">
-                          <span className="font-semibold text-sm text-gray-900">{item.sku}</span>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-1.5">
+                          <span className="font-semibold text-sm text-slate-900 dark:text-white">{item.sku}</span>
                           {hasRelationships(item.sku) && (
-                            <button
-                              onClick={() => setShowSupersessionModal(item.id)}
-                              className="p-1 text-orange-600 hover:bg-orange-100 rounded transition-colors"
-                              title="Alternatives Available"
-                            >
-                              <AlertCircle className="h-3 w-3" />
+                            <button onClick={() => setShowSupersessionModal(item.id)} className="text-amber-600" title="Alternatives available">
+                              <AlertCircle className="w-3.5 h-3.5" />
                             </button>
                           )}
+                          {item.isReplacement && <span className="px-1.5 py-0.5 bg-amber-100 text-amber-700 text-xs rounded">Replacement</span>}
                         </div>
-                        <div className="text-xs text-gray-600 truncate">{item.name}</div>
+                        <div className="text-xs text-slate-500 dark:text-slate-400 truncate max-w-xs">{item.name}</div>
                         <div className="text-xs text-blue-600">{item.supplier}</div>
-                        
-                        {/* Status Indicators - Minimal */}
-                        <div className="flex items-center space-x-2 mt-1">
-                          {item.isReplacement && (
-                            <span className="text-xs px-1 py-0.5 bg-orange-100 text-orange-700 rounded">
-                              Replacement
-                            </span>
-                          )}
-                          {item.selectedPriceBreak && item.selectedPriceBreak.discount > 0 && (
-                            <span className="text-xs px-1 py-0.5 bg-green-100 text-green-700 rounded">
-                              {item.selectedPriceBreak.discount}% discount
-                            </span>
-                          )}
-                        </div>
                       </div>
                     </div>
                   </td>
-                  
-                  {/* Quantity - Editable */}
-                  <td className="px-4 py-4 text-center">
+
+                  <td className="px-3 py-3 text-center">
                     <input
                       type="number"
                       value={item.qty}
@@ -1167,408 +853,219 @@ export const LineItems: React.FC<LineItemsProps> = ({
                         const newQty = parseInt(e.target.value) || 1;
                         const optimalPriceBreak = getOptimalPriceBreak(item.sku, newQty);
                         const newCost = optimalPriceBreak ? optimalPriceBreak.unitCost : item.cost;
-                        
-                        setLineItems(prev => prev.map(li => 
-                          li.id === item.id 
-                            ? { 
-                                ...li, 
-                                qty: newQty, 
-                                cost: newCost,
-                                subtotal: li.price * newQty,
-                                available: getNextAvailableDate(li.sku, newQty),
-                                selectedPriceBreak: optimalPriceBreak
-                              } 
-                            : li
+                        setLineItems(prev => prev.map(li =>
+                          li.id === item.id ? { ...li, qty: newQty, cost: newCost, subtotal: li.price * newQty, available: getNextAvailableDate(li.sku, newQty), selectedPriceBreak: optimalPriceBreak } : li
                         ));
                       }}
-                      className="w-16 px-2 py-1 border border-gray-300 dark:border-gray-600 rounded text-center text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                      className="w-16 px-2 py-1.5 border border-slate-200 dark:border-slate-600 rounded text-center text-sm bg-white dark:bg-slate-700"
                       min="1"
                     />
                   </td>
-                  
-                  {/* Unit Price - Editable with Margin Indicator */}
-                  <td className="px-4 py-4 text-right">
+
+                  <td className="px-3 py-3 text-right">
                     {editingPrice === item.id ? (
                       <input
                         type="number"
                         value={tempPrice}
                         onChange={(e) => setTempPrice(parseFloat(e.target.value) || 0)}
                         onBlur={() => handlePriceEdit(item.id, tempPrice)}
-                        onKeyPress={(e) => {
-                          if (e.key === 'Enter') {
-                            handlePriceEdit(item.id, tempPrice);
-                          }
-                        }}
-                        className="w-20 px-2 py-1 border border-gray-300 dark:border-gray-600 rounded text-right text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                        onKeyDown={(e) => e.key === 'Enter' && handlePriceEdit(item.id, tempPrice)}
+                        className="w-20 px-2 py-1 border border-blue-500 rounded text-right text-sm"
                         autoFocus
                         step="0.01"
                       />
                     ) : (
-                      <div>
-                        <button
-                          onClick={() => {
-                            setEditingPrice(item.id);
-                            setTempPrice(item.price);
-                          }}
-                          className="text-right hover:bg-gray-100 px-2 py-1 rounded transition-colors"
-                        >
-                          {item.price === 0 ? (
-                            <span className="text-gray-400 italic text-sm">Enter price</span>
-                          ) : (
-                            <span className="font-medium text-sm">${item.price.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
-                          )}
-                        </button>
-                        {item.price > 0 && item.cost > 0 && (
-                          <div className={`text-xs mt-1 ${
-                            ((item.price - item.cost) / item.price) * 100 >= 20 ? 'text-green-600' :
-                            ((item.price - item.cost) / item.price) * 100 >= 10 ? 'text-gray-600' : 'text-red-600'
-                          }`}>
-                            {(((item.price - item.cost) / item.price) * 100).toFixed(1)}% margin
-                          </div>
+                      <button
+                        onClick={() => { setEditingPrice(item.id); setTempPrice(item.price); }}
+                        className="w-full text-right hover:bg-slate-100 dark:hover:bg-slate-700 px-2 py-1 rounded"
+                      >
+                        {item.price === 0 ? (
+                          <span className="text-slate-400 text-sm italic">Enter</span>
+                        ) : (
+                          <>
+                            <span className="font-medium text-sm">${item.price.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                            {item.cost > 0 && (
+                              <div className={`text-xs ${((item.price - item.cost) / item.price) * 100 >= 20 ? 'text-emerald-600' : ((item.price - item.cost) / item.price) * 100 >= 10 ? 'text-slate-500' : 'text-red-600'}`}>
+                                {(((item.price - item.cost) / item.price) * 100).toFixed(1)}%
+                              </div>
+                            )}
+                          </>
                         )}
-                      </div>
+                      </button>
                     )}
                   </td>
-                  
-                  {/* Unit Cost - With Price Break Indicator */}
-                  <td className={`px-4 py-4 text-right ${isLineItemCostExpired(item) ? 'bg-red-50' : ''}`}>
-                    <button
-                      onClick={() => setShowPriceBreakModal(item.id)}
-                      className={`text-right px-2 py-1 rounded transition-colors group ${
-                        isLineItemCostExpired(item)
-                          ? 'hover:bg-red-100'
-                          : 'hover:bg-gray-100'
-                      }`}
-                    >
-                      <span className={`font-medium text-sm ${
-                        isLineItemCostExpired(item) ? 'text-red-700' : ''
-                      }`}>
-                        ${item.cost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+
+                  <td className={`px-3 py-3 text-right ${isLineItemCostExpired(item) ? 'bg-red-50 dark:bg-red-900/20' : ''}`}>
+                    <button onClick={() => setShowPriceBreakModal(item.id)} className="text-right hover:bg-slate-100 dark:hover:bg-slate-700 px-2 py-1 rounded group">
+                      <span className={`font-medium text-sm ${isLineItemCostExpired(item) ? 'text-red-700' : ''}`}>
+                        ${item.cost.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                       </span>
-                      <ChevronDown className={`h-3 w-3 inline ml-1 ${
-                        isLineItemCostExpired(item)
-                          ? 'text-red-500 group-hover:text-red-700'
-                          : 'text-gray-400 group-hover:text-gray-600'
-                      }`} />
+                      <ChevronDown className="w-3 h-3 inline ml-0.5 text-slate-400" />
                     </button>
-                    {isLineItemCostExpired(item) && (
-                      <div className="flex items-center justify-end space-x-1 mt-1">
-                        <AlertCircle className="h-3 w-3 text-red-600" />
-                        <span className="text-xs text-red-600 font-medium">EXPIRED</span>
-                      </div>
-                    )}
+                    {isLineItemCostExpired(item) && <div className="text-xs text-red-600 font-medium mt-0.5">EXPIRED</div>}
                   </td>
-                  
-                  {/* Subtotal */}
-                  <td className="px-4 py-4 text-right">
-                    <span className="font-semibold text-gray-900 text-sm">
-                      ${item.subtotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+
+                  <td className="px-3 py-3 text-right">
+                    <span className="font-semibold text-sm text-slate-900 dark:text-white">
+                      ${item.subtotal.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                     </span>
                   </td>
-                  
-                  {/* Stock - Simple Indicator */}
-                  <td className="px-4 py-4 text-center">
-                    <div className="flex items-center justify-center space-x-1">
-                      <div className={`w-2 h-2 rounded-full ${
-                        item.stock > 10 ? 'bg-green-500' : 
-                        item.stock > 0 ? 'bg-yellow-500' : 'bg-red-500'
-                      }`}></div>
-                      <span className="text-sm text-gray-700">{item.stock}</span>
+
+                  <td className="px-3 py-3 text-center">
+                    <div className="flex items-center justify-center gap-1">
+                      <div className={`w-1.5 h-1.5 rounded-full ${item.stock > 10 ? 'bg-emerald-500' : item.stock > 0 ? 'bg-amber-500' : 'bg-red-500'}`}></div>
+                      <span className="text-sm text-slate-700 dark:text-slate-300">{item.stock}</span>
                     </div>
                   </td>
-                  
-                  {/* Lead Time - Editable */}
-                  <td className="px-4 py-4 text-center">
+
+                  <td className="px-3 py-3 text-center">
                     <input
                       type="text"
                       value={item.quotedLeadTime || ''}
-                      onChange={(e) => {
-                        setLineItems(prev => prev.map(li => 
-                          li.id === item.id ? { ...li, quotedLeadTime: e.target.value } : li
-                        ));
-                      }}
-                      placeholder="Enter lead time"
-                      className="w-20 px-2 py-1 border border-gray-300 rounded text-center text-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                      onChange={(e) => setLineItems(prev => prev.map(li => li.id === item.id ? { ...li, quotedLeadTime: e.target.value } : li))}
+                      placeholder={item.leadTime}
+                      className="w-20 px-2 py-1 border border-slate-200 dark:border-slate-600 rounded text-center text-xs bg-white dark:bg-slate-700"
                     />
                   </td>
-                  
-                  {/* Status - Clean Dropdown */}
-                  <td className="px-4 py-4 text-center">
+
+                  <td className="px-3 py-3 text-center">
                     <select
                       value={item.status}
                       onChange={(e) => handleStatusChange(item.id, e.target.value)}
-                      className={`px-2 py-1 border border-gray-300 dark:border-gray-600 rounded text-xs focus:ring-2 focus:ring-blue-500 ${
-                        item.status === 'Won' ? 'bg-green-50 text-green-800 border-green-300' :
-                        item.status === 'Lost' ? 'bg-red-50 text-red-800 border-red-300' :
-                        item.status === 'Price Request' ? 'bg-blue-50 text-blue-800 border-blue-300' :
-                        'bg-gray-50 dark:bg-gray-700 text-gray-800 dark:text-gray-100'
+                      className={`px-2 py-1 border rounded text-xs font-medium ${
+                        item.status === 'Won' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' :
+                        item.status === 'Lost' ? 'bg-red-50 text-red-700 border-red-200' :
+                        item.status === 'Price Request' ? 'bg-blue-50 text-blue-700 border-blue-200' :
+                        'bg-slate-50 text-slate-700 border-slate-200 dark:bg-slate-700 dark:text-slate-300 dark:border-slate-600'
                       }`}
                     >
                       <option value="Pending">Pending</option>
                       <option value="Won">Won</option>
                       <option value="Lost">Lost</option>
                       <option value="Price Request">Price Request</option>
-                      <option value="Lead Time Request">Lead Time Request</option>
+                      <option value="Lead Time Request">Lead Time</option>
                       <option value="No Quote">No Quote</option>
                     </select>
                   </td>
-                  
-                  {/* Actions - Essential Only */}
-                  <td className="px-4 py-4">
-                    <div className="flex items-center justify-center space-x-2">
-                      {supplyPeriodMonths > 12 && (
-                        <button
-                          onClick={() => onShowMultiYearPricing && onShowMultiYearPricing(item)}
-                          className="p-2 text-blue-600 hover:bg-blue-100 rounded transition-colors"
-                          title="Multi-Year Pricing"
-                        >
-                          <Calendar className="h-4 w-4" />
+
+                  <td className="px-3 py-3 text-center relative" ref={actionMenuOpen === item.id ? actionMenuRef : null}>
+                    <button
+                      onClick={() => setActionMenuOpen(actionMenuOpen === item.id ? null : item.id)}
+                      className="p-1.5 hover:bg-slate-100 dark:hover:bg-slate-700 rounded transition-colors"
+                    >
+                      <MoreHorizontal className="w-4 h-4 text-slate-500" />
+                    </button>
+                    {actionMenuOpen === item.id && (
+                      <div className="absolute right-0 top-full mt-1 w-40 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg z-20">
+                        <button onClick={() => { onProductSelect(item); onSetUpdatePriceCallback({ callback: updateItemPrice, itemId: item.id }); onShowCostAnalysis(true); setActionMenuOpen(null); }} className="w-full px-3 py-2 text-left text-sm hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center gap-2">
+                          <Calculator className="w-4 h-4" /> Cost Analysis
                         </button>
-                      )}
-                      <button
-                        onClick={() => {
-                          onProductSelect(item);
-                          onSetUpdatePriceCallback({
-                            callback: updateItemPrice,
-                            itemId: item.id
-                          });
-                          onShowCostAnalysis(true);
-                        }}
-                        className="p-2 text-gray-600 hover:bg-gray-100 rounded transition-colors"
-                        title="Cost Analysis"
-                      >
-                        <Calculator className="h-4 w-4" />
-                      </button>
-                      <button
-                        onClick={() => setShowHistoryModal(item.id)}
-                        className="p-2 text-gray-600 hover:bg-gray-100 rounded transition-colors"
-                        title="View History"
-                      >
-                        <Eye className="h-4 w-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDeleteItem(item.id)}
-                        className="p-2 text-red-600 hover:bg-red-100 rounded transition-colors"
-                        title="Delete Item"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    </div>
+                        <button onClick={() => { setShowHistoryModal(item.id); setActionMenuOpen(null); }} className="w-full px-3 py-2 text-left text-sm hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center gap-2">
+                          <Eye className="w-4 h-4" /> View History
+                        </button>
+                        {supplyPeriodMonths > 12 && (
+                          <button onClick={() => { onShowMultiYearPricing && onShowMultiYearPricing(item); setActionMenuOpen(null); }} className="w-full px-3 py-2 text-left text-sm hover:bg-slate-50 dark:hover:bg-slate-700 flex items-center gap-2">
+                            <Calendar className="w-4 h-4" /> Multi-Year Pricing
+                          </button>
+                        )}
+                        <div className="border-t border-slate-100 dark:border-slate-700" />
+                        <button onClick={() => handleDeleteItem(item.id)} className="w-full px-3 py-2 text-left text-sm text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-2">
+                          <Trash2 className="w-4 h-4" /> Delete
+                        </button>
+                      </div>
+                    )}
                   </td>
                 </tr>
-                
-                {/* Expanded Details - Clean Layout */}
+
+                {/* Expanded Row */}
                 {expandedItem === item.id && (
-                  <tr className={index % 2 === 0 ? 'bg-white dark:bg-gray-800' : 'bg-gray-50 dark:bg-gray-700'}>
+                  <tr className="bg-slate-50/50 dark:bg-slate-700/30">
                     <td colSpan={10} className="px-6 py-4">
-                      <div className="space-y-4">
-                        {/* Price Request Info */}
+                      <div className="space-y-3">
                         <PriceRequestInfo itemId={item.id} />
 
-                        {/* Cross-Reference Info */}
                         {item.crossReference && (
                           <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-3">
-                            <div className="flex items-center justify-between mb-2">
-                              <h4 className="font-medium text-sm text-blue-900 dark:text-blue-100">Cross-Reference Information</h4>
-                              {item.crossReference.type && (
-                                <span className="text-xs font-medium px-2 py-0.5 rounded bg-blue-100 dark:bg-blue-800 text-blue-800 dark:text-blue-100">
-                                  {item.crossReference.type}
-                                </span>
-                              )}
-                            </div>
+                            <div className="text-xs font-medium text-blue-800 dark:text-blue-200 mb-1">Cross-Reference</div>
                             <div className="grid grid-cols-3 gap-4 text-xs">
-                              {item.crossReference.customer_part_number && (
-                                <div>
-                                  <span className="text-blue-700 dark:text-blue-300 font-medium">Customer Part:</span>
-                                  <div className="text-blue-900 dark:text-blue-100">{item.crossReference.customer_part_number}</div>
-                                </div>
-                              )}
-                              {item.crossReference.supplier_part_number && (
-                                <div>
-                                  <span className="text-blue-700 dark:text-blue-300 font-medium">Supplier Part:</span>
-                                  <div className="text-blue-900 dark:text-blue-100">{item.crossReference.supplier_part_number}</div>
-                                </div>
-                              )}
-                              <div>
-                                <span className="text-blue-700 dark:text-blue-300 font-medium">Internal Part:</span>
-                                <div className="text-blue-900 dark:text-blue-100">{item.crossReference.internal_part_number}</div>
-                              </div>
+                              {item.crossReference.customer_part_number && <div><span className="text-slate-500">Customer Part:</span> {item.crossReference.customer_part_number}</div>}
+                              {item.crossReference.supplier_part_number && <div><span className="text-slate-500">Supplier Part:</span> {item.crossReference.supplier_part_number}</div>}
+                              <div><span className="text-slate-500">Internal:</span> {item.crossReference.internal_part_number}</div>
                             </div>
                           </div>
                         )}
-                        
-                        {/* Replacement Info */}
+
                         {item.isReplacement && (
-                          <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
-                            <h4 className="font-medium text-sm text-orange-900 mb-2">Product Replacement</h4>
+                          <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
+                            <div className="text-xs font-medium text-amber-800 mb-1">Replacement Details</div>
                             <div className="grid grid-cols-2 gap-4 text-xs">
-                              <div>
-                                <span className="text-orange-700 font-medium">Original Request:</span>
-                                <div className="text-orange-900">{item.originalCustomerSku}</div>
-                                <div className="text-orange-800">{item.originalCustomerName}</div>
-                              </div>
-                              <div>
-                                <span className="text-orange-700 font-medium">Replacement Reason:</span>
-                                <div className="text-orange-900">{item.replacementReason}</div>
-                              </div>
+                              <div><span className="text-slate-500">Original:</span> {item.originalCustomerSku} - {item.originalCustomerName}</div>
+                              <div><span className="text-slate-500">Reason:</span> {item.replacementReason}</div>
                             </div>
                           </div>
                         )}
-                        
-                        {/* Ship-To Address */}
-                        {customerAddresses.length > 0 && (
+
+                        <div className="grid grid-cols-2 gap-4">
+                          {customerAddresses.length > 0 && (
+                            <div>
+                              <label className="block text-xs font-medium text-slate-600 mb-1">Ship-To Address</label>
+                              <select
+                                value={item.ship_to_address_id || ''}
+                                onChange={(e) => setLineItems(prev => prev.map(li => li.id === item.id ? { ...li, ship_to_address_id: e.target.value || null } : li))}
+                                className="w-full px-3 py-2 border border-slate-200 dark:border-slate-600 rounded-lg text-xs bg-white dark:bg-slate-700"
+                              >
+                                <option value="">Primary address</option>
+                                {customerAddresses.map((addr) => (
+                                  <option key={addr.id} value={addr.id}>
+                                    {addr.address_line_1}, {addr.city}, {addr.state}
+                                  </option>
+                                ))}
+                              </select>
+                            </div>
+                          )}
                           <div>
-                            <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
-                              Ship-To Address
-                            </label>
-                            <select
-                              value={item.ship_to_address_id || ''}
-                              onChange={(e) => {
-                                setLineItems(prev => prev.map(li =>
-                                  li.id === item.id ? { ...li, ship_to_address_id: e.target.value || null } : li
-                                ));
-                              }}
-                              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                            >
-                              <option value="">Use customer's primary address</option>
-                              {customerAddresses.map((address) => (
-                                <option key={address.id} value={address.id}>
-                                  {address.address_line_1}, {address.city}, {address.state} {address.postal_code}
-                                  {address.is_primary && ' (Primary)'}
-                                </option>
-                              ))}
-                            </select>
-                            {item.ship_to_address_id && (() => {
-                              const selectedAddress = customerAddresses.find(a => a.id === item.ship_to_address_id);
-                              if (!selectedAddress) return null;
-                              return (
-                                <div className="mt-2 p-2 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded text-xs">
-                                  <div className="font-medium text-blue-900 dark:text-blue-100 mb-1">Selected Ship-To Address:</div>
-                                  <div className="text-blue-800 dark:text-blue-200">
-                                    {selectedAddress.address_line_1}
-                                    {selectedAddress.address_line_2 && <><br/>{selectedAddress.address_line_2}</>}
-                                    {selectedAddress.address_line_3 && <><br/>{selectedAddress.address_line_3}</>}
-                                    <br/>{selectedAddress.city}, {selectedAddress.state} {selectedAddress.postal_code}
-                                    <br/>{selectedAddress.country}
-                                  </div>
-                                </div>
-                              );
-                            })()}
+                            <label className="block text-xs font-medium text-slate-600 mb-1">Shipping Instructions</label>
+                            <textarea
+                              value={item.shippingInstructions || ''}
+                              onChange={(e) => setLineItems(prev => prev.map(li => li.id === item.id ? { ...li, shippingInstructions: e.target.value } : li))}
+                              placeholder="Special instructions..."
+                              rows={2}
+                              className="w-full px-3 py-2 border border-slate-200 dark:border-slate-600 rounded-lg text-xs bg-white dark:bg-slate-700"
+                            />
+                          </div>
+                        </div>
+
+                        {getLineItemCostDates(item).to && (
+                          <div className={`rounded-lg p-3 ${isLineItemCostExpired(item) ? 'bg-red-50 border border-red-200' : 'bg-slate-100 border border-slate-200'}`}>
+                            <div className="flex items-center justify-between">
+                              <span className="text-xs font-medium text-slate-600">Cost Effective Period</span>
+                              {isLineItemCostExpired(item) && <span className="text-xs text-red-600 font-medium">EXPIRED</span>}
+                            </div>
+                            <div className="text-xs text-slate-500 mt-1">
+                              {getLineItemCostDates(item).from && new Date(getLineItemCostDates(item).from!).toLocaleDateString()} to {new Date(getLineItemCostDates(item).to!).toLocaleDateString()}
+                            </div>
                           </div>
                         )}
-
-                        {/* Shipping Instructions */}
-                        <div>
-                          <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
-                            Shipping Instructions
-                          </label>
-                          <textarea
-                            value={item.shippingInstructions || ''}
-                            onChange={(e) => {
-                              setLineItems(prev => prev.map(li =>
-                                li.id === item.id ? { ...li, shippingInstructions: e.target.value } : li
-                              ));
-                            }}
-                            placeholder="Enter any special shipping requirements..."
-                            className="w-full px-2 py-1 border border-gray-300 dark:border-gray-600 rounded text-xs focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                          />
-                        </div>
-                        
-                        {/* Cost Effective Dates */}
-                        {(() => {
-                          const dates = getLineItemCostDates(item);
-                          if (!dates.from && !dates.to) return null;
-
-                          return (
-                            <div className={`border rounded-lg p-3 ${
-                              isLineItemCostExpired(item)
-                                ? 'bg-red-50 border-red-200'
-                                : 'bg-gray-50 border-gray-200'
-                            }`}>
-                              <div className="flex items-center justify-between mb-2">
-                                <h4 className={`font-medium text-sm ${
-                                  isLineItemCostExpired(item) ? 'text-red-900' : 'text-gray-900'
-                                }`}>
-                                  Cost Effective Period
-                                </h4>
-                                {isLineItemCostExpired(item) && (
-                                  <span className="text-xs bg-red-200 text-red-800 px-2 py-0.5 rounded-full font-medium">
-                                    EXPIRED
-                                  </span>
-                                )}
-                              </div>
-                              <div className="grid grid-cols-2 gap-4 text-xs">
-                                {dates.from && (
-                                  <div>
-                                    <span className={`font-medium ${
-                                      isLineItemCostExpired(item) ? 'text-red-700' : 'text-gray-700'
-                                    }`}>
-                                      Effective From:
-                                    </span>
-                                    <div className={isLineItemCostExpired(item) ? 'text-red-900' : 'text-gray-600'}>
-                                      {new Date(dates.from).toLocaleDateString()}
-                                    </div>
-                                  </div>
-                                )}
-                                {dates.to && (
-                                  <div>
-                                    <span className={`font-medium ${
-                                      isLineItemCostExpired(item) ? 'text-red-700' : 'text-gray-700'
-                                    }`}>
-                                      Effective To:
-                                    </span>
-                                    <div className={isLineItemCostExpired(item) ? 'text-red-900' : 'text-gray-600'}>
-                                      {new Date(dates.to).toLocaleDateString()}
-                                    </div>
-                                  </div>
-                                )}
-                              </div>
-                              {isLineItemCostExpired(item) && (
-                                <div className="mt-2 p-2 bg-red-100 border border-red-300 rounded text-xs text-red-800">
-                                  <strong>Warning:</strong> This cost has expired. Please update the product cost to reflect current pricing.
-                                </div>
-                              )}
-                            </div>
-                          );
-                        })()}
-
-                        {/* Additional Details */}
-                        <div className="grid grid-cols-3 gap-4 text-xs">
-                          <div>
-                            <span className="font-medium text-gray-700">Warehouse:</span>
-                            <div className="text-gray-600">{item.warehouse}</div>
-                          </div>
-                          <div>
-                            <span className="font-medium text-gray-700">Available Date:</span>
-                            <div className="text-gray-600">{item.available}</div>
-                          </div>
-                          <div>
-                            <span className="font-medium text-gray-700">Reserved:</span>
-                            <div className="text-gray-600">{item.reserved}</div>
-                          </div>
-                        </div>
                       </div>
                     </td>
                   </tr>
                 )}
               </React.Fragment>
             ))}
-            
-            {/* Empty State */}
+
             {lineItems.length === 0 && (
               <tr>
-                <td colSpan={10} className="px-6 py-12 text-center">
-                  <div className="flex flex-col items-center space-y-4">
-                    <Package className="h-16 w-16 text-gray-300" />
-                    <div>
-                      <h3 className="text-lg font-medium text-gray-900 mb-2">No items added yet</h3>
-                      <p className="text-sm text-gray-600 mb-4">Start building your quote by adding products</p>
-                      <button
-                        onClick={() => setShowProductModal(true)}
-                        className="inline-flex items-center px-3 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
-                      >
-                        <Plus className="h-4 w-4 mr-2" />
-                        Add First Product
+                <td colSpan={10} className="px-6 py-16 text-center">
+                  <div className="flex flex-col items-center">
+                    <Package className="h-12 w-12 text-slate-300 mb-3" />
+                    <h3 className="text-sm font-medium text-slate-900 dark:text-white mb-1">No items yet</h3>
+                    <p className="text-sm text-slate-500 mb-4">Add products to build your quote</p>
+                    <div className="flex gap-2">
+                      <button onClick={() => setShowProductModal(true)} className="px-4 py-2 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700">
+                        <Plus className="h-4 w-4 mr-1.5 inline" /> Add Product
+                      </button>
+                      <button onClick={() => { setCsvUploadMode('add'); setShowCSVUploadModal(true); }} className="px-4 py-2 border border-slate-300 text-slate-700 text-sm rounded-lg hover:bg-slate-50">
+                        <Upload className="h-4 w-4 mr-1.5 inline" /> Import CSV
                       </button>
                     </div>
                   </div>
@@ -1576,100 +1073,31 @@ export const LineItems: React.FC<LineItemsProps> = ({
               </tr>
             )}
 
-            {/* No Results State */}
             {lineItems.length > 0 && filteredLineItems.length === 0 && (
               <tr>
                 <td colSpan={10} className="px-6 py-12 text-center">
-                  <div className="flex flex-col items-center space-y-4">
-                    <Filter className="h-16 w-16 text-gray-300" />
-                    <div>
-                      <h3 className="text-lg font-medium text-gray-900 dark:text-white mb-2">No items match your filters</h3>
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">Try adjusting your filter criteria</p>
-                      <button
-                        onClick={clearFilters}
-                        className="inline-flex items-center px-3 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors text-sm"
-                      >
-                        <X className="h-4 w-4 mr-2" />
-                        Clear All Filters
-                      </button>
-                    </div>
-                  </div>
+                  <Filter className="h-10 w-10 text-slate-300 mx-auto mb-3" />
+                  <h3 className="text-sm font-medium text-slate-900 dark:text-white mb-1">No matches</h3>
+                  <p className="text-sm text-slate-500 mb-3">Adjust your filters</p>
+                  <button onClick={clearFilters} className="px-3 py-1.5 text-sm text-blue-600 hover:bg-blue-50 rounded-lg">Clear Filters</button>
                 </td>
               </tr>
             )}
           </tbody>
         </table>
       </div>
-      
+
       {/* Modals */}
-      {showProductModal && (
-        <ProductModal 
-          onClose={() => setShowProductModal(false)} 
-          onProductSelect={handleProductSelect}
-        />
-      )}
-      
-      {showPriceBreakModal && (
-        (() => {
-          const item = lineItems.find(item => item.id === showPriceBreakModal);
-          return item ? (
-            <PriceBreakModal
-              item={item}
-              onClose={() => setShowPriceBreakModal(null)}
-              onPriceBreakSelect={handlePriceBreakSelect}
-            />
-          ) : null;
-        })()
-      )}
-     
-      {showSupersessionModal && (
-        <SupersessionModal
-          item={lineItems.find(item => item.id === showSupersessionModal)}
-          onClose={() => setShowSupersessionModal(null)}
-          onSelectReplacement={handleSupersessionSelect}
-        />
-      )}
-      
-      {showHistoryModal && (
-        <HistoryModal
-          item={lineItems.find(item => item.id === showHistoryModal)}
-          currentQuoteId={currentQuote?.id}
-          customerId={selectedCustomer?.id}
-          onClose={() => setShowHistoryModal(null)}
-        />
-      )}
-      
-      {showCSVUploadModal && (
-        <CSVUploadModal
-          onClose={() => setShowCSVUploadModal(false)}
-          onUpload={handleCSVUpload}
-          mode={csvUploadMode}
-          existingLineItems={lineItems}
-        />
-      )}
-      
-      {showDeleteModal && (
-        <DeleteConfirmationModal
-          isOpen={true}
-          onClose={() => setShowDeleteModal(null)}
-          onConfirm={confirmDeleteItem}
-          title="Delete Line Item"
-          message="Are you sure you want to delete this line item from the quote?"
-          itemName={lineItems.find(item => item.id === showDeleteModal)?.name || 'Unknown Item'}
-          deleteType="hard"
-          loading={deleteLoading}
-          cascadeWarning="This will permanently remove the line item from the quote and cannot be undone."
-        />
-      )}
-      
-      {showLostDetailsModal && (
-        <LostDetailsModal
-          lineItem={lineItems.find(item => item.id === showLostDetailsModal)}
-          onClose={handleLostDetailsCancel}
-          onSave={handleLostDetailsSave}
-          isOpen={true}
-        />
-      )}
+      {showProductModal && <ProductModal onClose={() => setShowProductModal(false)} onProductSelect={handleProductSelect} />}
+      {showPriceBreakModal && (() => {
+        const item = lineItems.find(i => i.id === showPriceBreakModal);
+        return item ? <PriceBreakModal item={item} onClose={() => setShowPriceBreakModal(null)} onPriceBreakSelect={handlePriceBreakSelect} /> : null;
+      })()}
+      {showSupersessionModal && <SupersessionModal item={lineItems.find(i => i.id === showSupersessionModal)} onClose={() => setShowSupersessionModal(null)} onSelectReplacement={handleSupersessionSelect} />}
+      {showHistoryModal && <HistoryModal item={lineItems.find(i => i.id === showHistoryModal)} currentQuoteId={currentQuote?.id} customerId={selectedCustomer?.id} onClose={() => setShowHistoryModal(null)} />}
+      {showCSVUploadModal && <CSVUploadModal onClose={() => setShowCSVUploadModal(false)} onUpload={handleCSVUpload} mode={csvUploadMode} existingLineItems={lineItems} />}
+      {showDeleteModal && <DeleteConfirmationModal isOpen={true} onClose={() => setShowDeleteModal(null)} onConfirm={confirmDeleteItem} title="Delete Line Item" message="Remove this item from the quote?" itemName={lineItems.find(i => i.id === showDeleteModal)?.name || ''} deleteType="hard" loading={deleteLoading} cascadeWarning="This cannot be undone." />}
+      {showLostDetailsModal && <LostDetailsModal lineItem={lineItems.find(i => i.id === showLostDetailsModal)} onClose={() => setShowLostDetailsModal(null)} onSave={(id, details) => { setLineItems(prev => prev.map(i => i.id === id ? { ...i, status: 'Lost' } : i)); setShowLostDetailsModal(null); }} isOpen={true} />}
     </div>
   );
 };

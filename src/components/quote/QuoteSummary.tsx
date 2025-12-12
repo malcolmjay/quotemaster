@@ -1,11 +1,10 @@
 import React from 'react';
-import { FileText, Download, AlertTriangle, X } from 'lucide-react';
+import { Download, AlertTriangle, X, Save, Send, DollarSign, TrendingUp, Truck, PiggyBank, FileText } from 'lucide-react';
 import { ApprovalStatus } from '../approval/ApprovalStatus';
 import { useSupabaseQuote } from '../../context/SupabaseQuoteContext';
 import { useCustomer } from '../../context/CustomerContext';
 import { useAuthContext } from '../auth/AuthProvider';
 import { useApproval } from '../../hooks/useApproval';
-import { createLineItem } from '../../lib/supabase';
 
 interface QuoteSummaryProps {
   lineItems?: any[];
@@ -24,34 +23,29 @@ export const QuoteSummary: React.FC<QuoteSummaryProps> = ({ lineItems = [], onSa
   const totalLineItems = lineItems.length;
   const subtotal = lineItems.reduce((sum, item) => sum + item.subtotal, 0);
   const totalCost = lineItems.reduce((sum, item) => sum + (item.cost * item.qty), 0);
-  const totalCarryingCost = totalCost * 0.0187; // 1.87% of Total Cost
-  const totalFreightOut = totalCost * 0.06; // 6% of Total Cost
+  const totalCarryingCost = totalCost * 0.0187;
+  const totalFreightOut = totalCost * 0.06;
   const totalMargin = subtotal > 0 ? ((subtotal - totalCost) / subtotal) * 100 : 0;
+  const grossProfit = subtotal - totalCost;
   const total = subtotal;
-  
-  const [approvalRefreshKey, setApprovalRefreshKey] = React.useState(0);
-  
-  const handleSaveDraft = async () => {
-    console.log('=== SAVE DRAFT DEBUG START ===');
-    console.log('Selected customer:', selectedCustomer);
-    console.log('Current user:', user);
-    console.log('Line items to save:', lineItems);
-    console.log('Current quote:', currentQuote);
 
+  const [approvalRefreshKey, setApprovalRefreshKey] = React.useState(0);
+
+  const handleSaveDraft = async () => {
     if (!selectedCustomer) {
-      setSaveMessage('Please select a customer before saving');
+      setSaveMessage('Please select a customer');
       setTimeout(() => setSaveMessage(null), 3000);
       return;
     }
 
     if (!user) {
-      setSaveMessage('User not authenticated');
+      setSaveMessage('Not authenticated');
       setTimeout(() => setSaveMessage(null), 3000);
       return;
     }
 
     if (lineItems.length === 0) {
-      setSaveMessage('Please add at least one line item before saving');
+      setSaveMessage('Add at least one line item');
       setTimeout(() => setSaveMessage(null), 3000);
       return;
     }
@@ -59,7 +53,6 @@ export const QuoteSummary: React.FC<QuoteSummaryProps> = ({ lineItems = [], onSa
     try {
       setSaving(true);
       setSaveMessage(null);
-      console.log('Starting save process...');
 
       const quoteData = {
         customer_id: selectedCustomer.id,
@@ -82,69 +75,46 @@ export const QuoteSummary: React.FC<QuoteSummaryProps> = ({ lineItems = [], onSa
         quote_status: 'draft' as const
       };
 
-      console.log('Quote data prepared:', quoteData);
-
       if (currentQuote) {
-        console.log('Updating existing quote:', currentQuote.id);
         await updateCurrentQuote(quoteData);
-        console.log('Quote updated successfully');
-
         await syncLineItems(lineItems, currentQuote.id);
-
-        setSaveMessage(`Quote ${currentQuote.quote_number} updated successfully`);
+        setSaveMessage(`Quote ${currentQuote.quote_number} saved`);
       } else {
-        console.log('Creating new quote...');
         const newQuote = await createNewQuote(quoteData);
-        console.log('New quote created:', newQuote);
-
         await syncLineItems(lineItems, newQuote.id);
-
-        setSaveMessage(`Quote ${newQuote.quote_number} saved as draft`);
+        setSaveMessage(`Quote ${newQuote.quote_number} created`);
       }
 
-      if (onSaveSuccess) {
-        onSaveSuccess();
-      }
-
-      setTimeout(() => setSaveMessage(null), 5000);
+      if (onSaveSuccess) onSaveSuccess();
+      setTimeout(() => setSaveMessage(null), 4000);
     } catch (error) {
-      console.error('❌ CRITICAL ERROR saving quote:', error);
-      console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
-      setSaveMessage(error instanceof Error ? error.message : 'Failed to save quote');
-      setTimeout(() => setSaveMessage(null), 5000);
+      console.error('Error saving quote:', error);
+      setSaveMessage(error instanceof Error ? error.message : 'Save failed');
+      setTimeout(() => setSaveMessage(null), 4000);
     } finally {
       setSaving(false);
-      console.log('=== SAVE DRAFT DEBUG END ===');
     }
   };
 
   const handleBookQuote = async () => {
-    console.log('=== BOOK QUOTE DEBUG START ===');
-    console.log('Selected customer:', selectedCustomer);
-    console.log('Current user:', user);
-    console.log('Line items:', lineItems);
-    console.log('Current quote:', currentQuote);
-
     if (!selectedCustomer) {
-      setSaveMessage('Please select a customer before booking');
+      setSaveMessage('Please select a customer');
       setTimeout(() => setSaveMessage(null), 3000);
       return;
     }
 
     if (!user) {
-      setSaveMessage('User not authenticated');
+      setSaveMessage('Not authenticated');
       setTimeout(() => setSaveMessage(null), 3000);
       return;
     }
 
     if (lineItems.length === 0) {
-      setSaveMessage('Please add at least one line item before booking');
+      setSaveMessage('Add at least one line item');
       setTimeout(() => setSaveMessage(null), 3000);
       return;
     }
 
-    // Check if gross profit is negative
-    const grossProfit = subtotal - totalCost;
     if (grossProfit < 0) {
       setShowNegativeMarginModal(true);
       return;
@@ -157,8 +127,6 @@ export const QuoteSummary: React.FC<QuoteSummaryProps> = ({ lineItems = [], onSa
       let quoteId: string;
 
       if (!currentQuote) {
-        console.log('No current quote - creating new quote before booking...');
-
         const quoteData = {
           customer_id: selectedCustomer.id,
           customer_user_id: null,
@@ -181,15 +149,9 @@ export const QuoteSummary: React.FC<QuoteSummaryProps> = ({ lineItems = [], onSa
         };
 
         const newQuote = await createNewQuote(quoteData);
-        console.log('New quote created:', newQuote);
-
         await syncLineItems(lineItems, newQuote.id);
-        console.log('Line items synced');
-
         quoteId = newQuote.id;
       } else {
-        console.log('Updating existing quote before booking...');
-
         const quoteData = {
           customer_id: selectedCustomer.id,
           customer_user_id: null,
@@ -210,290 +172,299 @@ export const QuoteSummary: React.FC<QuoteSummaryProps> = ({ lineItems = [], onSa
         };
 
         await updateCurrentQuote(quoteData);
-        console.log('Quote updated successfully');
-
         await syncLineItems(lineItems, currentQuote.id);
-        console.log('Line items synced');
-
         quoteId = currentQuote.id;
       }
-
-      console.log('Starting book process for quote:', quoteId);
 
       const result = await submitForApproval(quoteId);
 
       if (result.autoApproved) {
-        setSaveMessage('Quote automatically approved and booked');
+        setSaveMessage('Quote approved and booked');
       } else {
-        setSaveMessage('Quote booked and submitted for approval');
+        setSaveMessage('Quote submitted for approval');
       }
 
       sessionStorage.setItem('focusQuoteId', quoteId);
       await refreshQuotes();
 
-      if (onSaveSuccess) {
-        onSaveSuccess();
-      }
-
-      setTimeout(() => setSaveMessage(null), 5000);
+      if (onSaveSuccess) onSaveSuccess();
+      setTimeout(() => setSaveMessage(null), 4000);
     } catch (error) {
-      console.error('❌ ERROR booking quote:', error);
-      console.error('Error stack:', error instanceof Error ? error.stack : 'No stack trace');
-      setSaveMessage(error instanceof Error ? error.message : 'Failed to book quote');
-      setTimeout(() => setSaveMessage(null), 5000);
+      console.error('Error booking quote:', error);
+      setSaveMessage(error instanceof Error ? error.message : 'Booking failed');
+      setTimeout(() => setSaveMessage(null), 4000);
     } finally {
       setSaving(false);
-      console.log('=== BOOK QUOTE DEBUG END ===');
+    }
+  };
+
+  const generateQuotePDF = () => {
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <title>Quote - ${new Date().toLocaleDateString()}</title>
+        <style>
+          body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; margin: 40px; color: #1e293b; }
+          .header { border-bottom: 2px solid #3b82f6; padding-bottom: 20px; margin-bottom: 30px; }
+          .company-name { font-size: 24px; font-weight: 700; color: #1e293b; }
+          .quote-info { color: #64748b; font-size: 14px; margin-top: 8px; }
+          .line-items { width: 100%; border-collapse: collapse; margin: 24px 0; font-size: 13px; }
+          .line-items th { background: #f8fafc; padding: 12px 16px; text-align: left; border-bottom: 2px solid #e2e8f0; font-weight: 600; color: #475569; }
+          .line-items td { padding: 12px 16px; border-bottom: 1px solid #e2e8f0; }
+          .line-items tr:hover { background: #f8fafc; }
+          .text-right { text-align: right; }
+          .totals { margin-top: 24px; display: flex; justify-content: flex-end; }
+          .totals-box { background: #f8fafc; padding: 20px; border-radius: 8px; min-width: 280px; }
+          .total-row { display: flex; justify-content: space-between; padding: 8px 0; }
+          .total-row.final { border-top: 2px solid #e2e8f0; margin-top: 8px; padding-top: 16px; font-weight: 700; font-size: 18px; color: #3b82f6; }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <div class="company-name">Quote ${currentQuote?.quote_number || ''}</div>
+          <div class="quote-info">
+            Customer: ${selectedCustomer?.name || 'N/A'}<br>
+            Date: ${new Date().toLocaleDateString()}<br>
+            Items: ${totalLineItems}
+          </div>
+        </div>
+
+        <table class="line-items">
+          <thead>
+            <tr>
+              <th>SKU</th>
+              <th>Description</th>
+              <th>Supplier</th>
+              <th class="text-right">Qty</th>
+              <th class="text-right">Unit Price</th>
+              <th class="text-right">Subtotal</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${lineItems.map(item => `
+              <tr>
+                <td>${item.sku}</td>
+                <td>${item.name}</td>
+                <td>${item.supplier}</td>
+                <td class="text-right">${item.qty}</td>
+                <td class="text-right">$${item.price.toFixed(2)}</td>
+                <td class="text-right">$${item.subtotal.toFixed(2)}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+
+        <div class="totals">
+          <div class="totals-box">
+            <div class="total-row">
+              <span>Subtotal</span>
+              <span>$${subtotal.toFixed(2)}</span>
+            </div>
+            <div class="total-row final">
+              <span>Total</span>
+              <span>$${total.toFixed(2)}</span>
+            </div>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.write(htmlContent);
+      printWindow.document.close();
+      printWindow.focus();
+      setTimeout(() => printWindow.print(), 250);
     }
   };
 
   return (
-    <div className="bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg min-h-[280px]">
-      {/* Minimized Header */}
-      <div className="px-6 py-4 border-b border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-700">
+    <div className="bg-white dark:bg-slate-800 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm overflow-hidden">
+      {/* Compact Header with Stats */}
+      <div className="px-5 py-4 bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
         <div className="flex items-center justify-between">
-          <h3 className="text-sm font-semibold text-gray-900 dark:text-white">Quote Summary</h3>
-          <div className="flex items-center space-x-6 text-sm text-gray-600 dark:text-gray-300">
-            <span className="font-medium">{totalLineItems} items</span>
-            <span className={`font-semibold ${
-              totalMargin >= 20 ? 'text-green-600' :
-              totalMargin >= 10 ? 'text-gray-600' : 'text-red-600'
+          <div className="flex items-center gap-3">
+            <div className="w-9 h-9 rounded-lg bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center">
+              <FileText className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+            </div>
+            <div>
+              <h3 className="text-sm font-semibold text-slate-900 dark:text-white">Quote Summary</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400">{totalLineItems} items</p>
+            </div>
+          </div>
+
+          {/* Message */}
+          {saveMessage && (
+            <div className={`px-3 py-1.5 rounded-lg text-sm font-medium ${
+              saveMessage.includes('saved') || saveMessage.includes('created') || saveMessage.includes('approved') || saveMessage.includes('submitted')
+                ? 'bg-emerald-100 text-emerald-800 dark:bg-emerald-900/30 dark:text-emerald-300'
+                : 'bg-red-100 text-red-800 dark:bg-red-900/30 dark:text-red-300'
             }`}>
-              {totalMargin.toFixed(1)}% margin
-            </span>
+              {saveMessage}
+            </div>
+          )}
+
+          {/* Action Buttons */}
+          <div className="flex items-center gap-2">
+            <button
+              onClick={handleSaveDraft}
+              disabled={saving}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                saving
+                  ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                  : 'border border-slate-300 text-slate-700 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700'
+              }`}
+            >
+              <Save className="w-4 h-4" />
+              {saving ? 'Saving...' : 'Save'}
+            </button>
+
+            <button
+              onClick={handleBookQuote}
+              disabled={saving || !currentQuote}
+              className={`flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-colors ${
+                saving || !currentQuote
+                  ? 'bg-slate-100 text-slate-400 cursor-not-allowed'
+                  : 'bg-emerald-600 text-white hover:bg-emerald-700'
+              }`}
+            >
+              <Send className="w-4 h-4" />
+              {saving ? 'Booking...' : 'Book'}
+            </button>
+
+            <button
+              onClick={generateQuotePDF}
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-sm font-medium transition-colors"
+            >
+              <Download className="w-4 h-4" />
+              PDF
+            </button>
           </div>
         </div>
       </div>
 
-      {/* Compact Summary */}
-      <div className="px-8 py-8">
-        <div className="grid grid-cols-5 gap-10 text-center">
-          <div className="flex flex-col items-center">
-            <div className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-3 whitespace-nowrap">Total Cost</div>
-            <div className="text-base font-bold text-gray-900 dark:text-white whitespace-nowrap">
+      {/* Stats Grid */}
+      <div className="p-5">
+        <div className="grid grid-cols-5 gap-4">
+          <div className="bg-slate-50 dark:bg-slate-700/50 rounded-lg p-4 text-center">
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <DollarSign className="w-4 h-4 text-slate-500" />
+              <span className="text-xs font-medium text-slate-500 dark:text-slate-400">Cost</span>
+            </div>
+            <div className="text-lg font-bold text-slate-900 dark:text-white">
               ${totalCost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
           </div>
-          <div className="flex flex-col items-center">
-            <div className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-3 whitespace-nowrap">Total Carrying Cost</div>
-            <div className="text-base font-bold text-orange-600 whitespace-nowrap">
+
+          <div className="bg-amber-50 dark:bg-amber-900/20 rounded-lg p-4 text-center">
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <PiggyBank className="w-4 h-4 text-amber-600" />
+              <span className="text-xs font-medium text-amber-600 dark:text-amber-400">Carrying</span>
+            </div>
+            <div className="text-lg font-bold text-amber-700 dark:text-amber-300">
               ${totalCarryingCost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
           </div>
-          <div className="flex flex-col items-center">
-            <div className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-3 whitespace-nowrap">Total Freight Out</div>
-            <div className="text-base font-bold text-purple-600 whitespace-nowrap">
+
+          <div className="bg-sky-50 dark:bg-sky-900/20 rounded-lg p-4 text-center">
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <Truck className="w-4 h-4 text-sky-600" />
+              <span className="text-xs font-medium text-sky-600 dark:text-sky-400">Freight</span>
+            </div>
+            <div className="text-lg font-bold text-sky-700 dark:text-sky-300">
               ${totalFreightOut.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
           </div>
-          <div className="flex flex-col items-center">
-            <div className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-3 whitespace-nowrap">Quote Total</div>
-            <div className="text-base font-bold text-blue-600 whitespace-nowrap">
+
+          <div className="bg-blue-50 dark:bg-blue-900/20 rounded-lg p-4 text-center">
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <FileText className="w-4 h-4 text-blue-600" />
+              <span className="text-xs font-medium text-blue-600 dark:text-blue-400">Total</span>
+            </div>
+            <div className="text-lg font-bold text-blue-700 dark:text-blue-300">
               ${total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
           </div>
-          <div className="flex flex-col items-center">
-            <div className="text-sm font-medium text-gray-600 dark:text-gray-300 mb-3 whitespace-nowrap">Gross Profit</div>
-            <div className={`text-base font-bold whitespace-nowrap ${
-              (subtotal - totalCost) >= 0 ? 'text-green-600' : 'text-red-600'
+
+          <div className={`rounded-lg p-4 text-center ${
+            grossProfit >= 0 ? 'bg-emerald-50 dark:bg-emerald-900/20' : 'bg-red-50 dark:bg-red-900/20'
+          }`}>
+            <div className="flex items-center justify-center gap-2 mb-2">
+              <TrendingUp className={`w-4 h-4 ${grossProfit >= 0 ? 'text-emerald-600' : 'text-red-600'}`} />
+              <span className={`text-xs font-medium ${
+                grossProfit >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-red-600 dark:text-red-400'
+              }`}>
+                Profit ({totalMargin.toFixed(1)}%)
+              </span>
+            </div>
+            <div className={`text-lg font-bold ${
+              grossProfit >= 0 ? 'text-emerald-700 dark:text-emerald-300' : 'text-red-700 dark:text-red-300'
             }`}>
-              ${(subtotal - totalCost).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              ${grossProfit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
           </div>
         </div>
-        
-        {/* Action Buttons - Simplified */}
-        {saveMessage && (
-          <div className={`mb-4 p-3 rounded-lg text-sm ${
-            saveMessage.includes('successfully') || saveMessage.includes('saved') 
-              ? 'bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 text-green-700 dark:text-green-300'
-              : 'bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300'
-          }`}>
-            {saveMessage}
-          </div>
-        )}
-        
-        <div className="flex justify-center space-x-4 mt-6 pt-6 border-t border-gray-200 dark:border-gray-700">
-          <button
-            onClick={handleSaveDraft}
-            disabled={saving}
-            className={`px-6 py-2 border border-gray-300 rounded transition-colors text-sm font-medium ${
-              saving
-                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                : 'text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-gray-700'
-            }`}
-          >
-            {saving ? 'Saving...' : 'Save'}
-          </button>
-          <button
-            onClick={handleBookQuote}
-            disabled={saving || !currentQuote}
-            className={`px-6 py-2 rounded transition-colors text-sm font-medium ${
-              saving || !currentQuote
-                ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
-                : 'bg-green-600 text-white hover:bg-green-700'
-            }`}
-          >
-            {saving ? 'Booking...' : 'Book'}
-          </button>
-          <button 
-            onClick={() => {
-              const generateQuotePDF = () => {
-                const htmlContent = `
-                  <!DOCTYPE html>
-                  <html>
-                  <head>
-                    <title>Quote - ${new Date().toLocaleDateString()}</title>
-                    <style>
-                      body { font-family: Arial, sans-serif; margin: 40px; color: #333; }
-                      .header { border-bottom: 3px solid #2563eb; padding-bottom: 20px; margin-bottom: 30px; }
-                      .company-name { font-size: 28px; font-weight: bold; color: #2563eb; margin-bottom: 5px; }
-                      .quote-title { font-size: 22px; color: #374151; }
-                      .line-items { width: 100%; border-collapse: collapse; margin: 30px 0; }
-                      .line-items th { background-color: #f3f4f6; padding: 12px; text-align: left; border: 1px solid #d1d5db; font-weight: bold; color: #374151; }
-                      .line-items td { padding: 10px 12px; border: 1px solid #d1d5db; }
-                      .line-items tr:nth-child(even) { background-color: #f9fafb; }
-                      .totals { margin-top: 30px; text-align: right; }
-                      .total-final { font-size: 20px; font-weight: bold; color: #2563eb; border-top: 2px solid #2563eb; padding-top: 10px; margin-top: 15px; }
-                    </style>
-                  </head>
-                  <body>
-                    <div class="header">
-                      <div class="company-name">QuoteMaster Pro</div>
-                      <div class="quote-title">Professional Quote</div>
-                    </div>
-                    
-                    <table class="line-items">
-                      <thead>
-                        <tr>
-                          <th>SKU</th>
-                          <th>Product Name</th>
-                          <th>Supplier</th>
-                          <th>Qty</th>
-                          <th>Unit Price</th>
-                          <th>Subtotal</th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        ${lineItems.map(item => `
-                          <tr>
-                            <td>${item.sku}</td>
-                            <td>${item.name}</td>
-                            <td>${item.supplier}</td>
-                            <td>${item.qty}</td>
-                            <td>$${item.price.toFixed(2)}</td>
-                            <td>$${item.subtotal.toFixed(2)}</td>
-                          </tr>
-                        `).join('')}
-                      </tbody>
-                    </table>
-                    
-                    <div class="totals">
-                      <div class="total-final">
-                        <strong>Total: $${total.toFixed(2)}</strong>
-                      </div>
-                    </div>
-                  </body>
-                  </html>
-                `;
-                
-                const printWindow = window.open('', '_blank');
-                if (printWindow) {
-                  printWindow.document.write(htmlContent);
-                  printWindow.document.close();
-                  printWindow.focus();
-                  setTimeout(() => {
-                    printWindow.print();
-                  }, 250);
-                }
-              };
-              
-              generateQuotePDF();
-            }}
-            className="px-6 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition-colors text-sm font-medium"
-          >
-            <Download className="h-4 w-4 mr-2 inline" />
-            Generate PDF
-          </button>
-        </div>
-        
-        {/* Approval Status Section */}
+
+        {/* Approval Status */}
         {currentQuote && (
-          <div className="mt-4 pt-4 border-t border-gray-200 dark:border-gray-700">
+          <div className="mt-4 pt-4 border-t border-slate-200 dark:border-slate-700">
             <ApprovalStatus
               quoteId={currentQuote.id}
               quoteValue={total}
               quoteStatus={currentQuote.quote_status}
               onApprovalChange={() => {
-               setApprovalRefreshKey(prev => prev + 1)
-               // Force refresh the quote data from database
-               window.location.reload()
+                setApprovalRefreshKey(prev => prev + 1);
+                window.location.reload();
               }}
             />
           </div>
         )}
       </div>
 
-      {/* Negative Margin Warning Modal */}
+      {/* Negative Margin Modal */}
       {showNegativeMarginModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
-            <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-              <div className="flex items-center space-x-3">
-                <div className="flex-shrink-0 w-10 h-10 bg-red-100 rounded-full flex items-center justify-center">
-                  <AlertTriangle className="w-6 h-6 text-red-600" />
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white dark:bg-slate-800 rounded-xl shadow-xl max-w-md w-full mx-4 overflow-hidden">
+            <div className="px-5 py-4 border-b border-slate-200 dark:border-slate-700 flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 bg-red-100 dark:bg-red-900/30 rounded-full flex items-center justify-center">
+                  <AlertTriangle className="w-5 h-5 text-red-600" />
                 </div>
-                <h2 className="text-xl font-semibold text-gray-900">Negative Margin Warning</h2>
+                <h2 className="text-lg font-semibold text-slate-900 dark:text-white">Negative Margin</h2>
               </div>
-              <button
-                onClick={() => setShowNegativeMarginModal(false)}
-                className="text-gray-400 hover:text-gray-600"
-              >
-                <X className="w-5 h-5" />
+              <button onClick={() => setShowNegativeMarginModal(false)} className="p-1 hover:bg-slate-100 dark:hover:bg-slate-700 rounded">
+                <X className="w-5 h-5 text-slate-500" />
               </button>
             </div>
 
-            <div className="p-6 space-y-4">
-              <div className="bg-red-50 border border-red-200 rounded-lg p-4">
-                <p className="text-sm text-red-800 font-medium mb-2">
-                  Cannot Book Quote
-                </p>
-                <p className="text-sm text-red-700">
-                  The gross margin for this quote is below $0. Please review and adjust the pricing before booking.
-                </p>
-              </div>
+            <div className="p-5 space-y-4">
+              <p className="text-sm text-slate-600 dark:text-slate-300">
+                This quote has a negative gross margin and cannot be booked. Please review the pricing.
+              </p>
 
-              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                <div className="grid grid-cols-2 gap-3 text-sm">
-                  <div>
-                    <span className="text-gray-600">Quote Total:</span>
-                    <span className="ml-2 font-semibold text-gray-900">
-                      ${subtotal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                    </span>
-                  </div>
-                  <div>
-                    <span className="text-gray-600">Total Cost:</span>
-                    <span className="ml-2 font-semibold text-gray-900">
-                      ${totalCost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                    </span>
-                  </div>
-                  <div className="col-span-2 pt-2 border-t border-gray-300">
-                    <span className="text-gray-600">Gross Profit:</span>
-                    <span className="ml-2 font-bold text-red-600">
-                      ${(subtotal - totalCost).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-                    </span>
-                  </div>
+              <div className="bg-slate-50 dark:bg-slate-700/50 rounded-lg p-4 space-y-2">
+                <div className="flex justify-between text-sm">
+                  <span className="text-slate-500">Quote Total</span>
+                  <span className="font-medium">${subtotal.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="text-slate-500">Total Cost</span>
+                  <span className="font-medium">${totalCost.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                </div>
+                <div className="flex justify-between text-sm pt-2 border-t border-slate-200 dark:border-slate-600">
+                  <span className="text-red-600 font-medium">Gross Profit</span>
+                  <span className="text-red-600 font-bold">${grossProfit.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
                 </div>
               </div>
 
-              <div className="flex justify-end">
-                <button
-                  onClick={() => setShowNegativeMarginModal(false)}
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                >
-                  Review Pricing
-                </button>
-              </div>
+              <button
+                onClick={() => setShowNegativeMarginModal(false)}
+                className="w-full px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium transition-colors"
+              >
+                Review Pricing
+              </button>
             </div>
           </div>
         </div>
