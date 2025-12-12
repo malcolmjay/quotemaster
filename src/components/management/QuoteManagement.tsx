@@ -88,9 +88,9 @@ export const QuoteManagement: React.FC = () => {
   };
 
   const statusColors = {
-    'Draft': 'bg-gray-100 text-gray-800',
-    'Pending approval': 'bg-yellow-100 text-yellow-800',
-    'Approved': 'bg-green-100 text-green-800'
+    'Draft': 'bg-[#f5f5f5] text-[#333] border border-[#d4d4d4]',
+    'Pending approval': 'bg-amber-100 text-amber-800 border border-amber-300',
+    'Approved': 'bg-green-100 text-green-800 border border-green-300'
   };
 
   const handleEditQuote = (quote: DisplayQuote) => {
@@ -242,153 +242,167 @@ export const QuoteManagement: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <div className="flex items-center justify-between mb-6">
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900">Quote Management</h2>
-            <p className="text-gray-600 mt-1">View and manage all quotes and their current status</p>
+    <div className="min-h-screen bg-[#f0f0f0]">
+      {/* Oro-style Header */}
+      <div className="bg-white border-b border-[#d4d4d4] sticky top-0 z-40">
+        <div className="px-5 py-3">
+          {/* Breadcrumb */}
+          <div className="text-xs text-[#999] mb-2">
+            Sales / Quote Management
           </div>
 
-          <div className="flex items-center space-x-2">
-            <button className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors">
-              <Download className="h-4 w-4 mr-2" />
-              Export
-            </button>
-            <button className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors">
-              <FileText className="h-4 w-4 mr-2" />
-              New Quote
-            </button>
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-xl font-normal text-[#333]">Quote Management</h1>
+              <p className="text-sm text-[#666] mt-1">View and manage all quotes and their current status</p>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <button className="inline-flex items-center px-4 py-1.5 text-sm text-[#666] hover:text-[#333] hover:bg-[#f5f5f5] rounded border border-transparent hover:border-[#d4d4d4] transition-colors">
+                <Download className="h-4 w-4 mr-2" />
+                Export
+              </button>
+              <button className="inline-flex items-center px-4 py-1.5 bg-[#428bca] hover:bg-[#3276b1] text-white text-sm font-medium rounded transition-colors">
+                <FileText className="h-4 w-4 mr-2" />
+                New Quote
+              </button>
+            </div>
           </div>
         </div>
-
-        <div className="flex flex-col md:flex-row gap-4 mb-6">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search quotes by number or customer..."
-              value={searchTerm}
-              onChange={(e) => {
-                setSearchTerm(e.target.value);
-                setCurrentPage(1);
-              }}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            />
-          </div>
-
-          <div className="flex items-center space-x-2">
-            <Filter className="h-4 w-4 text-gray-400" />
-            <select
-              value={statusFilter}
-              onChange={(e) => {
-                setStatusFilter(e.target.value);
-                setCurrentPage(1);
-              }}
-              className="px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-            >
-              <option value="all">All Status</option>
-              <option value="draft">Draft</option>
-              <option value="pending_approval">Pending Approval</option>
-              <option value="approved">Approved</option>
-            </select>
-          </div>
-        </div>
-
-        {loading && (
-          <div className="flex items-center justify-center py-8">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
-            <span className="ml-3 text-sm text-gray-600">Loading quotes...</span>
-          </div>
-        )}
-
-        {error && (
-          <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-            <p className="text-sm text-red-600">Error loading quotes: {error}</p>
-          </div>
-        )}
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+      {/* Main Content */}
+      <div className="p-5 space-y-4">
+        {/* Search and Filter Panel */}
+        <div className="bg-white rounded border border-[#d4d4d4] p-4">
+          <div className="flex flex-col md:flex-row gap-4">
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-[#999]" />
+              <input
+                type="text"
+                placeholder="Search quotes by number or customer..."
+                value={searchTerm}
+                onChange={(e) => {
+                  setSearchTerm(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="w-full pl-10 pr-4 py-2 border border-[#d4d4d4] rounded focus:ring-2 focus:ring-[#428bca] focus:border-[#428bca]"
+              />
+            </div>
+
+            <div className="flex items-center space-x-2">
+              <Filter className="h-4 w-4 text-[#999]" />
+              <select
+                value={statusFilter}
+                onChange={(e) => {
+                  setStatusFilter(e.target.value);
+                  setCurrentPage(1);
+                }}
+                className="px-4 py-2 border border-[#d4d4d4] rounded focus:ring-2 focus:ring-[#428bca] focus:border-[#428bca] text-[#333]"
+              >
+                <option value="all">All Status</option>
+                <option value="draft">Draft</option>
+                <option value="pending_approval">Pending Approval</option>
+                <option value="approved">Approved</option>
+              </select>
+            </div>
+          </div>
+
+          {loading && (
+            <div className="flex items-center justify-center py-8">
+              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#428bca]"></div>
+              <span className="ml-3 text-sm text-[#666]">Loading quotes...</span>
+            </div>
+          )}
+
+          {error && (
+            <div className="bg-[#f2dede] border border-[#ebccd1] rounded p-4 mt-4">
+              <p className="text-sm text-[#a94442]">Error loading quotes: {error}</p>
+            </div>
+          )}
+        </div>
+
+        {/* Quotes Table */}
+        <div className="bg-white rounded border border-[#d4d4d4] overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gray-50 border-b border-gray-200">
+            <thead className="bg-[#fafafa] border-b border-[#d4d4d4]">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Quote Details</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Customer</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Timeline</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Value & Margin</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-[#666] uppercase tracking-wider">Quote Details</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-[#666] uppercase tracking-wider">Customer</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-[#666] uppercase tracking-wider">Timeline</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-[#666] uppercase tracking-wider">Value & Margin</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-[#666] uppercase tracking-wider">Status</th>
+                <th className="px-4 py-3 text-left text-xs font-medium text-[#666] uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-white divide-y divide-[#d4d4d4]">
               {displayQuotes.map((quote) => (
-                <tr key={quote.id} className="hover:bg-gray-50 transition-colors">
-                  <td className="px-6 py-4">
+                <tr key={quote.id} className="hover:bg-[#fafafa] transition-colors">
+                  <td className="px-4 py-3">
                     <div>
-                      <div className="font-medium text-gray-900">{quote.quote_number}</div>
-                      <div className="text-sm text-gray-600">{quote.lineItems} line items</div>
+                      <div className="font-medium text-[#333]">{quote.quote_number}</div>
+                      <div className="text-sm text-[#666]">{quote.lineItems} line items</div>
                     </div>
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-4 py-3">
                     <div>
-                      <div className="font-medium text-gray-900">{quote.customer}</div>
-                      <div className="flex items-center text-sm text-gray-600">
+                      <div className="font-medium text-[#333]">{quote.customer}</div>
+                      <div className="flex items-center text-sm text-[#666]">
                         <User className="h-3 w-3 mr-1" />
                         {quote.requestingUser}
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-4 py-3">
                     <div className="space-y-1">
-                      <div className="flex items-center text-sm text-gray-600">
+                      <div className="flex items-center text-sm text-[#666]">
                         <Calendar className="h-3 w-3 mr-1" />
                         Created: {quote.createdDate}
                       </div>
-                      <div className="text-sm text-gray-600">
+                      <div className="text-sm text-[#666]">
                         Valid until: {quote.validUntil}
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-4 py-3">
                     <div className="space-y-1">
-                      <div className="flex items-center font-medium text-gray-900">
+                      <div className="flex items-center font-medium text-[#333]">
                         <DollarSign className="h-3 w-3 mr-1" />
                         ${quote.totalValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
                       </div>
-                      <div className="text-sm text-green-600">
+                      <div className="text-sm text-[#3c763d]">
                         {quote.margin.toFixed(1)}% margin
                       </div>
                     </div>
                   </td>
-                  <td className="px-6 py-4">
-                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${statusColors[quote.status as keyof typeof statusColors]}`}>
+                  <td className="px-4 py-3">
+                    <span className={`inline-flex items-center px-2.5 py-0.5 rounded text-xs font-medium ${statusColors[quote.status as keyof typeof statusColors]}`}>
                       {quote.status}
                     </span>
                   </td>
-                  <td className="px-6 py-4">
+                  <td className="px-4 py-3">
                     <div className="flex items-center space-x-2">
-                      <button className="p-1 text-blue-600 hover:bg-blue-100 rounded transition-colors" title="View">
+                      <button className="p-1.5 text-[#428bca] hover:bg-[#e8e8e8] rounded transition-colors" title="View">
                         <Eye className="h-4 w-4" />
                       </button>
                       <button
                         onClick={() => handleEditQuote(quote)}
-                        className="p-1 text-gray-600 hover:bg-gray-100 rounded transition-colors"
+                        className="p-1.5 text-[#666] hover:bg-[#e8e8e8] rounded transition-colors"
                         title="Edit"
                       >
                         <Edit className="h-4 w-4" />
                       </button>
                       <button
                         onClick={() => generatePDF(quote)}
-                        className="p-1 text-green-600 hover:bg-green-100 rounded transition-colors"
+                        className="p-1.5 text-[#5cb85c] hover:bg-[#e8e8e8] rounded transition-colors"
                         title="Generate PDF"
                       >
                         <FileDown className="h-4 w-4" />
                       </button>
                       <button
                         onClick={() => handleDeleteQuote(quote.id)}
-                        className="p-1 text-red-600 hover:bg-red-100 rounded transition-colors"
+                        className="p-1.5 text-[#d9534f] hover:bg-[#e8e8e8] rounded transition-colors"
                         title="Delete"
                       >
                         <Trash2 className="h-4 w-4" />
@@ -401,22 +415,25 @@ export const QuoteManagement: React.FC = () => {
           </table>
         </div>
 
-        {!loading && displayQuotes.length === 0 && (
-          <div className="p-8 text-center">
-            <FileText className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-gray-900 mb-2">No quotes found</h3>
-            <p className="text-gray-600">Try adjusting your search criteria or status filter.</p>
-          </div>
-        )}
+          {!loading && displayQuotes.length === 0 && (
+            <div className="p-8 text-center">
+              <FileText className="h-12 w-12 text-[#d4d4d4] mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-[#333] mb-2">No quotes found</h3>
+              <p className="text-[#666]">Try adjusting your search criteria or status filter.</p>
+            </div>
+          )}
 
-        {!loading && displayQuotes.length > 0 && (
-          <Pagination
-            currentPage={currentPage}
-            totalItems={totalItems}
-            itemsPerPage={pageSize}
-            onPageChange={handlePageChange}
-          />
-        )}
+          {!loading && displayQuotes.length > 0 && (
+            <div className="border-t border-[#d4d4d4]">
+              <Pagination
+                currentPage={currentPage}
+                totalItems={totalItems}
+                itemsPerPage={pageSize}
+                onPageChange={handlePageChange}
+              />
+            </div>
+          )}
+        </div>
       </div>
 
       {showDeleteModal && (

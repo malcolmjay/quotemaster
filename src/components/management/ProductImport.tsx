@@ -190,274 +190,276 @@ export const ProductImport: React.FC = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6">
-      {/* Header */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <Database className="h-6 w-6 text-blue-600" />
+    <div className="min-h-screen bg-[#f0f0f0]">
+      <div className="max-w-6xl mx-auto space-y-6 p-6">
+        {/* Header */}
+        <div className="bg-white rounded border border-[#d4d4d4] p-6">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center space-x-3">
+              <Database className="h-6 w-6 text-[#428bca]" />
+              <div>
+                <h1 className="text-2xl font-bold text-[#333]">
+                  Product Import
+                </h1>
+                <p className="text-sm text-[#666] mt-1">
+                  Import product data from your ERP system
+                </p>
+              </div>
+            </div>
+
+            <div className="flex items-center space-x-3">
+              <button
+                onClick={downloadTemplate}
+                className="flex items-center space-x-2 px-4 py-2 text-sm text-[#666] hover:text-[#333] hover:bg-[#f5f5f5] border border-transparent hover:border-[#d4d4d4] rounded transition"
+              >
+                <Download className="h-4 w-4" />
+                <span>Download Template</span>
+              </button>
+
+              <button
+                onClick={() => setShowLogs(!showLogs)}
+                className="flex items-center space-x-2 px-4 py-2 text-sm text-[#666] hover:text-[#333] hover:bg-[#f5f5f5] border border-transparent hover:border-[#d4d4d4] rounded transition"
+              >
+                <Clock className="h-4 w-4" />
+                <span>Import History</span>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {/* Import Result */}
+        {importResult && (
+          <div
+            className={`p-4 rounded border ${
+              importResult.success
+                ? 'bg-[#dff0d8] text-[#3c763d] border-[#d6e9c6]'
+                : 'bg-[#f2dede] text-[#a94442] border-[#ebccd1]'
+            }`}
+          >
+            <div className="flex items-start space-x-2">
+              {importResult.success ? (
+                <CheckCircle className="h-5 w-5 mt-0.5" />
+              ) : (
+                <XCircle className="h-5 w-5 mt-0.5" />
+              )}
+              <div className="flex-1">
+                <p className="font-medium">{importResult.message}</p>
+                {importResult.imported !== undefined && (
+                  <p className="text-sm mt-1">
+                    Imported: {importResult.imported}, Failed: {importResult.failed || 0}
+                  </p>
+                )}
+                {importResult.errors && importResult.errors.length > 0 && (
+                  <div className="mt-2 space-y-1">
+                    {importResult.errors.map((error: string, index: number) => (
+                      <p key={index} className="text-xs">
+                        • {error}
+                      </p>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+
+        {/* Import Form */}
+        <div className="bg-white rounded border border-[#d4d4d4] p-6">
+          <h2 className="text-lg font-semibold text-[#333] mb-4">
+            Import Products
+          </h2>
+
+          {/* Mode Selection */}
+          <div className="mb-4">
+            <label className="block text-sm font-medium text-[#333] mb-2">
+              Import Mode
+            </label>
+            <div className="flex space-x-4">
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  value="upsert"
+                  checked={importMode === 'upsert'}
+                  onChange={(e) => setImportMode(e.target.value as 'upsert')}
+                  className="mr-2"
+                />
+                <span className="text-sm text-[#666]">
+                  Upsert (Update if exists, insert if not)
+                </span>
+              </label>
+              <label className="flex items-center">
+                <input
+                  type="radio"
+                  value="insert"
+                  checked={importMode === 'insert'}
+                  onChange={(e) => setImportMode(e.target.value as 'insert')}
+                  className="mr-2"
+                />
+                <span className="text-sm text-[#666]">
+                  Insert Only (Skip duplicates)
+                </span>
+              </label>
+            </div>
+          </div>
+
+          {/* File Upload or JSON Input */}
+          <div className="space-y-4">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-                Product Import
-              </h1>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                Import product data from your ERP system
+              <label className="block text-sm font-medium text-[#333] mb-2">
+                Upload JSON File
+              </label>
+              <input
+                type="file"
+                accept=".json"
+                onChange={handleFileUpload}
+                className="block w-full text-sm text-[#333] border border-[#d4d4d4] rounded cursor-pointer bg-white"
+              />
+            </div>
+
+            <div className="text-center text-sm text-[#999]">OR</div>
+
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="block text-sm font-medium text-[#333]">
+                  Paste JSON Data
+                </label>
+                <button
+                  onClick={loadSampleData}
+                  className="text-xs text-[#428bca] hover:text-[#3276b1]"
+                >
+                  Load Sample Data
+                </button>
+              </div>
+              <textarea
+                value={jsonInput}
+                onChange={(e) => setJsonInput(e.target.value)}
+                placeholder="Paste your JSON array here..."
+                rows={15}
+                className="w-full px-3 py-2 border border-[#d4d4d4] rounded focus:ring-2 focus:ring-[#428bca] focus:border-[#428bca] bg-white text-[#333] font-mono text-sm"
+              />
+              <p className="text-xs text-[#999] mt-1">
+                Format: JSON array of product objects. Required fields: sku, name, category, supplier
               </p>
             </div>
           </div>
 
-          <div className="flex items-center space-x-3">
+          {/* Import Button */}
+          <div className="mt-6">
             <button
-              onClick={downloadTemplate}
-              className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition"
+              onClick={handleImportProducts}
+              disabled={importing || !jsonInput.trim()}
+              className="w-full flex items-center justify-center space-x-2 px-6 py-3 bg-[#428bca] text-white rounded hover:bg-[#3276b1] disabled:bg-[#999] disabled:cursor-not-allowed transition"
             >
-              <Download className="h-4 w-4" />
-              <span>Download Template</span>
-            </button>
-
-            <button
-              onClick={() => setShowLogs(!showLogs)}
-              className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition"
-            >
-              <Clock className="h-4 w-4" />
-              <span>Import History</span>
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Import Result */}
-      {importResult && (
-        <div
-          className={`p-4 rounded-lg ${
-            importResult.success
-              ? 'bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-300'
-              : 'bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-300'
-          }`}
-        >
-          <div className="flex items-start space-x-2">
-            {importResult.success ? (
-              <CheckCircle className="h-5 w-5 mt-0.5" />
-            ) : (
-              <XCircle className="h-5 w-5 mt-0.5" />
-            )}
-            <div className="flex-1">
-              <p className="font-medium">{importResult.message}</p>
-              {importResult.imported !== undefined && (
-                <p className="text-sm mt-1">
-                  Imported: {importResult.imported}, Failed: {importResult.failed || 0}
-                </p>
+              {importing ? (
+                <>
+                  <RefreshCw className="h-5 w-5 animate-spin" />
+                  <span>Importing...</span>
+                </>
+              ) : (
+                <>
+                  <Upload className="h-5 w-5" />
+                  <span>Import Products</span>
+                </>
               )}
-              {importResult.errors && importResult.errors.length > 0 && (
-                <div className="mt-2 space-y-1">
-                  {importResult.errors.map((error: string, index: number) => (
-                    <p key={index} className="text-xs">
-                      • {error}
-                    </p>
-                  ))}
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Import Form */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
-        <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">
-          Import Products
-        </h2>
-
-        {/* Mode Selection */}
-        <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-            Import Mode
-          </label>
-          <div className="flex space-x-4">
-            <label className="flex items-center">
-              <input
-                type="radio"
-                value="upsert"
-                checked={importMode === 'upsert'}
-                onChange={(e) => setImportMode(e.target.value as 'upsert')}
-                className="mr-2"
-              />
-              <span className="text-sm text-gray-700 dark:text-gray-300">
-                Upsert (Update if exists, insert if not)
-              </span>
-            </label>
-            <label className="flex items-center">
-              <input
-                type="radio"
-                value="insert"
-                checked={importMode === 'insert'}
-                onChange={(e) => setImportMode(e.target.value as 'insert')}
-                className="mr-2"
-              />
-              <span className="text-sm text-gray-700 dark:text-gray-300">
-                Insert Only (Skip duplicates)
-              </span>
-            </label>
+            </button>
           </div>
         </div>
 
-        {/* File Upload or JSON Input */}
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
-              Upload JSON File
-            </label>
-            <input
-              type="file"
-              accept=".json"
-              onChange={handleFileUpload}
-              className="block w-full text-sm text-gray-900 dark:text-gray-300 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer bg-gray-50 dark:bg-gray-700"
-            />
-          </div>
-
-          <div className="text-center text-sm text-gray-500 dark:text-gray-400">OR</div>
-
-          <div>
-            <div className="flex items-center justify-between mb-2">
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300">
-                Paste JSON Data
-              </label>
+        {/* Import History */}
+        {showLogs && (
+          <div className="bg-white rounded border border-[#d4d4d4] p-6">
+            <div className="flex items-center justify-between mb-4">
+              <h2 className="text-lg font-semibold text-[#333]">
+                Import History
+              </h2>
               <button
-                onClick={loadSampleData}
-                className="text-xs text-blue-600 hover:text-blue-700 dark:text-blue-400"
+                onClick={loadImportLogs}
+                disabled={loadingLogs}
+                className="flex items-center space-x-2 px-3 py-1 text-sm text-[#666] hover:text-[#333] hover:bg-[#f5f5f5] border border-transparent hover:border-[#d4d4d4] rounded transition"
               >
-                Load Sample Data
+                <RefreshCw className={`h-4 w-4 ${loadingLogs ? 'animate-spin' : ''}`} />
+                <span>Refresh</span>
               </button>
             </div>
-            <textarea
-              value={jsonInput}
-              onChange={(e) => setJsonInput(e.target.value)}
-              placeholder="Paste your JSON array here..."
-              rows={15}
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white font-mono text-sm"
-            />
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-              Format: JSON array of product objects. Required fields: sku, name, category, supplier
-            </p>
-          </div>
-        </div>
 
-        {/* Import Button */}
-        <div className="mt-6">
-          <button
-            onClick={handleImportProducts}
-            disabled={importing || !jsonInput.trim()}
-            className="w-full flex items-center justify-center space-x-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition"
-          >
-            {importing ? (
-              <>
-                <RefreshCw className="h-5 w-5 animate-spin" />
-                <span>Importing...</span>
-              </>
+            {importLogs.length === 0 ? (
+              <p className="text-center text-[#999] py-8">
+                No import history found
+              </p>
             ) : (
-              <>
-                <Upload className="h-5 w-5" />
-                <span>Import Products</span>
-              </>
-            )}
-          </button>
-        </div>
-      </div>
-
-      {/* Import History */}
-      {showLogs && (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
-          <div className="flex items-center justify-between mb-4">
-            <h2 className="text-lg font-semibold text-gray-900 dark:text-white">
-              Import History
-            </h2>
-            <button
-              onClick={loadImportLogs}
-              disabled={loadingLogs}
-              className="flex items-center space-x-2 px-3 py-1 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition"
-            >
-              <RefreshCw className={`h-4 w-4 ${loadingLogs ? 'animate-spin' : ''}`} />
-              <span>Refresh</span>
-            </button>
-          </div>
-
-          {importLogs.length === 0 ? (
-            <p className="text-center text-gray-500 dark:text-gray-400 py-8">
-              No import history found
-            </p>
-          ) : (
-            <div className="space-y-3">
-              {importLogs.map((log) => (
-                <div
-                  key={log.id}
-                  className="p-4 bg-gray-50 dark:bg-gray-700 rounded-lg"
-                >
-                  <div className="flex items-start justify-between">
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-2">
-                        {log.status === 'completed' ? (
-                          <CheckCircle className="h-4 w-4 text-green-600" />
-                        ) : log.status === 'failed' ? (
-                          <XCircle className="h-4 w-4 text-red-600" />
-                        ) : log.status === 'completed_with_errors' ? (
-                          <AlertCircle className="h-4 w-4 text-yellow-600" />
-                        ) : (
-                          <RefreshCw className="h-4 w-4 text-blue-600 animate-spin" />
-                        )}
-                        <span className="font-medium text-gray-900 dark:text-white">
-                          {log.import_type.charAt(0).toUpperCase() + log.import_type.slice(1)} Import
-                        </span>
-                        <span className="text-xs text-gray-500 dark:text-gray-400">
-                          {new Date(log.started_at).toLocaleString()}
-                        </span>
-                      </div>
-
-                      <div className="mt-2 grid grid-cols-3 gap-4 text-sm">
-                        <div>
-                          <span className="text-gray-600 dark:text-gray-400">Total:</span>{' '}
-                          <span className="font-medium text-gray-900 dark:text-white">
-                            {log.total_records}
-                          </span>
-                        </div>
-                        <div>
-                          <span className="text-gray-600 dark:text-gray-400">Success:</span>{' '}
-                          <span className="font-medium text-green-600">
-                            {log.successful_records}
-                          </span>
-                        </div>
-                        <div>
-                          <span className="text-gray-600 dark:text-gray-400">Failed:</span>{' '}
-                          <span className="font-medium text-red-600">
-                            {log.failed_records}
-                          </span>
-                        </div>
-                      </div>
-
-                      {log.errors && log.errors.length > 0 && (
-                        <div className="mt-2 p-2 bg-red-50 dark:bg-red-900/20 rounded text-xs">
-                          <p className="font-medium text-red-800 dark:text-red-300 mb-1">
-                            Errors:
-                          </p>
-                          {log.errors.slice(0, 3).map((error, index) => (
-                            <p key={index} className="text-red-700 dark:text-red-400">
-                              • {error}
-                            </p>
-                          ))}
-                          {log.errors.length > 3 && (
-                            <p className="text-red-600 dark:text-red-400 mt-1">
-                              ... and {log.errors.length - 3} more
-                            </p>
+              <div className="space-y-3">
+                {importLogs.map((log) => (
+                  <div
+                    key={log.id}
+                    className="p-4 bg-[#f5f5f5] rounded border border-[#d4d4d4]"
+                  >
+                    <div className="flex items-start justify-between">
+                      <div className="flex-1">
+                        <div className="flex items-center space-x-2">
+                          {log.status === 'completed' ? (
+                            <CheckCircle className="h-4 w-4 text-[#3c763d]" />
+                          ) : log.status === 'failed' ? (
+                            <XCircle className="h-4 w-4 text-[#a94442]" />
+                          ) : log.status === 'completed_with_errors' ? (
+                            <AlertCircle className="h-4 w-4 text-[#8a6d3b]" />
+                          ) : (
+                            <RefreshCw className="h-4 w-4 text-[#428bca] animate-spin" />
                           )}
+                          <span className="font-medium text-[#333]">
+                            {log.import_type.charAt(0).toUpperCase() + log.import_type.slice(1)} Import
+                          </span>
+                          <span className="text-xs text-[#999]">
+                            {new Date(log.started_at).toLocaleString()}
+                          </span>
                         </div>
-                      )}
+
+                        <div className="mt-2 grid grid-cols-3 gap-4 text-sm">
+                          <div>
+                            <span className="text-[#666]">Total:</span>{' '}
+                            <span className="font-medium text-[#333]">
+                              {log.total_records}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-[#666]">Success:</span>{' '}
+                            <span className="font-medium text-[#3c763d]">
+                              {log.successful_records}
+                            </span>
+                          </div>
+                          <div>
+                            <span className="text-[#666]">Failed:</span>{' '}
+                            <span className="font-medium text-[#a94442]">
+                              {log.failed_records}
+                            </span>
+                          </div>
+                        </div>
+
+                        {log.errors && log.errors.length > 0 && (
+                          <div className="mt-2 p-2 bg-[#f2dede] border border-[#ebccd1] rounded text-xs">
+                            <p className="font-medium text-[#a94442] mb-1">
+                              Errors:
+                            </p>
+                            {log.errors.slice(0, 3).map((error, index) => (
+                              <p key={index} className="text-[#a94442]">
+                                • {error}
+                              </p>
+                            ))}
+                            {log.errors.length > 3 && (
+                              <p className="text-[#a94442] mt-1">
+                                ... and {log.errors.length - 3} more
+                              </p>
+                            )}
+                          </div>
+                        )}
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+      </div>
     </div>
   );
 };

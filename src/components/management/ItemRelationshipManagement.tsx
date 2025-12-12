@@ -133,153 +133,168 @@ export default function ItemRelationshipManagement() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-gray-600">Loading item relationships...</div>
+        <div className="text-[#666]">Loading item relationships...</div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">Item Relationships</h1>
-          <p className="text-gray-600 mt-1">Manage product relationships and associations</p>
-        </div>
-        <button
-          onClick={() => {
-            setSelectedRelationship(null);
-            setShowEditModal(true);
-          }}
-          className="flex items-center gap-2 bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-        >
-          <Plus className="w-5 h-5" />
-          New Relationship
-        </button>
-      </div>
+    <div className="min-h-screen bg-[#f0f0f0]">
+      {/* Oro-style Header */}
+      <div className="bg-white border-b border-[#d4d4d4] sticky top-0 z-40">
+        <div className="px-5 py-3">
+          {/* Breadcrumb */}
+          <div className="text-xs text-[#999] mb-2">
+            Management / Item Relationships
+          </div>
 
-      <div className="bg-white rounded-xl shadow-sm border border-gray-200">
-        <div className="p-4 border-b border-gray-200">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <input
-                type="text"
-                placeholder="Search by SKU, product name, or type..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              />
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-xl font-normal text-[#333]">Item Relationships</h1>
+              <p className="text-xs text-[#666] mt-1">Manage product relationships and associations</p>
             </div>
-
-            <div className="relative">
-              <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
-              <select
-                value={typeFilter}
-                onChange={(e) => setTypeFilter(e.target.value)}
-                className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent appearance-none"
-              >
-                <option value="">All Types</option>
-                {uniqueTypes.map(type => (
-                  <option key={type} value={type}>{type}</option>
-                ))}
-              </select>
-            </div>
+            <button
+              onClick={() => {
+                setSelectedRelationship(null);
+                setShowEditModal(true);
+              }}
+              className="flex items-center gap-2 bg-[#428bca] hover:bg-[#3276b1] text-white px-4 py-2 rounded transition-colors"
+            >
+              <Plus className="w-4 h-4" />
+              New Relationship
+            </button>
           </div>
         </div>
+      </div>
 
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  From Item
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  To Item
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Type
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Reciprocal
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Effective From
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Effective To
-                </th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                  Actions
-                </th>
-              </tr>
-            </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
-              {filteredRelationships.length === 0 ? (
-                <tr>
-                  <td colSpan={7} className="px-6 py-8 text-center text-gray-500">
-                    {searchTerm || typeFilter ? 'No relationships match your filters' : 'No item relationships yet'}
-                  </td>
+      {/* Main Content */}
+      <div className="p-5">
+        <div className="bg-white rounded border border-[#d4d4d4]">
+          <div className="p-4 border-b border-[#d4d4d4]">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#999] w-5 h-5" />
+                <input
+                  type="text"
+                  placeholder="Search by SKU, product name, or type..."
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 border border-[#d4d4d4] rounded focus:ring-2 focus:ring-[#428bca] focus:border-[#428bca]"
+                />
+              </div>
+
+              <div className="relative">
+                <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#999] w-5 h-5" />
+                <select
+                  value={typeFilter}
+                  onChange={(e) => setTypeFilter(e.target.value)}
+                  className="w-full pl-10 pr-4 py-2 border border-[#d4d4d4] rounded focus:ring-2 focus:ring-[#428bca] focus:border-[#428bca] appearance-none"
+                >
+                  <option value="">All Types</option>
+                  {uniqueTypes.map(type => (
+                    <option key={type} value={type}>{type}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full">
+              <thead className="bg-[#f0f0f0]">
+                <tr className="border-b border-[#d4d4d4]">
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-[#666] uppercase tracking-wide">
+                    From Item
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-[#666] uppercase tracking-wide">
+                    To Item
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-[#666] uppercase tracking-wide">
+                    Type
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-[#666] uppercase tracking-wide">
+                    Reciprocal
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-[#666] uppercase tracking-wide">
+                    Effective From
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-semibold text-[#666] uppercase tracking-wide">
+                    Effective To
+                  </th>
+                  <th className="px-6 py-3 text-right text-xs font-semibold text-[#666] uppercase tracking-wide">
+                    Actions
+                  </th>
                 </tr>
-              ) : (
-                filteredRelationships.map((relationship) => (
-                  <tr key={relationship.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">
-                        {relationship.from_item_sku}
-                      </div>
-                      <div className="text-sm text-gray-500">
-                        {relationship.from_item_name}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">
-                        {relationship.to_item_sku}
-                      </div>
-                      <div className="text-sm text-gray-500">
-                        {relationship.to_item_name}
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span className="inline-flex px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800">
-                        {relationship.type}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {relationship.reciprocal ? 'Yes' : 'No'}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {formatDate(relationship.effective_from)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                      {formatDate(relationship.effective_to)}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                      <div className="flex items-center justify-end gap-2">
-                        <button
-                          onClick={() => handleEdit(relationship)}
-                          className="text-blue-600 hover:text-blue-900"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(relationship)}
-                          className="text-red-600 hover:text-red-900"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
+              </thead>
+              <tbody className="bg-white divide-y divide-[#e8e8e8]">
+                {filteredRelationships.length === 0 ? (
+                  <tr>
+                    <td colSpan={7} className="px-6 py-8 text-center text-[#666]">
+                      {searchTerm || typeFilter ? 'No relationships match your filters' : 'No item relationships yet'}
                     </td>
                   </tr>
-                ))
-              )}
-            </tbody>
-          </table>
-        </div>
+                ) : (
+                  filteredRelationships.map((relationship) => (
+                    <tr key={relationship.id} className="hover:bg-[#f5f5f5] transition-colors">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-medium text-[#333]">
+                          {relationship.from_item_sku}
+                        </div>
+                        <div className="text-sm text-[#666]">
+                          {relationship.from_item_name}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="text-sm font-medium text-[#333]">
+                          {relationship.to_item_sku}
+                        </div>
+                        <div className="text-sm text-[#666]">
+                          {relationship.to_item_name}
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span className="inline-flex px-2 py-1 text-xs font-semibold rounded bg-[#d9edf7] text-[#31708f] border border-[#bce8f1]">
+                          {relationship.type}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-[#333]">
+                        {relationship.reciprocal ? 'Yes' : 'No'}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-[#333]">
+                        {formatDate(relationship.effective_from)}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-[#333]">
+                        {formatDate(relationship.effective_to)}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            onClick={() => handleEdit(relationship)}
+                            className="text-[#428bca] hover:text-[#3276b1] transition-colors"
+                            title="Edit"
+                          >
+                            <Edit className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(relationship)}
+                            className="text-[#d9534f] hover:text-[#c9302c] transition-colors"
+                            title="Delete"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
 
-        <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
-          <div className="text-sm text-gray-600">
-            Showing {filteredRelationships.length} of {relationships.length} item relationships
+          <div className="px-6 py-4 border-t border-[#d4d4d4] bg-[#f0f0f0]">
+            <div className="text-sm text-[#666]">
+              Showing {filteredRelationships.length} of {relationships.length} item relationships
+            </div>
           </div>
         </div>
       </div>

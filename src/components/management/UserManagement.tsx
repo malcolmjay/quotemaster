@@ -300,103 +300,115 @@ export const UserManagement: React.FC = () => {
 
   const getRoleBadgeColor = (role: string) => {
     const colors: Record<string, string> = {
-      Admin: 'bg-purple-100 text-purple-800 border-purple-200',
-      President: 'bg-red-100 text-red-800 border-red-200',
-      VP: 'bg-orange-100 text-orange-800 border-orange-200',
-      Director: 'bg-blue-100 text-blue-800 border-blue-200',
-      Manager: 'bg-green-100 text-green-800 border-green-200',
-      CSR: 'bg-gray-100 text-gray-800 border-gray-200'
+      Admin: 'bg-[#9b59b6] text-white border-[#8e44ad]',
+      President: 'bg-[#c0392b] text-white border-[#a93226]',
+      VP: 'bg-[#e67e22] text-white border-[#d35400]',
+      Director: 'bg-[#428bca] text-white border-[#3276b1]',
+      Manager: 'bg-[#27ae60] text-white border-[#229954]',
+      CSR: 'bg-[#95a5a6] text-white border-[#7f8c8d]'
     };
-    return colors[role] || 'bg-gray-100 text-gray-800 border-gray-200';
+    return colors[role] || 'bg-[#95a5a6] text-white border-[#7f8c8d]';
   };
 
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <RefreshCw className="w-8 h-8 text-blue-600 animate-spin" />
+        <RefreshCw className="w-8 h-8 text-[#428bca] animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">User Management</h1>
-          <p className="text-gray-600 mt-1">Manage user accounts and role assignments</p>
-        </div>
-        <div className="flex items-center space-x-3">
-          <button
-            onClick={() => setShowCreateModal(true)}
-            className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-          >
-            <UserPlus className="w-4 h-4" />
-            <span>Create User</span>
-          </button>
-          <button
-            onClick={fetchUsers}
-            className="flex items-center space-x-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
-          >
-            <RefreshCw className="w-4 h-4" />
-            <span>Refresh</span>
-          </button>
+    <div className="min-h-screen bg-[#f0f0f0]">
+      {/* Oro-style Header */}
+      <div className="bg-white border-b border-[#d4d4d4] sticky top-0 z-40">
+        <div className="px-5 py-3">
+          {/* Breadcrumb */}
+          <div className="text-xs text-[#999] mb-2">
+            Administration / User Management
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div>
+              <h1 className="text-xl font-normal text-[#333]">User Management</h1>
+              <p className="text-[#666] text-sm mt-1">Manage user accounts and role assignments</p>
+            </div>
+            <div className="flex items-center gap-2">
+              <button
+                onClick={fetchUsers}
+                className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-[#666] hover:text-[#333] hover:bg-[#f5f5f5] rounded border border-transparent hover:border-[#d4d4d4] transition-colors"
+              >
+                <RefreshCw className="w-4 h-4" />
+                <span>Refresh</span>
+              </button>
+              <button
+                onClick={() => setShowCreateModal(true)}
+                className="flex items-center gap-1.5 px-4 py-1.5 bg-[#428bca] hover:bg-[#3276b1] text-white text-sm font-medium rounded transition-colors"
+              >
+                <UserPlus className="w-4 h-4" />
+                <span>Create User</span>
+              </button>
+            </div>
+          </div>
         </div>
       </div>
 
-      {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start space-x-3">
-          <AlertCircle className="w-5 h-5 text-red-600 mt-0.5" />
-          <div>
-            <p className="text-sm font-medium text-red-800">Error loading users</p>
-            <p className="text-sm text-red-600 mt-1">{error}</p>
+      {/* Main Content */}
+      <div className="p-5 space-y-4">
+        {error && (
+          <div className="bg-[#f2dede] border border-[#ebccd1] rounded p-4 flex items-start space-x-3">
+            <AlertCircle className="w-5 h-5 text-[#a94442] mt-0.5" />
+            <div>
+              <p className="text-sm font-medium text-[#a94442]">Error loading users</p>
+              <p className="text-sm text-[#a94442] mt-1">{error}</p>
+            </div>
           </div>
-        </div>
-      )}
+        )}
 
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200">
-        <div className="p-4 border-b border-gray-200">
+        <div className="bg-white rounded border border-[#d4d4d4]">
+        <div className="p-4 border-b border-[#d4d4d4]">
           <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#999] w-5 h-5" />
             <input
               type="text"
               placeholder="Search users by email..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2 border border-[#d4d4d4] rounded focus:ring-2 focus:ring-[#428bca] focus:border-transparent text-[#333]"
             />
           </div>
         </div>
 
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gray-50 border-b border-gray-200">
+            <thead className="bg-[#fafafa] border-b border-[#d4d4d4]">
               <tr>
-                <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="text-left px-6 py-3 text-xs font-medium text-[#666] uppercase tracking-wider">
                   User
                 </th>
-                <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="text-left px-6 py-3 text-xs font-medium text-[#666] uppercase tracking-wider">
                   Roles
                 </th>
-                <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="text-left px-6 py-3 text-xs font-medium text-[#666] uppercase tracking-wider">
                   Created
                 </th>
-                <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="text-left px-6 py-3 text-xs font-medium text-[#666] uppercase tracking-wider">
                   Last Sign In
                 </th>
-                <th className="text-right px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="text-right px-6 py-3 text-xs font-medium text-[#666] uppercase tracking-wider">
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-white divide-y divide-[#d4d4d4]">
               {filteredUsers.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="px-6 py-12 text-center">
-                    <div className="flex flex-col items-center justify-center text-gray-500">
-                      <UserCog className="w-12 h-12 mb-3 text-gray-400" />
+                    <div className="flex flex-col items-center justify-center text-[#666]">
+                      <UserCog className="w-12 h-12 mb-3 text-[#999]" />
                       <p className="text-sm font-medium">No users found</p>
                       {searchTerm && (
-                        <p className="text-xs text-gray-400 mt-1">
+                        <p className="text-xs text-[#999] mt-1">
                           Try adjusting your search
                         </p>
                       )}
@@ -407,33 +419,33 @@ export const UserManagement: React.FC = () => {
                 filteredUsers.map((user) => {
                   const activeRoles = user.roles.filter(r => r.is_active);
                   return (
-                    <tr key={user.id} className="hover:bg-gray-50 transition-colors">
+                    <tr key={user.id} className="hover:bg-[#fafafa] transition-colors">
                       <td className="px-6 py-4">
                         <div className="flex items-center space-x-3">
-                          <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
+                          <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-[#428bca] to-[#3276b1] rounded-full flex items-center justify-center">
                             <span className="text-white font-medium text-sm">
                               {(user.display_name || user.email).charAt(0).toUpperCase()}
                             </span>
                           </div>
                           <div>
                             <div className="flex items-center space-x-2">
-                              <span className="text-sm font-medium text-gray-900">
+                              <span className="text-sm font-medium text-[#333]">
                                 {user.display_name || user.email.split('@')[0]}
                               </span>
                               {user.is_disabled && (
-                                <span className="text-xs px-2 py-0.5 bg-red-100 text-red-700 rounded-full font-medium">
+                                <span className="text-xs px-2 py-0.5 bg-[#f2dede] text-[#a94442] rounded-full font-medium border border-[#ebccd1]">
                                   Disabled
                                 </span>
                               )}
                               {user.id === currentUser?.id && (
-                                <span className="text-xs text-blue-600 font-medium">
+                                <span className="text-xs text-[#428bca] font-medium">
                                   (You)
                                 </span>
                               )}
                             </div>
                             <div className="flex items-center space-x-2 mt-1">
-                              <Mail className="w-3 h-3 text-gray-400" />
-                              <span className="text-xs text-gray-600">
+                              <Mail className="w-3 h-3 text-[#999]" />
+                              <span className="text-xs text-[#666]">
                                 {user.email}
                               </span>
                             </div>
@@ -446,55 +458,55 @@ export const UserManagement: React.FC = () => {
                             activeRoles.map((roleData, idx) => (
                               <span
                                 key={idx}
-                                className={`inline-flex items-center space-x-1 px-2.5 py-1 rounded-md text-xs font-medium border ${getRoleBadgeColor(roleData.role)}`}
+                                className={`inline-flex items-center space-x-1 px-2.5 py-1 rounded text-xs font-medium border ${getRoleBadgeColor(roleData.role)}`}
                               >
                                 <Shield className="w-3 h-3" />
                                 <span>{roleData.role}</span>
                               </span>
                             ))
                           ) : (
-                            <span className="text-sm text-gray-500 italic">No roles assigned</span>
+                            <span className="text-sm text-[#666] italic">No roles assigned</span>
                           )}
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <div className="flex items-center space-x-2 text-sm text-gray-600">
-                          <Calendar className="w-4 h-4 text-gray-400" />
+                        <div className="flex items-center space-x-2 text-sm text-[#666]">
+                          <Calendar className="w-4 h-4 text-[#999]" />
                           <span>{new Date(user.user_created_at).toLocaleDateString()}</span>
                         </div>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         {user.last_sign_in_at ? (
-                          <div className="flex items-center space-x-2 text-sm text-gray-600">
-                            <Clock className="w-4 h-4 text-gray-400" />
+                          <div className="flex items-center space-x-2 text-sm text-[#666]">
+                            <Clock className="w-4 h-4 text-[#999]" />
                             <span>{new Date(user.last_sign_in_at).toLocaleDateString()}</span>
                           </div>
                         ) : (
-                          <span className="text-sm text-gray-400 italic">Never</span>
+                          <span className="text-sm text-[#999] italic">Never</span>
                         )}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right">
                         <div className="flex items-center justify-end space-x-2">
                           <button
                             onClick={() => handleEditUser(user)}
-                            className="inline-flex items-center space-x-1 px-3 py-1.5 bg-gray-100 text-gray-700 text-sm rounded-lg hover:bg-gray-200 transition-colors"
+                            className="inline-flex items-center space-x-1 px-3 py-1.5 text-[#666] hover:text-[#333] hover:bg-[#f5f5f5] text-sm rounded border border-transparent hover:border-[#d4d4d4] transition-colors"
                             title="Edit User"
                           >
                             <Edit className="w-4 h-4" />
                           </button>
                           <button
                             onClick={() => setSelectedUser(user)}
-                            className="inline-flex items-center space-x-1 px-3 py-1.5 bg-blue-600 text-white text-sm rounded-lg hover:bg-blue-700 transition-colors"
+                            className="inline-flex items-center space-x-1 px-3 py-1.5 bg-[#428bca] hover:bg-[#3276b1] text-white text-sm rounded transition-colors"
                             title="Manage Roles"
                           >
                             <UserCog className="w-4 h-4" />
                           </button>
                           <button
                             onClick={() => handleDisableUser(user)}
-                            className={`inline-flex items-center space-x-1 px-3 py-1.5 text-sm rounded-lg transition-colors ${
+                            className={`inline-flex items-center space-x-1 px-3 py-1.5 text-sm rounded transition-colors ${
                               user.is_disabled
-                                ? 'bg-green-100 text-green-700 hover:bg-green-200'
-                                : 'bg-red-100 text-red-700 hover:bg-red-200'
+                                ? 'bg-[#dff0d8] text-[#3c763d] hover:bg-[#d0e9c6] border border-[#d6e9c6]'
+                                : 'bg-[#f2dede] text-[#a94442] hover:bg-[#ebccd1] border border-[#ebccd1]'
                             }`}
                             title={user.is_disabled ? 'Enable User' : 'Disable User'}
                             disabled={user.id === currentUser?.id}
@@ -515,11 +527,12 @@ export const UserManagement: React.FC = () => {
           </table>
         </div>
 
-        <div className="px-6 py-4 border-t border-gray-200 bg-gray-50">
-          <p className="text-sm text-gray-600">
+        <div className="px-6 py-4 border-t border-[#d4d4d4] bg-[#fafafa]">
+          <p className="text-sm text-[#666]">
             Showing {filteredUsers.length} of {users.length} users
           </p>
         </div>
+      </div>
       </div>
 
       {selectedUser && (
@@ -532,35 +545,35 @@ export const UserManagement: React.FC = () => {
 
       {showCreateModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
-            <div className="px-6 py-4 border-b border-gray-200">
-              <h2 className="text-xl font-semibold text-gray-900">Create New User</h2>
+          <div className="bg-white rounded border border-[#d4d4d4] shadow-xl max-w-md w-full mx-4">
+            <div className="px-6 py-4 border-b border-[#d4d4d4] bg-[#fafafa]">
+              <h2 className="text-lg font-medium text-[#333]">Create New User</h2>
             </div>
 
             <form onSubmit={handleCreateUser} className="p-6 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-[#333] mb-1">
                   Email Address
                 </label>
                 <input
                   type="email"
                   value={createEmail}
                   onChange={(e) => setCreateEmail(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-[#d4d4d4] rounded focus:ring-2 focus:ring-[#428bca] focus:border-transparent text-[#333]"
                   placeholder="user@example.com"
                   required
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-[#333] mb-1">
                   Password
                 </label>
                 <input
                   type="password"
                   value={createPassword}
                   onChange={(e) => setCreatePassword(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-[#d4d4d4] rounded focus:ring-2 focus:ring-[#428bca] focus:border-transparent text-[#333]"
                   placeholder="Minimum 8 characters"
                   minLength={8}
                   required
@@ -568,25 +581,25 @@ export const UserManagement: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-[#333] mb-1">
                   Display Name (Optional)
                 </label>
                 <input
                   type="text"
                   value={createDisplayName}
                   onChange={(e) => setCreateDisplayName(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-[#d4d4d4] rounded focus:ring-2 focus:ring-[#428bca] focus:border-transparent text-[#333]"
                   placeholder="John Doe"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label className="block text-sm font-medium text-[#333] mb-2">
                   User Roles
                 </label>
-                <div className="space-y-2 max-h-48 overflow-y-auto border border-gray-300 rounded-lg p-3">
+                <div className="space-y-2 max-h-48 overflow-y-auto border border-[#d4d4d4] rounded p-3">
                   {availableRoles.map((role) => (
-                    <label key={role} className="flex items-center space-x-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
+                    <label key={role} className="flex items-center space-x-2 cursor-pointer hover:bg-[#f5f5f5] p-2 rounded">
                       <input
                         type="checkbox"
                         checked={createRoles.includes(role)}
@@ -597,19 +610,19 @@ export const UserManagement: React.FC = () => {
                             setCreateRoles(createRoles.filter(r => r !== role));
                           }
                         }}
-                        className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                        className="w-4 h-4 text-[#428bca] border-[#d4d4d4] rounded focus:ring-[#428bca]"
                       />
-                      <span className="text-sm text-gray-700">{role}</span>
+                      <span className="text-sm text-[#333]">{role}</span>
                     </label>
                   ))}
                 </div>
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-[#666] mt-1">
                   Select one or more roles for this user
                 </p>
               </div>
 
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                <p className="text-sm text-blue-800">
+              <div className="bg-[#d9edf7] border border-[#bce8f1] rounded p-3">
+                <p className="text-sm text-[#31708f]">
                   The user will receive a confirmation email and can log in immediately with the assigned roles.
                 </p>
               </div>
@@ -625,14 +638,14 @@ export const UserManagement: React.FC = () => {
                     setCreateDisplayName('');
                     setError(null);
                   }}
-                  className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="px-4 py-2 text-[#666] hover:text-[#333] hover:bg-[#f5f5f5] rounded border border-transparent hover:border-[#d4d4d4] transition-colors"
                   disabled={creating}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-4 py-2 bg-[#428bca] hover:bg-[#3276b1] text-white rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={creating}
                 >
                   {creating ? 'Creating...' : 'Create User'}
@@ -645,16 +658,16 @@ export const UserManagement: React.FC = () => {
 
       {showEditModal && editingUser && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
-            <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-              <h2 className="text-xl font-semibold text-gray-900">Edit User</h2>
+          <div className="bg-white rounded border border-[#d4d4d4] shadow-xl max-w-md w-full mx-4">
+            <div className="px-6 py-4 border-b border-[#d4d4d4] bg-[#fafafa] flex items-center justify-between">
+              <h2 className="text-lg font-medium text-[#333]">Edit User</h2>
               <button
                 onClick={() => {
                   setShowEditModal(false);
                   setEditingUser(null);
                   setError(null);
                 }}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-[#999] hover:text-[#666]"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -662,29 +675,29 @@ export const UserManagement: React.FC = () => {
 
             <form onSubmit={handleUpdateUser} className="p-6 space-y-4">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-[#333] mb-1">
                   Display Name
                 </label>
                 <input
                   type="text"
                   value={editDisplayName}
                   onChange={(e) => setEditDisplayName(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                  className="w-full px-3 py-2 border border-[#d4d4d4] rounded focus:ring-2 focus:ring-[#428bca] focus:border-transparent text-[#333]"
                   placeholder="User's display name"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-medium text-[#333] mb-1">
                   Email Address
                 </label>
                 <input
                   type="email"
                   value={editEmail}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-50 text-gray-500 cursor-not-allowed"
+                  className="w-full px-3 py-2 border border-[#d4d4d4] rounded bg-[#f5f5f5] text-[#999] cursor-not-allowed"
                   disabled
                 />
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-[#666] mt-1">
                   Email cannot be changed after user creation
                 </p>
               </div>
@@ -697,14 +710,14 @@ export const UserManagement: React.FC = () => {
                     setEditingUser(null);
                     setError(null);
                   }}
-                  className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="px-4 py-2 text-[#666] hover:text-[#333] hover:bg-[#f5f5f5] rounded border border-transparent hover:border-[#d4d4d4] transition-colors"
                   disabled={updating}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  className="px-4 py-2 bg-[#428bca] hover:bg-[#3276b1] text-white rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   disabled={updating}
                 >
                   {updating ? 'Updating...' : 'Update User'}
@@ -717,9 +730,9 @@ export const UserManagement: React.FC = () => {
 
       {showDisableModal && disablingUser && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white rounded-lg shadow-xl max-w-md w-full mx-4">
-            <div className="px-6 py-4 border-b border-gray-200 flex items-center justify-between">
-              <h2 className="text-xl font-semibold text-gray-900">
+          <div className="bg-white rounded border border-[#d4d4d4] shadow-xl max-w-md w-full mx-4">
+            <div className="px-6 py-4 border-b border-[#d4d4d4] bg-[#fafafa] flex items-center justify-between">
+              <h2 className="text-lg font-medium text-[#333]">
                 {disablingUser.is_disabled ? 'Enable User' : 'Disable User'}
               </h2>
               <button
@@ -728,49 +741,49 @@ export const UserManagement: React.FC = () => {
                   setDisablingUser(null);
                   setError(null);
                 }}
-                className="text-gray-400 hover:text-gray-600"
+                className="text-[#999] hover:text-[#666]"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             <form onSubmit={handleToggleUserStatus} className="p-6 space-y-4">
-              <div className="bg-gray-50 border border-gray-200 rounded-lg p-4">
+              <div className="bg-[#fafafa] border border-[#d4d4d4] rounded p-4">
                 <div className="flex items-center space-x-3">
-                  <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-full flex items-center justify-center">
+                  <div className="flex-shrink-0 w-10 h-10 bg-gradient-to-br from-[#428bca] to-[#3276b1] rounded-full flex items-center justify-center">
                     <span className="text-white font-medium text-sm">
                       {(disablingUser.display_name || disablingUser.email).charAt(0).toUpperCase()}
                     </span>
                   </div>
                   <div>
-                    <p className="text-sm font-medium text-gray-900">
+                    <p className="text-sm font-medium text-[#333]">
                       {disablingUser.display_name || disablingUser.email.split('@')[0]}
                     </p>
-                    <p className="text-xs text-gray-600">{disablingUser.email}</p>
+                    <p className="text-xs text-[#666]">{disablingUser.email}</p>
                   </div>
                 </div>
               </div>
 
               {!disablingUser.is_disabled && (
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
+                  <label className="block text-sm font-medium text-[#333] mb-1">
                     Reason for Disabling (Optional)
                   </label>
                   <textarea
                     value={disableReason}
                     onChange={(e) => setDisableReason(e.target.value)}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    className="w-full px-3 py-2 border border-[#d4d4d4] rounded focus:ring-2 focus:ring-[#428bca] focus:border-transparent text-[#333]"
                     placeholder="Enter reason..."
                     rows={3}
                   />
                 </div>
               )}
 
-              <div className={`border rounded-lg p-3 ${
-                disablingUser.is_disabled ? 'bg-green-50 border-green-200' : 'bg-red-50 border-red-200'
+              <div className={`border rounded p-3 ${
+                disablingUser.is_disabled ? 'bg-[#dff0d8] border-[#d6e9c6]' : 'bg-[#f2dede] border-[#ebccd1]'
               }`}>
                 <p className={`text-sm ${
-                  disablingUser.is_disabled ? 'text-green-800' : 'text-red-800'
+                  disablingUser.is_disabled ? 'text-[#3c763d]' : 'text-[#a94442]'
                 }`}>
                   {disablingUser.is_disabled
                     ? 'This will enable the user account and allow them to sign in.'
@@ -786,17 +799,17 @@ export const UserManagement: React.FC = () => {
                     setDisablingUser(null);
                     setError(null);
                   }}
-                  className="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+                  className="px-4 py-2 text-[#666] hover:text-[#333] hover:bg-[#f5f5f5] rounded border border-transparent hover:border-[#d4d4d4] transition-colors"
                   disabled={disabling}
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
-                  className={`px-4 py-2 text-white rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
+                  className={`px-4 py-2 text-white rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
                     disablingUser.is_disabled
-                      ? 'bg-green-600 hover:bg-green-700'
-                      : 'bg-red-600 hover:bg-red-700'
+                      ? 'bg-[#27ae60] hover:bg-[#229954]'
+                      : 'bg-[#c0392b] hover:bg-[#a93226]'
                   }`}
                   disabled={disabling}
                 >

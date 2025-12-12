@@ -65,11 +65,15 @@ export const CustomerProfile: React.FC = () => {
   
   if (!selectedCustomer) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <Building className="h-12 w-12 text-gray-300 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">No Customer Selected</h3>
-          <p className="text-gray-600">Please select a customer to view their profile.</p>
+      <div className="min-h-screen bg-[#f0f0f0] p-5">
+        <div className="bg-white rounded border border-[#d4d4d4] p-12">
+          <div className="flex items-center justify-center h-64">
+            <div className="text-center">
+              <Building className="h-12 w-12 text-[#999] mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-[#333] mb-2">No Customer Selected</h3>
+              <p className="text-[#666]">Please select a customer to view their profile.</p>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -100,164 +104,173 @@ export const CustomerProfile: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-6">
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center space-x-4">
-            <div className="p-3 bg-blue-100 rounded-lg">
-              <Building className="h-8 w-8 text-blue-600" />
-            </div>
-            <div>
-              <h2 className="text-2xl font-bold text-gray-900">{selectedCustomer.name}</h2>
-              <div className="flex items-center space-x-3 mt-1">
-                <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-blue-100 text-blue-800">
-                  {selectedCustomer.type}
-                </span>
-                <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-green-100 text-green-800">
-                  {selectedCustomer.segment}
-                </span>
-                <span className="text-sm text-gray-600">Contract: {selectedCustomer.contractNumber}</span>
-              </div>
-            </div>
+    <div className="min-h-screen bg-[#f0f0f0]">
+      <div className="bg-white border-b border-[#d4d4d4] sticky top-0 z-40">
+        <div className="px-5 py-3">
+          <div className="text-xs text-[#999] mb-2">
+            Sales / Customer Profile
           </div>
-
-          <div className="flex items-center space-x-2">
-            {timeRanges.map((range) => (
-              <button
-                key={range.value}
-                onClick={() => setTimeRange(range.value)}
-                className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  timeRange === range.value
-                    ? 'bg-blue-600 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                {range.label}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          <div className="bg-blue-50 p-4 rounded-lg">
-            <div className="flex items-center space-x-3">
-              <div className="p-1 bg-blue-100 rounded-lg">
-                <TrendingUp className="h-5 w-5 text-blue-600" />
-              </div>
-              <div>
-                <div className="text-xs text-blue-700 font-medium">Average Quote Margin</div>
-                <div className="text-xl font-bold text-blue-900">{metrics.averageMargin.toFixed(1)}%</div>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-green-50 p-4 rounded-lg">
-            <div className="flex items-center space-x-3">
-              <div className="p-1 bg-green-100 rounded-lg">
-                <Award className="h-5 w-5 text-green-600" />
-              </div>
-              <div>
-                <div className="text-xs text-green-700 font-medium">Won Opportunities Margin</div>
-                <div className="text-xl font-bold text-green-900">{metrics.wonMargin.toFixed(1)}%</div>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-red-50 p-4 rounded-lg">
-            <div className="flex items-center space-x-3">
-              <div className="p-1 bg-red-100 rounded-lg">
-                <TrendingDown className="h-5 w-5 text-red-600" />
-              </div>
-              <div>
-                <div className="text-xs text-red-700 font-medium">Lost Opportunities Margin</div>
-                <div className="text-xl font-bold text-red-900">{metrics.lostMargin.toFixed(1)}%</div>
-              </div>
-            </div>
-          </div>
-
-          <div className="bg-purple-50 p-4 rounded-lg">
-            <div className="flex items-center space-x-3">
-              <div className="p-1 bg-purple-100 rounded-lg">
-                <Award className="h-5 w-5 text-purple-600" />
-              </div>
-              <div>
-                <div className="text-xs text-purple-700 font-medium">Win Rate</div>
-                <div className="text-xl font-bold text-purple-900">{metrics.winRate.toFixed(1)}%</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
-          <div className="bg-green-50 p-4 rounded-lg text-center">
-            <div className="flex items-center justify-center space-x-2 mb-2">
-              <DollarSign className="h-4 w-4 text-green-600" />
-              <span className="text-xs text-green-700 font-medium">Total Quote Value</span>
-            </div>
-            <div className="text-xl font-bold text-green-900">
-              ${metrics.totalQuoteValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-            </div>
-          </div>
-
-          <div className="bg-blue-50 p-4 rounded-lg text-center">
-            <div className="flex items-center justify-center space-x-2 mb-2">
-              <BarChart3 className="h-4 w-4 text-blue-600" />
-              <span className="text-xs text-blue-700 font-medium">Average Quote Value</span>
-            </div>
-            <div className="text-xl font-bold text-blue-900">
-              ${metrics.averageQuoteValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
-            </div>
-          </div>
-
-          <div className="bg-purple-50 p-4 rounded-lg text-center">
-            <div className="flex items-center justify-center space-x-2 mb-2">
-              <Calendar className="h-4 w-4 text-purple-600" />
-              <span className="text-xs text-purple-700 font-medium">Total Quotes</span>
-            </div>
-            <div className="text-xl font-bold text-purple-900">{metrics.totalQuotes.toLocaleString()}</div>
-          </div>
+          <h1 className="text-xl font-normal text-[#333]">
+            Customer Profile
+          </h1>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
-        <div className="lg:col-span-4">
-          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <div className="flex items-center justify-between mb-6">
-              <h3 className="text-lg font-semibold text-gray-900">Quote Trends</h3>
-              <div className="flex space-x-4 text-sm">
-                <div className="flex items-center space-x-2">
-                  <div className="w-3 h-3 bg-blue-500 rounded-full"></div>
-                  <span>Quote Volume & Margin Trends</span>
+      <div className="p-5 space-y-4">
+        <div className="bg-white rounded border border-[#d4d4d4] p-6">
+          <div className="flex items-center justify-between mb-6">
+            <div className="flex items-center space-x-4">
+              <div className="p-3 bg-[#e8f4f8] rounded">
+                <Building className="h-8 w-8 text-[#428bca]" />
+              </div>
+              <div>
+                <h2 className="text-2xl font-normal text-[#333]">{selectedCustomer.name}</h2>
+                <div className="flex items-center space-x-3 mt-1">
+                  <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-[#d9edf7] text-[#31708f] border border-[#bce8f1]">
+                    {selectedCustomer.type}
+                  </span>
+                  <span className="inline-flex items-center px-2 py-1 rounded text-xs font-medium bg-[#dff0d8] text-[#3c763d] border border-[#d6e9c6]">
+                    {selectedCustomer.segment}
+                  </span>
+                  <span className="text-sm text-[#666]">Contract: {selectedCustomer.contractNumber}</span>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <div className="w-3 h-3 bg-green-500 rounded-full"></div>
-                  <span>Margin Analysis</span>
+              </div>
+            </div>
+
+            <div className="flex items-center space-x-2">
+              {timeRanges.map((range) => (
+                <button
+                  key={range.value}
+                  onClick={() => setTimeRange(range.value)}
+                  className={`px-3 py-2 rounded text-sm font-medium transition-colors ${
+                    timeRange === range.value
+                      ? 'bg-[#428bca] text-white'
+                      : 'bg-[#f5f5f5] text-[#666] hover:bg-[#e8e8e8] border border-[#d4d4d4]'
+                  }`}
+                >
+                  {range.label}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="bg-[#d9edf7] border border-[#bce8f1] p-4 rounded">
+              <div className="flex items-center space-x-3">
+                <div className="p-1 bg-[#c4e3f3] rounded">
+                  <TrendingUp className="h-5 w-5 text-[#31708f]" />
                 </div>
-                <div className="flex items-center space-x-2">
-                  <div className="w-3 h-3 bg-purple-500 rounded-full"></div>
-                  <span>Product Performance</span>
+                <div>
+                  <div className="text-xs text-[#31708f] font-medium">Average Quote Margin</div>
+                  <div className="text-xl font-semibold text-[#31708f]">{metrics.averageMargin.toFixed(1)}%</div>
                 </div>
-                <div className="flex items-center space-x-2">
-                  <div className="w-3 h-3 bg-orange-500 rounded-full"></div>
-                  <span>Opportunity Analysis</span>
+              </div>
+            </div>
+
+            <div className="bg-[#dff0d8] border border-[#d6e9c6] p-4 rounded">
+              <div className="flex items-center space-x-3">
+                <div className="p-1 bg-[#d0e9c6] rounded">
+                  <Award className="h-5 w-5 text-[#3c763d]" />
+                </div>
+                <div>
+                  <div className="text-xs text-[#3c763d] font-medium">Won Opportunities Margin</div>
+                  <div className="text-xl font-semibold text-[#3c763d]">{metrics.wonMargin.toFixed(1)}%</div>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-[#f2dede] border border-[#ebccd1] p-4 rounded">
+              <div className="flex items-center space-x-3">
+                <div className="p-1 bg-[#ebcccc] rounded">
+                  <TrendingDown className="h-5 w-5 text-[#a94442]" />
+                </div>
+                <div>
+                  <div className="text-xs text-[#a94442] font-medium">Lost Opportunities Margin</div>
+                  <div className="text-xl font-semibold text-[#a94442]">{metrics.lostMargin.toFixed(1)}%</div>
+                </div>
+              </div>
+            </div>
+
+            <div className="bg-[#fcf8e3] border border-[#faebcc] p-4 rounded">
+              <div className="flex items-center space-x-3">
+                <div className="p-1 bg-[#faf2cc] rounded">
+                  <Award className="h-5 w-5 text-[#8a6d3b]" />
+                </div>
+                <div>
+                  <div className="text-xs text-[#8a6d3b] font-medium">Win Rate</div>
+                  <div className="text-xl font-semibold text-[#8a6d3b]">{metrics.winRate.toFixed(1)}%</div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Quote Value Over Time</h3>
-          <p className="text-sm text-gray-600 mb-6">Monthly quote values and win/loss breakdown</p>
-          <Chart type="area" data={quoteValueData} />
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+            <div className="bg-[#dff0d8] border border-[#d6e9c6] p-4 rounded text-center">
+              <div className="flex items-center justify-center space-x-2 mb-2">
+                <DollarSign className="h-4 w-4 text-[#3c763d]" />
+                <span className="text-xs text-[#3c763d] font-medium">Total Quote Value</span>
+              </div>
+              <div className="text-xl font-semibold text-[#3c763d]">
+                ${metrics.totalQuoteValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </div>
+            </div>
+
+            <div className="bg-[#d9edf7] border border-[#bce8f1] p-4 rounded text-center">
+              <div className="flex items-center justify-center space-x-2 mb-2">
+                <BarChart3 className="h-4 w-4 text-[#31708f]" />
+                <span className="text-xs text-[#31708f] font-medium">Average Quote Value</span>
+              </div>
+              <div className="text-xl font-semibold text-[#31708f]">
+                ${metrics.averageQuoteValue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+              </div>
+            </div>
+
+            <div className="bg-[#fcf8e3] border border-[#faebcc] p-4 rounded text-center">
+              <div className="flex items-center justify-center space-x-2 mb-2">
+                <Calendar className="h-4 w-4 text-[#8a6d3b]" />
+                <span className="text-xs text-[#8a6d3b] font-medium">Total Quotes</span>
+              </div>
+              <div className="text-xl font-semibold text-[#8a6d3b]">{metrics.totalQuotes.toLocaleString()}</div>
+            </div>
+          </div>
         </div>
 
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-          <h3 className="text-lg font-semibold text-gray-900 mb-4">Quote Volume & Margin Trends</h3>
-          <p className="text-sm text-gray-600 mb-6">Number of quotes and average margins by month</p>
-          <Chart type="bar" data={marginTrendData} />
+        <div className="bg-white rounded border border-[#d4d4d4] p-6">
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="text-lg font-medium text-[#333]">Quote Trends</h3>
+            <div className="flex space-x-4 text-sm">
+              <div className="flex items-center space-x-2">
+                <div className="w-3 h-3 bg-[#428bca] rounded-full"></div>
+                <span className="text-[#666]">Quote Volume & Margin Trends</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-3 h-3 bg-[#5cb85c] rounded-full"></div>
+                <span className="text-[#666]">Margin Analysis</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-3 h-3 bg-[#f0ad4e] rounded-full"></div>
+                <span className="text-[#666]">Product Performance</span>
+              </div>
+              <div className="flex items-center space-x-2">
+                <div className="w-3 h-3 bg-[#d9534f] rounded-full"></div>
+                <span className="text-[#666]">Opportunity Analysis</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+          <div className="bg-white rounded border border-[#d4d4d4] p-6">
+            <h3 className="text-lg font-medium text-[#333] mb-2">Quote Value Over Time</h3>
+            <p className="text-sm text-[#666] mb-6">Monthly quote values and win/loss breakdown</p>
+            <Chart type="area" data={quoteValueData} />
+          </div>
+
+          <div className="bg-white rounded border border-[#d4d4d4] p-6">
+            <h3 className="text-lg font-medium text-[#333] mb-2">Quote Volume & Margin Trends</h3>
+            <p className="text-sm text-[#666] mb-6">Number of quotes and average margins by month</p>
+            <Chart type="bar" data={marginTrendData} />
+          </div>
         </div>
       </div>
     </div>

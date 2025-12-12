@@ -281,70 +281,79 @@ export const ConfigurationSettings: React.FC = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <RefreshCw className="h-8 w-8 animate-spin text-blue-600" />
+        <RefreshCw className="h-8 w-8 animate-spin text-[#428bca]" />
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      {/* Header */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center space-x-3">
-            <Settings className="h-6 w-6 text-blue-600" />
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
-                System Configuration
-              </h1>
-              <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
-                Configure ERP API and other system settings
-              </p>
-            </div>
+    <div className="min-h-screen bg-[#f0f0f0]">
+      {/* Oro-style Header */}
+      <div className="bg-white border-b border-[#d4d4d4] sticky top-0 z-40">
+        <div className="px-5 py-3">
+          {/* Breadcrumb */}
+          <div className="text-xs text-[#999] mb-2">
+            System / Configuration
           </div>
 
-          <button
-            onClick={loadAuditLog}
-            className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition"
-          >
-            <History className="h-4 w-4" />
-            <span>View Audit Log</span>
-          </button>
-        </div>
+          <div className="flex items-center justify-between mb-4">
+            <div className="flex items-center space-x-3">
+              <Settings className="h-6 w-6 text-[#428bca]" />
+              <div>
+                <h1 className="text-xl font-normal text-[#333]">
+                  System Configuration
+                </h1>
+                <p className="text-xs text-[#666] mt-1">
+                  Configure ERP API and other system settings
+                </p>
+              </div>
+            </div>
 
-        {/* Tab Navigation */}
-        <div className="flex space-x-1 border-b border-gray-200 dark:border-gray-700">
-          <button
-            onClick={() => setActiveTab('api')}
-            className={`flex items-center space-x-2 px-4 py-2 border-b-2 transition-colors ${
-              activeTab === 'api'
-                ? 'border-blue-600 text-blue-600'
-                : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
-            }`}
-          >
-            <Database className="w-4 h-4" />
-            <span>API Configuration</span>
-          </button>
-          <button
-            onClick={() => setActiveTab('approval-limits')}
-            className={`flex items-center space-x-2 px-4 py-2 border-b-2 transition-colors ${
-              activeTab === 'approval-limits'
-                ? 'border-blue-600 text-blue-600'
-                : 'border-transparent text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-200'
-            }`}
-          >
-            <Shield className="w-4 h-4" />
-            <span>Approval Limits</span>
-          </button>
+            <button
+              onClick={loadAuditLog}
+              className="flex items-center space-x-2 px-4 py-2 text-sm text-[#666] hover:text-[#333] hover:bg-[#f5f5f5] rounded border border-transparent hover:border-[#d4d4d4] transition"
+            >
+              <History className="h-4 w-4" />
+              <span>View Audit Log</span>
+            </button>
+          </div>
+
+          {/* Tab Navigation */}
+          <div className="flex space-x-1 border-b border-[#d4d4d4]">
+            <button
+              onClick={() => setActiveTab('api')}
+              className={`flex items-center space-x-2 px-4 py-2 border-b-2 transition-colors ${
+                activeTab === 'api'
+                  ? 'border-[#428bca] text-[#428bca]'
+                  : 'border-transparent text-[#666] hover:text-[#333]'
+              }`}
+            >
+              <Database className="w-4 h-4" />
+              <span>API Configuration</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('approval-limits')}
+              className={`flex items-center space-x-2 px-4 py-2 border-b-2 transition-colors ${
+                activeTab === 'approval-limits'
+                  ? 'border-[#428bca] text-[#428bca]'
+                  : 'border-transparent text-[#666] hover:text-[#333]'
+              }`}
+            >
+              <Shield className="w-4 h-4" />
+              <span>Approval Limits</span>
+            </button>
+          </div>
         </div>
       </div>
 
+      <div className="max-w-4xl mx-auto p-5 space-y-4">
+
       {/* Save Message */}
       {saveMessage && (
-        <div className={`p-4 rounded-lg ${
+        <div className={`p-4 rounded border ${
           saveMessage.includes('success')
-            ? 'bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-300'
-            : 'bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-300'
+            ? 'bg-[#dff0d8] text-[#3c763d] border-[#d6e9c6]'
+            : 'bg-[#f2dede] text-[#a94442] border-[#ebccd1]'
         }`}>
           <div className="flex items-center space-x-2">
             {saveMessage.includes('success') ? (
@@ -362,8 +371,8 @@ export const ConfigurationSettings: React.FC = () => {
         <>
           {/* Unsaved Changes Warning */}
           {hasUnsavedChanges && (
-            <div className="bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-lg p-4">
-              <div className="flex items-center space-x-2 text-yellow-800 dark:text-yellow-300">
+            <div className="bg-[#fcf8e3] text-[#8a6d3b] border border-[#faebcc] rounded p-4">
+              <div className="flex items-center space-x-2">
                 <AlertCircle className="h-5 w-5" />
                 <span className="font-medium">You have unsaved changes</span>
               </div>
@@ -371,9 +380,9 @@ export const ConfigurationSettings: React.FC = () => {
           )}
 
           {/* ERP API Configuration */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+      <div className="bg-white rounded border border-[#d4d4d4] p-6">
         <div className="flex items-center justify-between mb-6">
-          <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+          <h2 className="text-lg font-medium text-[#333]">
             ERP API Configuration
           </h2>
 
@@ -382,9 +391,9 @@ export const ConfigurationSettings: React.FC = () => {
               type="checkbox"
               checked={erpConfig.enabled}
               onChange={(e) => setErpConfig({ ...erpConfig, enabled: e.target.checked })}
-              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              className="rounded border-[#d4d4d4] text-[#428bca] focus:ring-[#428bca]"
             />
-            <span className="text-sm text-gray-700 dark:text-gray-300">
+            <span className="text-sm text-[#333]">
               Enable ERP Integration
             </span>
           </label>
@@ -393,7 +402,7 @@ export const ConfigurationSettings: React.FC = () => {
         <div className="space-y-4">
           {/* API URL */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-[#333] mb-2">
               API Base URL *
             </label>
             <input
@@ -401,17 +410,17 @@ export const ConfigurationSettings: React.FC = () => {
               value={erpConfig.apiUrl}
               onChange={(e) => setErpConfig({ ...erpConfig, apiUrl: e.target.value })}
               placeholder="https://your-erp-api.com/api"
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              className="w-full px-3 py-2 border border-[#d4d4d4] rounded focus:ring-2 focus:ring-[#428bca] focus:border-[#428bca] bg-white text-[#333]"
               disabled={!erpConfig.enabled}
             />
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            <p className="text-xs text-[#666] mt-1">
               The base URL for your ERP REST API (e.g., https://erp.example.com/api)
             </p>
           </div>
 
           {/* API Key */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-[#333] mb-2">
               API Key *
             </label>
             <div className="relative">
@@ -420,18 +429,18 @@ export const ConfigurationSettings: React.FC = () => {
                 value={erpConfig.apiKey}
                 onChange={(e) => setErpConfig({ ...erpConfig, apiKey: e.target.value })}
                 placeholder="Enter your ERP API key"
-                className="w-full px-3 py-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                className="w-full px-3 py-2 pr-10 border border-[#d4d4d4] rounded focus:ring-2 focus:ring-[#428bca] focus:border-[#428bca] bg-white text-[#333]"
                 disabled={!erpConfig.enabled}
               />
               <button
                 type="button"
                 onClick={() => setShowApiKey(!showApiKey)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#666] hover:text-[#333]"
               >
                 {showApiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            <p className="text-xs text-[#666] mt-1">
               API key for authentication (stored securely in database)
             </p>
           </div>
@@ -440,7 +449,7 @@ export const ConfigurationSettings: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {/* Timeout */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-[#333] mb-2">
                 Request Timeout (ms)
               </label>
               <input
@@ -450,14 +459,14 @@ export const ConfigurationSettings: React.FC = () => {
                 min="1000"
                 max="60000"
                 step="1000"
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                className="w-full px-3 py-2 border border-[#d4d4d4] rounded focus:ring-2 focus:ring-[#428bca] focus:border-[#428bca] bg-white text-[#333]"
                 disabled={!erpConfig.enabled}
               />
             </div>
 
             {/* Retry Attempts */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-[#333] mb-2">
                 Retry Attempts
               </label>
               <input
@@ -466,14 +475,14 @@ export const ConfigurationSettings: React.FC = () => {
                 onChange={(e) => setErpConfig({ ...erpConfig, retryAttempts: parseInt(e.target.value) || 3 })}
                 min="0"
                 max="10"
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                className="w-full px-3 py-2 border border-[#d4d4d4] rounded focus:ring-2 focus:ring-[#428bca] focus:border-[#428bca] bg-white text-[#333]"
                 disabled={!erpConfig.enabled}
               />
             </div>
 
             {/* Cache TTL */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-[#333] mb-2">
                 Cache TTL (ms)
               </label>
               <input
@@ -483,17 +492,17 @@ export const ConfigurationSettings: React.FC = () => {
                 min="60000"
                 max="3600000"
                 step="60000"
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                className="w-full px-3 py-2 border border-[#d4d4d4] rounded focus:ring-2 focus:ring-[#428bca] focus:border-[#428bca] bg-white text-[#333]"
                 disabled={!erpConfig.enabled}
               />
-              <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+              <p className="text-xs text-[#666] mt-1">
                 {(erpConfig.cacheTtl / 60000).toFixed(0)} minutes
               </p>
             </div>
 
             {/* Default Warehouse */}
             <div>
-              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label className="block text-sm font-medium text-[#333] mb-2">
                 Default Warehouse
               </label>
               <input
@@ -501,18 +510,18 @@ export const ConfigurationSettings: React.FC = () => {
                 value={erpConfig.defaultWarehouse}
                 onChange={(e) => setErpConfig({ ...erpConfig, defaultWarehouse: e.target.value })}
                 placeholder="WH01"
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                className="w-full px-3 py-2 border border-[#d4d4d4] rounded focus:ring-2 focus:ring-[#428bca] focus:border-[#428bca] bg-white text-[#333]"
                 disabled={!erpConfig.enabled}
               />
             </div>
           </div>
 
           {/* Test Connection */}
-          <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
+          <div className="pt-4 border-t border-[#d4d4d4]">
             <button
               onClick={handleTestConnection}
               disabled={testing || !erpConfig.enabled || !erpConfig.apiUrl}
-              className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition"
+              className="flex items-center space-x-2 px-4 py-2 bg-[#428bca] text-white rounded hover:bg-[#3276b1] disabled:bg-[#d4d4d4] disabled:cursor-not-allowed transition"
             >
               {testing ? (
                 <RefreshCw className="h-4 w-4 animate-spin" />
@@ -523,10 +532,10 @@ export const ConfigurationSettings: React.FC = () => {
             </button>
 
             {testResult && (
-              <div className={`mt-3 p-3 rounded-lg ${
+              <div className={`mt-3 p-3 rounded border ${
                 testResult.success
-                  ? 'bg-green-50 dark:bg-green-900/20 text-green-800 dark:text-green-300'
-                  : 'bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-300'
+                  ? 'bg-[#dff0d8] text-[#3c763d] border-[#d6e9c6]'
+                  : 'bg-[#f2dede] text-[#a94442] border-[#ebccd1]'
               }`}>
                 <div className="flex items-center space-x-2">
                   {testResult.success ? (
@@ -548,19 +557,19 @@ export const ConfigurationSettings: React.FC = () => {
       </div>
 
       {/* Import API Authentication */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+      <div className="bg-white rounded border border-[#d4d4d4] p-6">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+            <h2 className="text-lg font-medium text-[#333]">
               Product Import API Authentication
             </h2>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            <p className="text-sm text-[#666] mt-1">
               {importApiConfig.enabled ? (
-                <span className="text-green-600 dark:text-green-400">
+                <span className="text-[#3c763d]">
                   Authentication is enabled
                 </span>
               ) : (
-                <span className="text-gray-500">
+                <span className="text-[#666]">
                   Authentication is disabled
                 </span>
               )}
@@ -577,18 +586,18 @@ export const ConfigurationSettings: React.FC = () => {
               type="checkbox"
               checked={importApiConfig.enabled}
               onChange={(e) => setImportApiConfig({ ...importApiConfig, enabled: e.target.checked })}
-              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              className="rounded border-[#d4d4d4] text-[#428bca] focus:ring-[#428bca]"
             />
-            <span className="text-sm text-gray-700 dark:text-gray-300">
+            <span className="text-sm text-[#333]">
               Enable Authentication
             </span>
           </label>
         </div>
 
-        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
+        <div className="bg-[#d9edf7] text-[#31708f] border border-[#bce8f1] rounded p-4 mb-6">
           <div className="flex items-start space-x-2">
-            <AlertCircle className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5" />
-            <div className="text-sm text-blue-800 dark:text-blue-300">
+            <AlertCircle className="h-5 w-5 mt-0.5" />
+            <div className="text-sm">
               <p className="font-medium mb-1">Secure Your Import API</p>
               <p>Enable authentication to require username and password for external systems importing products via API.</p>
             </div>
@@ -598,7 +607,7 @@ export const ConfigurationSettings: React.FC = () => {
         <div className="space-y-4">
           {/* Username */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-[#333] mb-2">
               Username
             </label>
             <input
@@ -606,20 +615,20 @@ export const ConfigurationSettings: React.FC = () => {
               value={importApiConfig.username}
               onChange={(e) => setImportApiConfig({ ...importApiConfig, username: e.target.value })}
               placeholder="api_user"
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              className="w-full px-3 py-2 border border-[#d4d4d4] rounded focus:ring-2 focus:ring-[#428bca] focus:border-[#428bca] bg-white text-[#333]"
               disabled={!importApiConfig.enabled}
             />
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            <p className="text-xs text-[#666] mt-1">
               Username for Basic Authentication
             </p>
           </div>
 
           {/* Password */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-[#333] mb-2">
               Password
               {importApiConfig.password && originalImportConfig.password && (
-                <span className="ml-2 text-xs text-green-600 dark:text-green-400">
+                <span className="ml-2 text-xs text-[#3c763d]">
                   (Configured)
                 </span>
               )}
@@ -630,26 +639,26 @@ export const ConfigurationSettings: React.FC = () => {
                 value={importApiConfig.password}
                 onChange={(e) => setImportApiConfig({ ...importApiConfig, password: e.target.value })}
                 placeholder={originalImportConfig.password ? '••••••••' : 'Enter a strong password'}
-                className="w-full px-3 py-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                className="w-full px-3 py-2 pr-10 border border-[#d4d4d4] rounded focus:ring-2 focus:ring-[#428bca] focus:border-[#428bca] bg-white text-[#333]"
                 disabled={!importApiConfig.enabled}
               />
               <button
                 type="button"
                 onClick={() => setShowApiKey(!showApiKey)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#666] hover:text-[#333]"
                 disabled={!importApiConfig.enabled}
               >
                 {showApiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            <p className="text-xs text-[#666] mt-1">
               Password for Basic Authentication (stored securely)
             </p>
           </div>
 
           {/* Rate Limit */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-[#333] mb-2">
               Rate Limit (requests/hour)
             </label>
             <input
@@ -658,21 +667,21 @@ export const ConfigurationSettings: React.FC = () => {
               onChange={(e) => setImportApiConfig({ ...importApiConfig, rateLimit: parseInt(e.target.value) || 100 })}
               min="1"
               max="10000"
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              className="w-full px-3 py-2 border border-[#d4d4d4] rounded focus:ring-2 focus:ring-[#428bca] focus:border-[#428bca] bg-white text-[#333]"
               disabled={!importApiConfig.enabled}
             />
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            <p className="text-xs text-[#666] mt-1">
               Maximum API requests allowed per hour
             </p>
           </div>
 
           {/* Usage Instructions */}
           {importApiConfig.enabled && importApiConfig.username && importApiConfig.password && (
-            <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-              <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <div className="pt-4 border-t border-[#d4d4d4]">
+              <p className="text-sm font-medium text-[#333] mb-2">
                 API Usage Example:
               </p>
-              <pre className="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-xs">
+              <pre className="bg-gray-900 text-green-400 p-4 rounded overflow-x-auto text-xs">
 {`curl -X POST \\
   'YOUR_SUPABASE_URL/functions/v1/import-products' \\
   -u '${importApiConfig.username}:${importApiConfig.password}' \\
@@ -685,19 +694,19 @@ export const ConfigurationSettings: React.FC = () => {
       </div>
 
       {/* Cross Reference Import API Authentication */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+      <div className="bg-white rounded border border-[#d4d4d4] p-6">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+            <h2 className="text-lg font-medium text-[#333]">
               Cross Reference Import API Authentication
             </h2>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            <p className="text-sm text-[#666] mt-1">
               {crossRefImportApiConfig.enabled ? (
-                <span className="text-green-600 dark:text-green-400">
+                <span className="text-[#3c763d]">
                   Authentication is enabled
                 </span>
               ) : (
-                <span className="text-gray-500">
+                <span className="text-[#666]">
                   Authentication is disabled
                 </span>
               )}
@@ -714,18 +723,18 @@ export const ConfigurationSettings: React.FC = () => {
               type="checkbox"
               checked={crossRefImportApiConfig.enabled}
               onChange={(e) => setCrossRefImportApiConfig({ ...crossRefImportApiConfig, enabled: e.target.checked })}
-              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              className="rounded border-[#d4d4d4] text-[#428bca] focus:ring-[#428bca]"
             />
-            <span className="text-sm text-gray-700 dark:text-gray-300">
+            <span className="text-sm text-[#333]">
               Enable Authentication
             </span>
           </label>
         </div>
 
-        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
+        <div className="bg-[#d9edf7] text-[#31708f] border border-[#bce8f1] rounded p-4 mb-6">
           <div className="flex items-start space-x-2">
-            <AlertCircle className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5" />
-            <div className="text-sm text-blue-800 dark:text-blue-300">
+            <AlertCircle className="h-5 w-5 mt-0.5" />
+            <div className="text-sm">
               <p className="font-medium mb-1">Secure Your Cross Reference Import API</p>
               <p>Enable authentication to require username and password for external systems importing cross references via API.</p>
             </div>
@@ -735,7 +744,7 @@ export const ConfigurationSettings: React.FC = () => {
         <div className="space-y-4">
           {/* Username */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-[#333] mb-2">
               Username
             </label>
             <input
@@ -743,20 +752,20 @@ export const ConfigurationSettings: React.FC = () => {
               value={crossRefImportApiConfig.username}
               onChange={(e) => setCrossRefImportApiConfig({ ...crossRefImportApiConfig, username: e.target.value })}
               placeholder="cross_ref_api_user"
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              className="w-full px-3 py-2 border border-[#d4d4d4] rounded focus:ring-2 focus:ring-[#428bca] focus:border-[#428bca] bg-white text-[#333]"
               disabled={!crossRefImportApiConfig.enabled}
             />
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            <p className="text-xs text-[#666] mt-1">
               Username for Basic Authentication
             </p>
           </div>
 
           {/* Password */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-[#333] mb-2">
               Password
               {crossRefImportApiConfig.password && originalCrossRefImportConfig.password && (
-                <span className="ml-2 text-xs text-green-600 dark:text-green-400">
+                <span className="ml-2 text-xs text-[#3c763d]">
                   (Configured)
                 </span>
               )}
@@ -767,26 +776,26 @@ export const ConfigurationSettings: React.FC = () => {
                 value={crossRefImportApiConfig.password}
                 onChange={(e) => setCrossRefImportApiConfig({ ...crossRefImportApiConfig, password: e.target.value })}
                 placeholder={originalCrossRefImportConfig.password ? '••••••••' : 'Enter a strong password'}
-                className="w-full px-3 py-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                className="w-full px-3 py-2 pr-10 border border-[#d4d4d4] rounded focus:ring-2 focus:ring-[#428bca] focus:border-[#428bca] bg-white text-[#333]"
                 disabled={!crossRefImportApiConfig.enabled}
               />
               <button
                 type="button"
                 onClick={() => setShowApiKey(!showApiKey)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#666] hover:text-[#333]"
                 disabled={!crossRefImportApiConfig.enabled}
               >
                 {showApiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            <p className="text-xs text-[#666] mt-1">
               Password for Basic Authentication (stored securely)
             </p>
           </div>
 
           {/* Rate Limit */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-[#333] mb-2">
               Rate Limit (requests/hour)
             </label>
             <input
@@ -795,21 +804,21 @@ export const ConfigurationSettings: React.FC = () => {
               onChange={(e) => setCrossRefImportApiConfig({ ...crossRefImportApiConfig, rateLimit: parseInt(e.target.value) || 100 })}
               min="1"
               max="10000"
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              className="w-full px-3 py-2 border border-[#d4d4d4] rounded focus:ring-2 focus:ring-[#428bca] focus:border-[#428bca] bg-white text-[#333]"
               disabled={!crossRefImportApiConfig.enabled}
             />
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            <p className="text-xs text-[#666] mt-1">
               Maximum API requests allowed per hour
             </p>
           </div>
 
           {/* Usage Instructions */}
           {crossRefImportApiConfig.enabled && crossRefImportApiConfig.username && crossRefImportApiConfig.password && (
-            <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-              <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <div className="pt-4 border-t border-[#d4d4d4]">
+              <p className="text-sm font-medium text-[#333] mb-2">
                 API Usage Example:
               </p>
-              <pre className="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-xs">
+              <pre className="bg-gray-900 text-green-400 p-4 rounded overflow-x-auto text-xs">
 {`curl -X POST \\
   'YOUR_SUPABASE_URL/functions/v1/import-cross-references' \\
   -u '${crossRefImportApiConfig.username}:${crossRefImportApiConfig.password}' \\
@@ -822,19 +831,19 @@ export const ConfigurationSettings: React.FC = () => {
       </div>
 
       {/* Customer Import API Authentication */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+      <div className="bg-white rounded border border-[#d4d4d4] p-6">
         <div className="flex items-center justify-between mb-4">
           <div>
-            <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+            <h2 className="text-lg font-medium text-[#333]">
               Customer Import API Authentication
             </h2>
-            <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
+            <p className="text-sm text-[#666] mt-1">
               {customerImportApiConfig.enabled ? (
-                <span className="text-green-600 dark:text-green-400">
+                <span className="text-[#3c763d]">
                   Authentication is enabled
                 </span>
               ) : (
-                <span className="text-gray-500">
+                <span className="text-[#666]">
                   Authentication is disabled
                 </span>
               )}
@@ -851,18 +860,18 @@ export const ConfigurationSettings: React.FC = () => {
               type="checkbox"
               checked={customerImportApiConfig.enabled}
               onChange={(e) => setCustomerImportApiConfig({ ...customerImportApiConfig, enabled: e.target.checked })}
-              className="rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+              className="rounded border-[#d4d4d4] text-[#428bca] focus:ring-[#428bca]"
             />
-            <span className="text-sm text-gray-700 dark:text-gray-300">
+            <span className="text-sm text-[#333]">
               Enable Authentication
             </span>
           </label>
         </div>
 
-        <div className="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg p-4 mb-6">
+        <div className="bg-[#d9edf7] text-[#31708f] border border-[#bce8f1] rounded p-4 mb-6">
           <div className="flex items-start space-x-2">
-            <AlertCircle className="h-5 w-5 text-blue-600 dark:text-blue-400 mt-0.5" />
-            <div className="text-sm text-blue-800 dark:text-blue-300">
+            <AlertCircle className="h-5 w-5 mt-0.5" />
+            <div className="text-sm">
               <p className="font-medium mb-1">Secure Your Customer Import API</p>
               <p>Enable authentication to require username and password for external systems importing customers, addresses, and contacts via API.</p>
             </div>
@@ -872,7 +881,7 @@ export const ConfigurationSettings: React.FC = () => {
         <div className="space-y-4">
           {/* Username */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-[#333] mb-2">
               Username
             </label>
             <input
@@ -880,20 +889,20 @@ export const ConfigurationSettings: React.FC = () => {
               value={customerImportApiConfig.username}
               onChange={(e) => setCustomerImportApiConfig({ ...customerImportApiConfig, username: e.target.value })}
               placeholder="customer_api_user"
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              className="w-full px-3 py-2 border border-[#d4d4d4] rounded focus:ring-2 focus:ring-[#428bca] focus:border-[#428bca] bg-white text-[#333]"
               disabled={!customerImportApiConfig.enabled}
             />
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            <p className="text-xs text-[#666] mt-1">
               Username for Basic Authentication
             </p>
           </div>
 
           {/* Password */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-[#333] mb-2">
               Password
               {customerImportApiConfig.password && originalCustomerImportConfig.password && (
-                <span className="ml-2 text-xs text-green-600 dark:text-green-400">
+                <span className="ml-2 text-xs text-[#3c763d]">
                   (Configured)
                 </span>
               )}
@@ -904,26 +913,26 @@ export const ConfigurationSettings: React.FC = () => {
                 value={customerImportApiConfig.password}
                 onChange={(e) => setCustomerImportApiConfig({ ...customerImportApiConfig, password: e.target.value })}
                 placeholder={originalCustomerImportConfig.password ? '••••••••' : 'Enter a strong password'}
-                className="w-full px-3 py-2 pr-10 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+                className="w-full px-3 py-2 pr-10 border border-[#d4d4d4] rounded focus:ring-2 focus:ring-[#428bca] focus:border-[#428bca] bg-white text-[#333]"
                 disabled={!customerImportApiConfig.enabled}
               />
               <button
                 type="button"
                 onClick={() => setShowApiKey(!showApiKey)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#666] hover:text-[#333]"
                 disabled={!customerImportApiConfig.enabled}
               >
                 {showApiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
               </button>
             </div>
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            <p className="text-xs text-[#666] mt-1">
               Password for Basic Authentication (stored securely)
             </p>
           </div>
 
           {/* Rate Limit */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label className="block text-sm font-medium text-[#333] mb-2">
               Rate Limit (requests/hour)
             </label>
             <input
@@ -932,21 +941,21 @@ export const ConfigurationSettings: React.FC = () => {
               onChange={(e) => setCustomerImportApiConfig({ ...customerImportApiConfig, rateLimit: parseInt(e.target.value) || 100 })}
               min="1"
               max="10000"
-              className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-white"
+              className="w-full px-3 py-2 border border-[#d4d4d4] rounded focus:ring-2 focus:ring-[#428bca] focus:border-[#428bca] bg-white text-[#333]"
               disabled={!customerImportApiConfig.enabled}
             />
-            <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
+            <p className="text-xs text-[#666] mt-1">
               Maximum API requests allowed per hour
             </p>
           </div>
 
           {/* Usage Instructions */}
           {customerImportApiConfig.enabled && customerImportApiConfig.username && customerImportApiConfig.password && (
-            <div className="pt-4 border-t border-gray-200 dark:border-gray-700">
-              <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <div className="pt-4 border-t border-[#d4d4d4]">
+              <p className="text-sm font-medium text-[#333] mb-2">
                 API Usage Example:
               </p>
-              <pre className="bg-gray-900 text-green-400 p-4 rounded-lg overflow-x-auto text-xs">
+              <pre className="bg-gray-900 text-green-400 p-4 rounded overflow-x-auto text-xs">
 {`curl -X POST \\
   'YOUR_SUPABASE_URL/functions/v1/import-customers' \\
   -u '${customerImportApiConfig.username}:${customerImportApiConfig.password}' \\
@@ -979,10 +988,10 @@ export const ConfigurationSettings: React.FC = () => {
       </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center justify-between bg-white dark:bg-gray-800 rounded-lg shadow-sm p-6">
+          <div className="flex items-center justify-between bg-white rounded border border-[#d4d4d4] p-6">
             <button
               onClick={handleResetToDefaults}
-              className="px-4 py-2 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition"
+              className="px-4 py-2 text-sm text-[#a94442] hover:bg-[#f2dede] rounded transition"
             >
               Reset to Defaults
             </button>
@@ -991,7 +1000,7 @@ export const ConfigurationSettings: React.FC = () => {
               <button
                 onClick={loadConfiguration}
                 disabled={loading}
-                className="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition"
+                className="flex items-center space-x-2 px-4 py-2 text-sm text-[#666] hover:text-[#333] hover:bg-[#f5f5f5] rounded border border-transparent hover:border-[#d4d4d4] transition"
               >
                 <RefreshCw className={`h-4 w-4 ${loading ? 'animate-spin' : ''}`} />
                 <span>Reload</span>
@@ -1000,7 +1009,7 @@ export const ConfigurationSettings: React.FC = () => {
           <button
             onClick={handleSaveConfiguration}
             disabled={saving || !hasUnsavedChanges}
-            className="flex items-center space-x-2 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition"
+            className="flex items-center space-x-2 px-6 py-2 bg-[#428bca] text-white rounded hover:bg-[#3276b1] disabled:bg-[#d4d4d4] disabled:cursor-not-allowed transition"
           >
             {saving ? (
               <RefreshCw className="h-4 w-4 animate-spin" />
@@ -1021,15 +1030,15 @@ export const ConfigurationSettings: React.FC = () => {
       {/* Audit Log Modal */}
       {showAuditLog && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-4xl w-full max-h-[80vh] overflow-hidden">
-            <div className="p-6 border-b border-gray-200 dark:border-gray-700">
+          <div className="bg-white rounded border border-[#d4d4d4] shadow-xl max-w-4xl w-full max-h-[80vh] overflow-hidden">
+            <div className="p-6 border-b border-[#d4d4d4]">
               <div className="flex items-center justify-between">
-                <h3 className="text-xl font-semibold text-gray-900 dark:text-white">
+                <h3 className="text-lg font-medium text-[#333]">
                   Configuration Audit Log
                 </h3>
                 <button
                   onClick={() => setShowAuditLog(false)}
-                  className="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+                  className="text-[#666] hover:text-[#333] text-2xl leading-none"
                 >
                   ×
                 </button>
@@ -1038,7 +1047,7 @@ export const ConfigurationSettings: React.FC = () => {
 
             <div className="p-6 overflow-y-auto max-h-[60vh]">
               {auditLog.length === 0 ? (
-                <p className="text-center text-gray-500 dark:text-gray-400 py-8">
+                <p className="text-center text-[#666] py-8">
                   No audit log entries found
                 </p>
               ) : (
@@ -1046,23 +1055,23 @@ export const ConfigurationSettings: React.FC = () => {
                   {auditLog.map((entry) => (
                     <div
                       key={entry.id}
-                      className="p-3 bg-gray-50 dark:bg-gray-700 rounded-lg"
+                      className="p-3 bg-[#f5f5f5] rounded border border-[#d4d4d4]"
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex-1">
-                          <p className="font-medium text-gray-900 dark:text-white">
+                          <p className="font-medium text-[#333]">
                             {entry.config_key}
                           </p>
-                          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                          <p className="text-sm text-[#666] mt-1">
                             {entry.change_type === 'create' && 'Created'}
                             {entry.change_type === 'update' && (
                               <>
                                 Changed from{' '}
-                                <span className="font-mono text-xs bg-red-100 dark:bg-red-900/30 px-1 rounded">
+                                <span className="font-mono text-xs bg-[#f2dede] text-[#a94442] px-1 rounded">
                                   {entry.old_value || '(empty)'}
                                 </span>
                                 {' to '}
-                                <span className="font-mono text-xs bg-green-100 dark:bg-green-900/30 px-1 rounded">
+                                <span className="font-mono text-xs bg-[#dff0d8] text-[#3c763d] px-1 rounded">
                                   {entry.new_value}
                                 </span>
                               </>
@@ -1070,7 +1079,7 @@ export const ConfigurationSettings: React.FC = () => {
                             {entry.change_type === 'delete' && 'Deleted'}
                           </p>
                         </div>
-                        <div className="text-right text-xs text-gray-500 dark:text-gray-400">
+                        <div className="text-right text-xs text-[#666]">
                           <p>{new Date(entry.changed_at).toLocaleString()}</p>
                           {entry.profiles && (
                             <p className="mt-1">{entry.profiles.full_name || entry.profiles.email}</p>
@@ -1085,6 +1094,7 @@ export const ConfigurationSettings: React.FC = () => {
           </div>
         </div>
       )}
+    </div>
     </div>
   );
 };

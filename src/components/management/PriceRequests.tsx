@@ -262,7 +262,7 @@ export function PriceRequests() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="text-gray-500 dark:text-gray-400">Loading price requests...</div>
+        <div className="text-[#666]">Loading price requests...</div>
       </div>
     );
   }
@@ -284,8 +284,8 @@ export function PriceRequests() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white">Price Requests</h2>
-          <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+          <h2 className="text-2xl font-bold text-[#333]">Price Requests</h2>
+          <p className="text-sm text-[#999] mt-1">
             {pendingCount} pending • {filteredRequests.length} of {priceRequests.length} total
           </p>
         </div>
@@ -293,7 +293,7 @@ export function PriceRequests() {
           <button
             onClick={exportToCSV}
             disabled={filteredRequests.length === 0}
-            className="flex items-center space-x-2 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center space-x-2 px-4 py-2 text-[#666] hover:text-[#333] hover:bg-[#f5f5f5] border border-transparent hover:border-[#d4d4d4] rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             title={`Export ${filteredRequests.length} filtered record(s)`}
           >
             <Download className="w-4 h-4" />
@@ -301,14 +301,14 @@ export function PriceRequests() {
           </button>
           <button
             onClick={() => setShowUploadModal(true)}
-            className="flex items-center space-x-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+            className="flex items-center space-x-2 px-4 py-2 bg-[#5cb85c] hover:bg-[#4cae4c] text-white rounded transition-colors"
           >
             <Upload className="w-4 h-4" />
             <span>Upload CSV</span>
           </button>
           <button
             onClick={() => openEntryForm()}
-            className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+            className="flex items-center space-x-2 px-4 py-2 bg-[#428bca] hover:bg-[#3276b1] text-white rounded transition-colors"
           >
             <Plus className="w-4 h-4" />
             <span>New Request</span>
@@ -317,18 +317,18 @@ export function PriceRequests() {
       </div>
 
       {/* Search and Filters */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow p-4 space-y-3">
+      <div className="bg-white rounded border border-[#d4d4d4] p-4 space-y-3">
         <div className="flex items-center gap-3">
           {/* Global Search */}
           <div className="flex-1 relative">
-            <Search className="w-5 h-5 absolute left-3 top-2.5 text-gray-400" />
+            <Search className="w-5 h-5 absolute left-3 top-2.5 text-[#999]" />
             <input
               ref={searchInputRef}
               type="text"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               placeholder="Search by product, customer, supplier, buyer, or quote... (Shift+S)"
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+              className="w-full pl-10 pr-4 py-2 border border-[#d4d4d4] rounded bg-white text-[#333] focus:ring-2 focus:ring-[#428bca]"
             />
           </div>
 
@@ -336,7 +336,7 @@ export function PriceRequests() {
           <select
             value={statusFilter}
             onChange={(e) => setStatusFilter(e.target.value as any)}
-            className="px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
+            className="px-3 py-2 border border-[#d4d4d4] rounded bg-white text-[#333] focus:ring-2 focus:ring-[#428bca]"
           >
             <option value="all">All Status</option>
             <option value="pending">Pending</option>
@@ -346,10 +346,10 @@ export function PriceRequests() {
           {/* Toggle Advanced Filters */}
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className={`flex items-center space-x-2 px-4 py-2 border rounded-lg transition-colors ${
+            className={`flex items-center space-x-2 px-4 py-2 border rounded transition-colors ${
               showFilters || buyerFilter || supplierFilter || customerFilter
-                ? 'border-blue-500 bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300'
-                : 'border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700'
+                ? 'border-[#428bca] bg-[#d9edf7] text-[#31708f]'
+                : 'border-[#d4d4d4] text-[#666] hover:text-[#333] hover:bg-[#f5f5f5]'
             }`}
           >
             <Filter className="w-4 h-4" />
@@ -359,15 +359,15 @@ export function PriceRequests() {
 
         {/* Advanced Filters */}
         {showFilters && (
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-3 border-t border-gray-200 dark:border-gray-700">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-3 border-t border-[#d4d4d4]">
             <div>
-              <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label className="block text-xs font-medium text-[#666] mb-1">
                 Buyer
               </label>
               <select
                 value={buyerFilter}
                 onChange={(e) => setBuyerFilter(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-[#d4d4d4] rounded bg-white text-[#333] text-sm focus:ring-2 focus:ring-[#428bca]"
               >
                 <option value="">All Buyers</option>
                 {uniqueBuyers.map(buyer => (
@@ -377,13 +377,13 @@ export function PriceRequests() {
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label className="block text-xs font-medium text-[#666] mb-1">
                 Supplier
               </label>
               <select
                 value={supplierFilter}
                 onChange={(e) => setSupplierFilter(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-[#d4d4d4] rounded bg-white text-[#333] text-sm focus:ring-2 focus:ring-[#428bca]"
               >
                 <option value="">All Suppliers</option>
                 {uniqueSuppliers.map(supplier => (
@@ -393,13 +393,13 @@ export function PriceRequests() {
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-gray-700 dark:text-gray-300 mb-1">
+              <label className="block text-xs font-medium text-[#666] mb-1">
                 Customer
               </label>
               <select
                 value={customerFilter}
                 onChange={(e) => setCustomerFilter(e.target.value)}
-                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-white text-sm focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-[#d4d4d4] rounded bg-white text-[#333] text-sm focus:ring-2 focus:ring-[#428bca]"
               >
                 <option value="">All Customers</option>
                 {uniqueCustomers.map(customer => (
@@ -411,7 +411,7 @@ export function PriceRequests() {
             <div className="md:col-span-3 flex justify-end">
               <button
                 onClick={clearFilters}
-                className="text-sm text-blue-600 dark:text-blue-400 hover:text-blue-700 dark:hover:text-blue-300"
+                className="text-sm text-[#428bca] hover:text-[#3276b1]"
               >
                 Clear All Filters
               </button>
@@ -421,115 +421,115 @@ export function PriceRequests() {
       </div>
 
       {/* Compact Table */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+      <div className="bg-white rounded border border-[#d4d4d4] overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
-            <thead className="bg-gray-50 dark:bg-gray-900 border-b border-gray-200 dark:border-gray-700">
+            <thead className="bg-[#f0f0f0] border-b border-[#d4d4d4]">
               <tr>
                 <th
                   onClick={() => handleSort('status')}
-                  className="px-3 py-3 text-left font-medium text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
+                  className="px-3 py-3 text-left font-medium text-[#666] cursor-pointer hover:bg-[#e8e8e8]"
                 >
                   Status <SortIcon field="status" />
                 </th>
                 <th
                   onClick={() => handleSort('product_number')}
-                  className="px-3 py-3 text-left font-medium text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
+                  className="px-3 py-3 text-left font-medium text-[#666] cursor-pointer hover:bg-[#e8e8e8]"
                 >
                   Product # <SortIcon field="product_number" />
                 </th>
-                <th className="px-3 py-3 text-left font-medium text-gray-700 dark:text-gray-300">
+                <th className="px-3 py-3 text-left font-medium text-[#666]">
                   Description
                 </th>
                 <th
                   onClick={() => handleSort('customer_name')}
-                  className="px-3 py-3 text-left font-medium text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
+                  className="px-3 py-3 text-left font-medium text-[#666] cursor-pointer hover:bg-[#e8e8e8]"
                 >
                   Customer <SortIcon field="customer_name" />
                 </th>
                 <th
                   onClick={() => handleSort('supplier_name')}
-                  className="px-3 py-3 text-left font-medium text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
+                  className="px-3 py-3 text-left font-medium text-[#666] cursor-pointer hover:bg-[#e8e8e8]"
                 >
                   Supplier <SortIcon field="supplier_name" />
                 </th>
-                <th className="px-3 py-3 text-left font-medium text-gray-700 dark:text-gray-300">
+                <th className="px-3 py-3 text-left font-medium text-[#666]">
                   Supplier Email
                 </th>
-                <th className="px-3 py-3 text-left font-medium text-gray-700 dark:text-gray-300">
+                <th className="px-3 py-3 text-left font-medium text-[#666]">
                   Currency
                 </th>
                 <th
                   onClick={() => handleSort('buyer_name')}
-                  className="px-3 py-3 text-left font-medium text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
+                  className="px-3 py-3 text-left font-medium text-[#666] cursor-pointer hover:bg-[#e8e8e8]"
                 >
                   Buyer <SortIcon field="buyer_name" />
                 </th>
-                <th className="px-3 py-3 text-right font-medium text-gray-700 dark:text-gray-300">
+                <th className="px-3 py-3 text-right font-medium text-[#666]">
                   Qty
                 </th>
-                <th className="px-3 py-3 text-right font-medium text-gray-700 dark:text-gray-300">
+                <th className="px-3 py-3 text-right font-medium text-[#666]">
                   Price
                 </th>
-                <th className="px-3 py-3 text-center font-medium text-gray-700 dark:text-gray-300">
+                <th className="px-3 py-3 text-center font-medium text-[#666]">
                   Attachment
                 </th>
-                <th className="px-3 py-3 text-left font-medium text-gray-700 dark:text-gray-300">
+                <th className="px-3 py-3 text-left font-medium text-[#666]">
                   Quote #
                 </th>
                 <th
                   onClick={() => handleSort('requested_at')}
-                  className="px-3 py-3 text-left font-medium text-gray-700 dark:text-gray-300 cursor-pointer hover:bg-gray-100 dark:hover:bg-gray-800"
+                  className="px-3 py-3 text-left font-medium text-[#666] cursor-pointer hover:bg-[#e8e8e8]"
                 >
                   Date <SortIcon field="requested_at" />
                 </th>
-                <th className="px-3 py-3 text-center font-medium text-gray-700 dark:text-gray-300">
+                <th className="px-3 py-3 text-center font-medium text-[#666]">
                   Actions
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+            <tbody className="divide-y divide-[#d4d4d4]">
               {currentRequests.map((request) => (
                 <tr
                   key={request.id}
-                  className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                  className="hover:bg-[#f9f9f9] transition-colors"
                 >
                   <td className="px-3 py-2.5">
                     <span
                       className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
                         request.status === 'completed'
-                          ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-                          : 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200'
+                          ? 'bg-[#dff0d8] text-[#3c763d] border border-[#d6e9c6]'
+                          : 'bg-[#fcf8e3] text-[#8a6d3b] border border-[#faebcc]'
                       }`}
                     >
                       {request.status === 'completed' ? 'Completed' : 'Pending'}
                     </span>
                   </td>
-                  <td className="px-3 py-2.5 font-medium text-gray-900 dark:text-white">
+                  <td className="px-3 py-2.5 font-medium text-[#333]">
                     {request.product_number}
                   </td>
-                  <td className="px-3 py-2.5 text-gray-700 dark:text-gray-300 max-w-xs truncate" title={request.description || ''}>
+                  <td className="px-3 py-2.5 text-[#666] max-w-xs truncate" title={request.description || ''}>
                     {request.description}
                   </td>
-                  <td className="px-3 py-2.5 text-gray-700 dark:text-gray-300">
+                  <td className="px-3 py-2.5 text-[#666]">
                     {request.customer_name}
                   </td>
-                  <td className="px-3 py-2.5 text-gray-700 dark:text-gray-300">
+                  <td className="px-3 py-2.5 text-[#666]">
                     {request.supplier_name || '-'}
                   </td>
-                  <td className="px-3 py-2.5 text-gray-700 dark:text-gray-300 text-sm">
+                  <td className="px-3 py-2.5 text-[#666] text-sm">
                     {request.supplier_email || '-'}
                   </td>
-                  <td className="px-3 py-2.5 text-gray-700 dark:text-gray-300 text-sm">
+                  <td className="px-3 py-2.5 text-[#666] text-sm">
                     {request.supplier_currency || 'USD'}
                   </td>
-                  <td className="px-3 py-2.5 text-gray-700 dark:text-gray-300">
+                  <td className="px-3 py-2.5 text-[#666]">
                     {request.buyer_name || '-'}
                   </td>
-                  <td className="px-3 py-2.5 text-right text-gray-700 dark:text-gray-300">
+                  <td className="px-3 py-2.5 text-right text-[#666]">
                     {request.item_quantity}
                   </td>
-                  <td className="px-3 py-2.5 text-right font-medium text-gray-900 dark:text-white">
+                  <td className="px-3 py-2.5 text-right font-medium text-[#333]">
                     {request.supplier_pricing ? `${request.supplier_currency || '$'}${request.supplier_pricing.toFixed(2)}` : '-'}
                   </td>
                   <td className="px-3 py-2.5 text-center">
@@ -538,7 +538,7 @@ export function PriceRequests() {
                         href={request.attachment_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inline-flex items-center text-blue-600 dark:text-blue-400 hover:underline"
+                        className="inline-flex items-center text-[#428bca] hover:text-[#3276b1] hover:underline"
                         title={request.attachment_name || 'View attachment'}
                       >
                         <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -546,19 +546,19 @@ export function PriceRequests() {
                         </svg>
                       </a>
                     ) : (
-                      <span className="text-gray-400">-</span>
+                      <span className="text-[#999]">-</span>
                     )}
                   </td>
-                  <td className="px-3 py-2.5 text-gray-700 dark:text-gray-300 text-xs">
+                  <td className="px-3 py-2.5 text-[#666] text-xs">
                     {request.quote_number}
                   </td>
-                  <td className="px-3 py-2.5 text-gray-700 dark:text-gray-300 text-xs">
+                  <td className="px-3 py-2.5 text-[#666] text-xs">
                     {request.requested_at ? new Date(request.requested_at).toLocaleDateString() : '-'}
                   </td>
                   <td className="px-3 py-2.5 text-center">
                     <button
                       onClick={() => openEntryForm(request)}
-                      className="inline-flex items-center justify-center p-1.5 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded transition-colors"
+                      className="inline-flex items-center justify-center p-1.5 text-[#428bca] hover:text-[#3276b1] hover:bg-[#f5f5f5] rounded transition-colors"
                       title="Edit Request"
                     >
                       <Edit className="w-4 h-4" />
@@ -571,7 +571,7 @@ export function PriceRequests() {
         </div>
 
         {filteredRequests.length === 0 && (
-          <div className="text-center py-12 text-gray-500 dark:text-gray-400">
+          <div className="text-center py-12 text-[#999]">
             {searchTerm || buyerFilter || supplierFilter || customerFilter || statusFilter !== 'all'
               ? 'No price requests match your search criteria'
               : 'No price requests found'}
@@ -580,25 +580,25 @@ export function PriceRequests() {
 
         {/* Pagination */}
         {totalPages > 1 && (
-          <div className="border-t border-gray-200 dark:border-gray-700 px-4 py-3 flex items-center justify-between">
-            <div className="text-sm text-gray-700 dark:text-gray-300">
+          <div className="border-t border-[#d4d4d4] px-4 py-3 flex items-center justify-between">
+            <div className="text-sm text-[#666]">
               Showing {startIndex + 1} to {Math.min(endIndex, filteredRequests.length)} of {filteredRequests.length} results
             </div>
             <div className="flex items-center space-x-2">
               <button
                 onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
                 disabled={currentPage === 1}
-                className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-3 py-1 border border-[#d4d4d4] rounded text-sm text-[#666] hover:text-[#333] hover:bg-[#f5f5f5] disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Previous
               </button>
-              <span className="text-sm text-gray-700 dark:text-gray-300">
+              <span className="text-sm text-[#666]">
                 Page {currentPage} of {totalPages}
               </span>
               <button
                 onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
                 disabled={currentPage === totalPages}
-                className="px-3 py-1 border border-gray-300 dark:border-gray-600 rounded text-sm text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="px-3 py-1 border border-[#d4d4d4] rounded text-sm text-[#666] hover:text-[#333] hover:bg-[#f5f5f5] disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Next
               </button>

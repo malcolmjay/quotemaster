@@ -118,23 +118,23 @@ export const ApprovalLimitsSettings: React.FC = () => {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <RefreshCw className="w-8 h-8 text-blue-600 animate-spin" />
+        <RefreshCw className="w-8 h-8 text-[#428bca] animate-spin" />
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4">
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-xl font-semibold text-gray-900">Role Approval Limits</h2>
-          <p className="text-sm text-gray-600 mt-1">
+          <h2 className="text-lg font-medium text-[#333]">Role Approval Limits</h2>
+          <p className="text-sm text-[#666] mt-1">
             Configure minimum and maximum approval amounts for each role
           </p>
         </div>
         <button
           onClick={fetchLimits}
-          className="flex items-center space-x-2 px-4 py-2 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
+          className="flex items-center space-x-2 px-4 py-2 bg-white border border-[#d4d4d4] rounded hover:bg-[#f5f5f5] transition-colors"
         >
           <RefreshCw className="w-4 h-4" />
           <span>Refresh</span>
@@ -142,63 +142,63 @@ export const ApprovalLimitsSettings: React.FC = () => {
       </div>
 
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start space-x-3">
-          <AlertCircle className="w-5 h-5 text-red-600 mt-0.5" />
+        <div className="bg-[#f2dede] text-[#a94442] border border-[#ebccd1] rounded p-4 flex items-start space-x-3">
+          <AlertCircle className="w-5 h-5 mt-0.5" />
           <div>
-            <p className="text-sm font-medium text-red-800">Error</p>
-            <p className="text-sm text-red-600 mt-1">{error}</p>
+            <p className="text-sm font-medium">Error</p>
+            <p className="text-sm mt-1">{error}</p>
           </div>
         </div>
       )}
 
       {success && (
-        <div className="bg-green-50 border border-green-200 rounded-lg p-4 flex items-start space-x-3">
-          <CheckCircle className="w-5 h-5 text-green-600 mt-0.5" />
+        <div className="bg-[#dff0d8] text-[#3c763d] border border-[#d6e9c6] rounded p-4 flex items-start space-x-3">
+          <CheckCircle className="w-5 h-5 mt-0.5" />
           <div>
-            <p className="text-sm font-medium text-green-800">Success</p>
-            <p className="text-sm text-green-600 mt-1">Approval limits updated successfully</p>
+            <p className="text-sm font-medium">Success</p>
+            <p className="text-sm mt-1">Approval limits updated successfully</p>
           </div>
         </div>
       )}
 
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded border border-[#d4d4d4] overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gray-50 border-b border-gray-200">
+            <thead className="bg-[#fafafa] border-b border-[#d4d4d4]">
               <tr>
-                <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="text-left px-6 py-3 text-xs font-medium text-[#666] uppercase tracking-wider">
                   Role
                 </th>
-                <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="text-left px-6 py-3 text-xs font-medium text-[#666] uppercase tracking-wider">
                   Minimum Amount
                 </th>
-                <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="text-left px-6 py-3 text-xs font-medium text-[#666] uppercase tracking-wider">
                   Maximum Amount
                 </th>
-                <th className="text-left px-6 py-3 text-xs font-medium text-gray-500 uppercase tracking-wider">
+                <th className="text-left px-6 py-3 text-xs font-medium text-[#666] uppercase tracking-wider">
                   Range
                 </th>
               </tr>
             </thead>
-            <tbody className="bg-white divide-y divide-gray-200">
+            <tbody className="bg-white divide-y divide-[#d4d4d4]">
               {limits.map((limit) => (
-                <tr key={limit.id} className="hover:bg-gray-50 transition-colors">
+                <tr key={limit.id} className="hover:bg-[#f5f5f5] transition-colors">
                   <td className="px-6 py-4 whitespace-nowrap">
                     <div className="flex items-center space-x-2">
-                      <Shield className="w-4 h-4 text-gray-400" />
-                      <span className={`inline-flex items-center px-2.5 py-1 rounded-md text-xs font-medium border ${getRoleBadgeColor(limit.role)}`}>
+                      <Shield className="w-4 h-4 text-[#666]" />
+                      <span className={`inline-flex items-center px-2.5 py-1 rounded text-xs font-medium border ${getRoleBadgeColor(limit.role)}`}>
                         {limit.role}
                       </span>
                     </div>
                   </td>
                   <td className="px-6 py-4">
                     <div className="relative">
-                      <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                      <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#666] w-4 h-4" />
                       <input
                         type="number"
                         value={limit.min_amount}
                         onChange={(e) => handleLimitChange(limit.id, 'min_amount', e.target.value)}
-                        className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full pl-9 pr-3 py-2 border border-[#d4d4d4] rounded focus:ring-2 focus:ring-[#428bca] focus:border-[#428bca]"
                         min="0"
                         step="0.01"
                       />
@@ -206,19 +206,19 @@ export const ApprovalLimitsSettings: React.FC = () => {
                   </td>
                   <td className="px-6 py-4">
                     <div className="relative">
-                      <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
+                      <DollarSign className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#666] w-4 h-4" />
                       <input
                         type="number"
                         value={limit.max_amount}
                         onChange={(e) => handleLimitChange(limit.id, 'max_amount', e.target.value)}
-                        className="w-full pl-9 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                        className="w-full pl-9 pr-3 py-2 border border-[#d4d4d4] rounded focus:ring-2 focus:ring-[#428bca] focus:border-[#428bca]"
                         min="0"
                         step="0.01"
                       />
                     </div>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
-                    <span className="text-sm text-gray-700 font-medium">
+                    <span className="text-sm text-[#333] font-medium">
                       {formatCurrency(limit.min_amount)} - {formatCurrency(limit.max_amount)}
                     </span>
                   </td>
@@ -228,14 +228,14 @@ export const ApprovalLimitsSettings: React.FC = () => {
           </table>
         </div>
 
-        <div className="px-6 py-4 border-t border-gray-200 bg-gray-50 flex justify-between items-center">
-          <p className="text-sm text-gray-600">
+        <div className="px-6 py-4 border-t border-[#d4d4d4] bg-[#fafafa] flex justify-between items-center">
+          <p className="text-sm text-[#666]">
             Configure approval authority ranges for each role level
           </p>
           <button
             onClick={handleSave}
             disabled={saving}
-            className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center space-x-2 px-4 py-2 bg-[#428bca] text-white rounded hover:bg-[#3276b1] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Save className="w-4 h-4" />
             <span>{saving ? 'Saving...' : 'Save Changes'}</span>
@@ -243,9 +243,9 @@ export const ApprovalLimitsSettings: React.FC = () => {
         </div>
       </div>
 
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-        <h3 className="text-sm font-medium text-blue-900 mb-2">About Approval Limits</h3>
-        <ul className="text-sm text-blue-800 space-y-1 list-disc list-inside">
+      <div className="bg-[#d9edf7] text-[#31708f] border border-[#bce8f1] rounded p-4">
+        <h3 className="text-sm font-medium mb-2">About Approval Limits</h3>
+        <ul className="text-sm space-y-1 list-disc list-inside">
           <li>Users with a specific role can approve quotes within their assigned range</li>
           <li>Minimum amount is the lowest quote value a role can approve</li>
           <li>Maximum amount is the highest quote value a role can approve</li>

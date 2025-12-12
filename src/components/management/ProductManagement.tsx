@@ -174,7 +174,7 @@ export default function ProductManagement() {
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#428bca]"></div>
       </div>
     );
   }
@@ -183,29 +183,29 @@ export default function ProductManagement() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold text-gray-900">Product Management</h2>
-          <p className="text-gray-600 mt-1">
+          <h2 className="text-2xl font-bold text-[#333]">Product Management</h2>
+          <p className="text-[#666] mt-1">
             {filteredProducts.length} of {products.length} products
           </p>
         </div>
         <div className="flex gap-2">
           <button
             onClick={exportToCSV}
-            className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+            className="flex items-center gap-2 px-4 py-2 text-[#666] hover:text-[#333] hover:bg-[#f5f5f5] border border-transparent hover:border-[#d4d4d4] rounded"
           >
             <Download className="w-4 h-4" />
             Export
           </button>
           <button
             onClick={loadProducts}
-            className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+            className="flex items-center gap-2 px-4 py-2 text-[#666] hover:text-[#333] hover:bg-[#f5f5f5] border border-transparent hover:border-[#d4d4d4] rounded"
           >
             <RefreshCw className="w-4 h-4" />
             Refresh
           </button>
           <button
             onClick={handleCreate}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+            className="flex items-center gap-2 px-4 py-2 bg-[#428bca] hover:bg-[#3276b1] text-white rounded"
           >
             <Plus className="w-4 h-4" />
             Add Product
@@ -213,22 +213,22 @@ export default function ProductManagement() {
         </div>
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4 space-y-4">
+      <div className="bg-white rounded border border-[#d4d4d4] p-4 space-y-4">
         <div className="flex gap-4">
           <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#999] w-5 h-5" />
             <input
               type="text"
               placeholder="Search by SKU, name, or description..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              className="w-full pl-10 pr-4 py-2 border border-[#d4d4d4] rounded focus:ring-2 focus:ring-[#428bca] focus:border-transparent"
             />
           </div>
           <button
             onClick={() => setShowFilters(!showFilters)}
-            className={`flex items-center gap-2 px-4 py-2 border rounded-lg ${
-              showFilters ? 'bg-blue-50 border-blue-300 text-blue-700' : 'border-gray-300 hover:bg-gray-50'
+            className={`flex items-center gap-2 px-4 py-2 border rounded ${
+              showFilters ? 'bg-[#428bca] border-[#428bca] text-white' : 'text-[#666] hover:text-[#333] hover:bg-[#f5f5f5] border-transparent hover:border-[#d4d4d4]'
             }`}
           >
             <Filter className="w-4 h-4" />
@@ -237,7 +237,7 @@ export default function ProductManagement() {
           {hasActiveFilters && (
             <button
               onClick={clearFilters}
-              className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50"
+              className="flex items-center gap-2 px-4 py-2 text-[#666] hover:text-[#333] hover:bg-[#f5f5f5] border border-transparent hover:border-[#d4d4d4] rounded"
             >
               <X className="w-4 h-4" />
               Clear
@@ -246,13 +246,13 @@ export default function ProductManagement() {
         </div>
 
         {showFilters && (
-          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 pt-4 border-t">
+          <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4 pt-4 border-t border-[#d4d4d4]">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+              <label className="block text-sm font-medium text-[#333] mb-1">Category</label>
               <select
                 value={filters.category}
                 onChange={(e) => setFilters({ ...filters, category: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-[#d4d4d4] rounded focus:ring-2 focus:ring-[#428bca]"
               >
                 <option value="">All</option>
                 {uniqueValues.categories.map(cat => (
@@ -262,11 +262,11 @@ export default function ProductManagement() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Supplier</label>
+              <label className="block text-sm font-medium text-[#333] mb-1">Supplier</label>
               <select
                 value={filters.supplier}
                 onChange={(e) => setFilters({ ...filters, supplier: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-[#d4d4d4] rounded focus:ring-2 focus:ring-[#428bca]"
               >
                 <option value="">All</option>
                 {uniqueValues.suppliers.map(sup => (
@@ -276,11 +276,11 @@ export default function ProductManagement() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+              <label className="block text-sm font-medium text-[#333] mb-1">Status</label>
               <select
                 value={filters.status}
                 onChange={(e) => setFilters({ ...filters, status: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-[#d4d4d4] rounded focus:ring-2 focus:ring-[#428bca]"
               >
                 <option value="">All</option>
                 <option value="active">Active</option>
@@ -290,11 +290,11 @@ export default function ProductManagement() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Item Type</label>
+              <label className="block text-sm font-medium text-[#333] mb-1">Item Type</label>
               <select
                 value={filters.itemType}
                 onChange={(e) => setFilters({ ...filters, itemType: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-[#d4d4d4] rounded focus:ring-2 focus:ring-[#428bca]"
               >
                 <option value="">All</option>
                 {uniqueValues.itemTypes.map(type => (
@@ -304,11 +304,11 @@ export default function ProductManagement() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Category Set</label>
+              <label className="block text-sm font-medium text-[#333] mb-1">Category Set</label>
               <select
                 value={filters.categorySet}
                 onChange={(e) => setFilters({ ...filters, categorySet: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-[#d4d4d4] rounded focus:ring-2 focus:ring-[#428bca]"
               >
                 <option value="">All</option>
                 {uniqueValues.categorySets.map(set => (
@@ -318,11 +318,11 @@ export default function ProductManagement() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Warehouse</label>
+              <label className="block text-sm font-medium text-[#333] mb-1">Warehouse</label>
               <select
                 value={filters.warehouse}
                 onChange={(e) => setFilters({ ...filters, warehouse: e.target.value })}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border border-[#d4d4d4] rounded focus:ring-2 focus:ring-[#428bca]"
               >
                 <option value="">All</option>
                 {uniqueValues.warehouses.map(wh => (
@@ -334,63 +334,63 @@ export default function ProductManagement() {
         )}
       </div>
 
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+      <div className="bg-white rounded border border-[#d4d4d4] overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full">
-            <thead className="bg-gray-50 border-b border-gray-200">
+            <thead className="bg-[#f9f9f9] border-b border-[#d4d4d4]">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SKU</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Name</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Category</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Supplier</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Supplier Email</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Unit Cost</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">List Price</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-[#666] uppercase tracking-wider">SKU</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-[#666] uppercase tracking-wider">Name</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-[#666] uppercase tracking-wider">Category</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-[#666] uppercase tracking-wider">Supplier</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-[#666] uppercase tracking-wider">Supplier Email</th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-[#666] uppercase tracking-wider">Unit Cost</th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-[#666] uppercase tracking-wider">List Price</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-[#666] uppercase tracking-wider">Status</th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-[#666] uppercase tracking-wider">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-gray-200">
+            <tbody className="divide-y divide-[#d4d4d4]">
               {filteredProducts.map((product) => (
-                <tr key={product.id} className="hover:bg-gray-50">
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                <tr key={product.id} className="hover:bg-[#f9f9f9]">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-[#333]">
                     {product.sku}
                   </td>
-                  <td className="px-6 py-4 text-sm text-gray-900">
+                  <td className="px-6 py-4 text-sm text-[#333]">
                     <div className="flex items-center gap-2">
                       <div className="font-medium">{product.name}</div>
                       {(product as any).price_breaks && (product as any).price_breaks.length > 0 && (
-                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                        <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-[#d9edf7] text-[#31708f]">
                           {(product as any).price_breaks.length} Price {(product as any).price_breaks.length === 1 ? 'Break' : 'Breaks'}
                         </span>
                       )}
                     </div>
                     {product.description && (
-                      <div className="text-gray-500 text-xs mt-1 max-w-xs truncate">
+                      <div className="text-[#999] text-xs mt-1 max-w-xs truncate">
                         {product.description}
                       </div>
                     )}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-[#333]">
                     {product.category}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-[#333]">
                     {product.supplier}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-[#666]">
                     {product.supplier_email || '-'}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-[#333] text-right">
                     ${product.unit_cost.toFixed(2)}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900 text-right">
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-[#333] text-right">
                     ${product.list_price.toFixed(2)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                      product.status === 'active' ? 'bg-green-100 text-green-800' :
-                      product.status === 'inactive' ? 'bg-yellow-100 text-yellow-800' :
-                      'bg-red-100 text-red-800'
+                      product.status === 'active' ? 'bg-[#dff0d8] text-[#3c763d]' :
+                      product.status === 'inactive' ? 'bg-[#fcf8e3] text-[#8a6d3b]' :
+                      'bg-[#f2dede] text-[#a94442]'
                     }`}>
                       {product.status}
                     </span>
@@ -398,7 +398,7 @@ export default function ProductManagement() {
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                     <button
                       onClick={() => handleEdit(product)}
-                      className="text-blue-600 hover:text-blue-900 inline-flex items-center gap-1"
+                      className="text-[#428bca] hover:text-[#3276b1] inline-flex items-center gap-1"
                     >
                       <Edit2 className="w-4 h-4" />
                       Edit
@@ -412,11 +412,11 @@ export default function ProductManagement() {
 
         {filteredProducts.length === 0 && (
           <div className="text-center py-12">
-            <p className="text-gray-500">No products found</p>
+            <p className="text-[#999]">No products found</p>
             {hasActiveFilters && (
               <button
                 onClick={clearFilters}
-                className="mt-2 text-blue-600 hover:text-blue-800"
+                className="mt-2 text-[#428bca] hover:text-[#3276b1]"
               >
                 Clear filters
               </button>
