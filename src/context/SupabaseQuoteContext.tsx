@@ -101,9 +101,20 @@ export const SupabaseQuoteProvider: React.FC<SupabaseQuoteProviderProps> = ({ ch
   const [error, setError] = useState<string | null>(null)
   const { user } = useAuthContext()
 
+  const QUOTE_PERSISTENCE_KEY = 'currentQuoteId'
+
+  const setCurrentQuoteWithPersistence = (quote: Quote | null) => {
+    setCurrentQuote(quote)
+    if (quote) {
+      localStorage.setItem(QUOTE_PERSISTENCE_KEY, quote.id)
+    } else {
+      localStorage.removeItem(QUOTE_PERSISTENCE_KEY)
+    }
+  }
+
   const refreshQuotes = async () => {
     if (!user) return
-    
+
     try {
       setLoading(true)
       setError(null)
@@ -166,17 +177,31 @@ export const SupabaseQuoteProvider: React.FC<SupabaseQuoteProviderProps> = ({ ch
         }
         supabase.removeChannel(channel)
       }
+    } else {
+      localStorage.removeItem(QUOTE_PERSISTENCE_KEY)
     }
   }, [user])
 
   useEffect(() => {
-    if (currentQuote && quotes.length > 0) {
-      const updatedQuote = quotes.find(q => q.id === currentQuote.id)
-      if (updatedQuote && JSON.stringify(updatedQuote) !== JSON.stringify(currentQuote)) {
-        setCurrentQuote(updatedQuote)
+    if (quotes.length > 0 && user) {
+      const persistedQuoteId = localStorage.getItem(QUOTE_PERSISTENCE_KEY)
+
+      if (persistedQuoteId && !currentQuote) {
+        const persistedQuote = quotes.find(q => q.id === persistedQuoteId)
+        if (persistedQuote) {
+          console.log('Restoring persisted quote:', persistedQuote.quote_number)
+          setCurrentQuote(persistedQuote)
+        } else {
+          localStorage.removeItem(QUOTE_PERSISTENCE_KEY)
+        }
+      } else if (currentQuote) {
+        const updatedQuote = quotes.find(q => q.id === currentQuote.id)
+        if (updatedQuote && JSON.stringify(updatedQuote) !== JSON.stringify(currentQuote)) {
+          setCurrentQuote(updatedQuote)
+        }
       }
     }
-  }, [quotes, currentQuote])
+  }, [quotes, user])
 
   const generateQuoteNumber = () => {
     const now = new Date()
@@ -216,7 +241,7 @@ export const SupabaseQuoteProvider: React.FC<SupabaseQuoteProviderProps> = ({ ch
 
       const createdQuote = await createQuote(newQuote)
       console.log('✅ Quote created successfully:', createdQuote);
-      setCurrentQuote(createdQuote)
+      setCurrentQuoteWithPersistence(createdQuote)
       await refreshQuotes()
       return createdQuote
     } catch (err) {
@@ -495,7 +520,7 @@ export const SupabaseQuoteProvider: React.FC<SupabaseQuoteProviderProps> = ({ ch
       
       // Clear current quote if it was the one deleted
       if (currentQuote?.id === quoteId) {
-        setCurrentQuote(null)
+        setCurrentQuoteWithPersistence(null)
       }
       
       await refreshQuotes()
@@ -514,7 +539,7 @@ export const SupabaseQuoteProvider: React.FC<SupabaseQuoteProviderProps> = ({ ch
     quotes,
     loading,
     error,
-    setCurrentQuote,
+    setCurrentQuote: setCurrentQuoteWithPersistence,
     createNewQuote,
     updateCurrentQuote,
     addLineItem,

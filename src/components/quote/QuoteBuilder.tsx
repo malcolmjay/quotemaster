@@ -31,6 +31,7 @@ export const QuoteBuilder: React.FC = () => {
     setSelectedCustomer(null);
     setLineItems([]);
     sessionStorage.removeItem('focusQuoteId');
+    localStorage.removeItem('currentQuoteId');
   };
 
   React.useEffect(() => {
