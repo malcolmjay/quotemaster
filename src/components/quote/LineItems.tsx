@@ -152,7 +152,6 @@ export const LineItems: React.FC<LineItemsProps> = ({
 
   const { addLineItem, updateLineItem } = useQuote();
   const { inventory, reserveInventory, getNextAvailableDate } = useInventory();
-  const { customers } = useCustomer();
   const { deleteRecord } = useDeletion();
   const { products } = useProducts();
 

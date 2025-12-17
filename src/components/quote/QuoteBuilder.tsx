@@ -91,7 +91,7 @@ export const QuoteBuilder: React.FC = () => {
         setLineItems([]);
       }
     }
-  }, [currentQuote, quotes, selectedCustomer, setSelectedCustomer, customers, isLoadingQuote]);
+  }, [currentQuote, quotes, selectedCustomer, setSelectedCustomer, isLoadingQuote]);
 
   React.useEffect(() => {
     if (currentQuote?.created_by) {
