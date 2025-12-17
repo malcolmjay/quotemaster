@@ -174,14 +174,17 @@ export const useApproval = () => {
 
   const approve = async (quoteId: string, comments?: string) => {
     if (!userRole) throw new Error('User role not determined')
-    
+
     setLoading(true)
     setError(null)
-    
+
     try {
+      console.log('Approving quote:', { quoteId, userRole, comments })
       const result = await approveQuote(quoteId, userRole, comments)
+      console.log('Approval result:', result)
       return result
     } catch (err) {
+      console.error('Approval error:', err)
       const errorMessage = err instanceof Error ? err.message : 'Failed to approve quote'
       setError(errorMessage)
       throw new Error(errorMessage)

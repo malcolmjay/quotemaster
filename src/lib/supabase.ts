@@ -692,12 +692,16 @@ export const submitQuoteForApproval = async (quoteId: string, comments?: string)
 }
 
 export const approveQuote = async (
-  quoteId: string, 
-  approverRole: string, 
+  quoteId: string,
+  approverRole: string,
   comments?: string
 ) => {
+  console.log('approveQuote called with:', { quoteId, approverRole, comments })
+
   const user = await getCurrentUser()
   if (!user) throw new Error('User not authenticated')
+
+  console.log('Current user:', user.id)
 
   // Get the quote approval record
   const { data: quoteApproval, error: approvalError } = await supabase
@@ -706,7 +710,12 @@ export const approveQuote = async (
     .eq('quote_id', quoteId)
     .single()
 
-  if (approvalError) throw approvalError
+  if (approvalError) {
+    console.error('Error fetching quote approval:', approvalError)
+    throw new Error(`Failed to find quote approval: ${approvalError.message}`)
+  }
+
+  console.log('Quote approval found:', quoteApproval)
 
   // Create approval action
   const { data: approvalAction, error: actionError } = await supabase
@@ -722,11 +731,18 @@ export const approveQuote = async (
     .select()
     .single()
 
-  if (actionError) throw actionError
+  if (actionError) {
+    console.error('Error creating approval action:', actionError)
+    throw new Error(`Failed to create approval action: ${actionError.message}`)
+  }
+
+  console.log('Approval action created:', approvalAction)
 
   // Update approval count
   const newApproverCount = quoteApproval.current_approvers + 1
   const isFullyApproved = newApproverCount >= quoteApproval.required_approvers
+
+  console.log('Updating approval count:', { newApproverCount, isFullyApproved })
 
   const { data: updatedApproval, error: updateError } = await supabase
     .from('quote_approvals')
@@ -738,10 +754,16 @@ export const approveQuote = async (
     .select()
     .single()
 
-  if (updateError) throw updateError
+  if (updateError) {
+    console.error('Error updating approval:', updateError)
+    throw new Error(`Failed to update approval: ${updateError.message}`)
+  }
+
+  console.log('Approval updated:', updatedApproval)
 
   // If fully approved, update quote status
   if (isFullyApproved) {
+    console.log('Quote fully approved, updating quote status')
     await supabase
       .from('quotes')
       .update({ quote_status: 'approved' })

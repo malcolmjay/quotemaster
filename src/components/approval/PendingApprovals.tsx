@@ -23,6 +23,7 @@ export const PendingApprovals: React.FC = () => {
   const [approvalComments, setApprovalComments] = useState('')
   const [actionType, setActionType] = useState<'approve' | 'reject'>('approve')
   const [actionLoading, setActionLoading] = useState(false)
+  const [actionError, setActionError] = useState<string | null>(null)
   
   const {
     userRole,
@@ -81,6 +82,7 @@ export const PendingApprovals: React.FC = () => {
     if (!userRole || actionLoading) return
 
     setActionLoading(true)
+    setActionError(null)
     const modalQuoteId = showApprovalModal
     const actionComments = approvalComments
 
@@ -94,6 +96,7 @@ export const PendingApprovals: React.FC = () => {
       // Close modal after successful action
       setShowApprovalModal(null)
       setApprovalComments('')
+      setActionError(null)
 
       // Refresh pending approvals after successful action
       const approvals = await getPendingApprovalsForUser()
@@ -105,6 +108,8 @@ export const PendingApprovals: React.FC = () => {
       setFilteredApprovals(uniqueApprovals)
     } catch (error) {
       console.error('Error processing approval:', error)
+      const errorMessage = error instanceof Error ? error.message : 'Failed to process approval'
+      setActionError(errorMessage)
 
       // Keep modal open on error so user can try again
       if (!showApprovalModal) {
@@ -331,6 +336,7 @@ export const PendingApprovals: React.FC = () => {
                               onClick={() => {
                                 setShowApprovalModal(approval.quote_id)
                                 setActionType('approve')
+                                setActionError(null)
                               }}
                               className="p-2 text-[#3c763d] hover:bg-[#dff0d8] rounded transition-colors"
                               title="Approve"
@@ -341,6 +347,7 @@ export const PendingApprovals: React.FC = () => {
                               onClick={() => {
                                 setShowApprovalModal(approval.quote_id)
                                 setActionType('reject')
+                                setActionError(null)
                               }}
                               className="p-2 text-[#a94442] hover:bg-[#f2dede] rounded transition-colors"
                               title="Reject"
@@ -377,6 +384,18 @@ export const PendingApprovals: React.FC = () => {
             </div>
 
             <div className="p-6">
+              {actionError && (
+                <div className="mb-4 p-3 bg-[#f2dede] border border-[#ebccd1] rounded">
+                  <div className="flex items-start space-x-2">
+                    <XCircle className="h-4 w-4 text-[#a94442] flex-shrink-0 mt-0.5" />
+                    <div className="flex-1">
+                      <p className="text-sm font-medium text-[#a94442]">Error</p>
+                      <p className="text-sm text-[#a94442]">{actionError}</p>
+                    </div>
+                  </div>
+                </div>
+              )}
+
               <div className="mb-4">
                 <div className="flex items-center space-x-2 mb-2">
                   <User className="h-4 w-4 text-[#666]" />
