@@ -8,6 +8,7 @@ I've generated SQL scripts to insert 1,000 customers and 1,000 products into you
 - ✅ Generated SQL for 1,000 customers (CUST001000 through CUST001999)
 - ✅ Generated SQL for 1,000 products (PROD001000 through PROD001999)
 - ✅ Successfully inserted first 10 customers as a test (CUST001000-001009)
+- ⏳ Remaining: 990 customers and 1,000 products ready to insert
 
 ## Generated Files
 
@@ -43,12 +44,26 @@ I've generated SQL scripts to insert 1,000 customers and 1,000 products into you
 
 ## How to Complete the Data Insertion
 
-### Option 1: Using Supabase SQL Editor (Recommended)
+### Using Supabase SQL Editor (Recommended)
 
-1. Go to your Supabase Dashboard
-2. Navigate to SQL Editor
-3. Copy the contents of `scripts/all-batches.sql`
-4. Paste and execute in chunks (e.g., 10-20 INSERT statements at a time)
+**Step 1: Access the SQL Editor**
+1. Go to your [Supabase Dashboard](https://supabase.com/dashboard)
+2. Select your project
+3. Navigate to "SQL Editor" in the left sidebar
+4. Click "New query"
+
+**Step 2: Execute Customer Inserts**
+1. Open `scripts/all-batches.sql` in your code editor
+2. Copy lines 3-101 (skip line 2 since those 10 customers are already inserted)
+3. Paste into the SQL Editor
+4. Click "Run" to execute all customer inserts at once
+
+**Step 3: Execute Product Inserts**
+1. Copy lines 104-203 from `scripts/all-batches.sql`
+2. Paste into a new SQL Editor query
+3. Click "Run" to execute all product inserts
+
+**Note:** The Supabase SQL Editor can handle all batches at once since it runs with elevated privileges that bypass RLS.
 
 ### Option 2: Using the Migration System
 
