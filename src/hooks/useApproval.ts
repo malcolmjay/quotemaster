@@ -229,9 +229,7 @@ export const useApproval = () => {
     setError(null)
 
     try {
-      console.log('useApproval: Calling getPendingApprovals...')
       const result = await getPendingApprovals()
-      console.log('useApproval: Got result:', result)
       return result
     } catch (err) {
       console.error('useApproval: Error:', err)

@@ -822,7 +822,6 @@ export const getPendingApprovals = async () => {
     throw new Error(`Failed to load pending approvals: ${error.message}`);
   }
 
-  console.log('RPC returned data:', data);
   logger.debug('Pending approvals fetched', { count: data?.length || 0 });
   return data || [];
 }

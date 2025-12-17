@@ -36,14 +36,11 @@ export const PendingApprovals: React.FC = () => {
   useEffect(() => {
     const fetchPendingApprovals = async () => {
       try {
-        console.log('Fetching pending approvals, userRole:', userRole)
         const approvals = await getPendingApprovalsForUser()
-        console.log('Received approvals:', approvals)
 
         const uniqueApprovals = Array.from(
           new Map(approvals.map(a => [a.id, a])).values()
         )
-        console.log('Unique approvals:', uniqueApprovals)
 
         setPendingApprovals(uniqueApprovals)
         setFilteredApprovals(uniqueApprovals)
@@ -57,7 +54,7 @@ export const PendingApprovals: React.FC = () => {
     if (userRole) {
       fetchPendingApprovals()
     }
-  }, [userRole, getPendingApprovalsForUser])
+  }, [userRole])
 
   useEffect(() => {
     let filtered = pendingApprovals
