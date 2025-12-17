@@ -1,23 +1,40 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { ChevronDown, Search, X, Building2, User, MapPin } from 'lucide-react';
+import React, { useState, useRef, useEffect, useCallback } from 'react';
+import { ChevronDown, Search, X, Building2, User, MapPin, Loader2 } from 'lucide-react';
 import { useCustomer } from '../../context/CustomerContext';
+import { searchCustomers } from '../../lib/supabase';
+import { useDebounce } from '../../hooks/useDebounce';
 
 export const CustomerSelector: React.FC = () => {
-  const { customers, selectedCustomer, setSelectedCustomer } = useCustomer();
+  const { selectedCustomer, setSelectedCustomer } = useCustomer();
   const [searchTerm, setSearchTerm] = useState('');
   const [showResults, setShowResults] = useState(false);
+  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
 
-  const filteredCustomers = React.useMemo(() => {
-    if (!searchTerm.trim()) return customers;
+  const debouncedSearchTerm = useDebounce(searchTerm, 300);
 
-    const term = searchTerm.toLowerCase();
-    return customers.filter(customer =>
-      customer.name.toLowerCase().includes(term) ||
-      customer.customer_number?.toLowerCase().includes(term) ||
-      customer.contract_number?.toLowerCase().includes(term)
-    );
-  }, [customers, searchTerm]);
+  const performSearch = useCallback(async (term: string) => {
+    if (!term || term.length < 2) {
+      setSearchResults([]);
+      return;
+    }
+
+    setIsSearching(true);
+    try {
+      const results = await searchCustomers(term, 50);
+      setSearchResults(results || []);
+    } catch (error) {
+      console.error('Customer search failed:', error);
+      setSearchResults([]);
+    } finally {
+      setIsSearching(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    performSearch(debouncedSearchTerm);
+  }, [debouncedSearchTerm, performSearch]);
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -33,12 +50,14 @@ export const CustomerSelector: React.FC = () => {
   const handleCustomerSelect = (customer: any) => {
     setSelectedCustomer(customer);
     setSearchTerm('');
+    setSearchResults([]);
     setShowResults(false);
   };
 
   const handleClearSelection = () => {
     setSelectedCustomer(null);
     setSearchTerm('');
+    setSearchResults([]);
     setShowResults(false);
   };
 
@@ -75,16 +94,24 @@ export const CustomerSelector: React.FC = () => {
                       setShowResults(true);
                     }}
                     onFocus={() => setShowResults(true)}
-                    placeholder="Search by name, customer #, or contract..."
-                    className="w-full pl-10 pr-4 py-2.5 bg-white dark:bg-slate-700 border border-[#d4d4d4] dark:border-slate-600 rounded text-sm text-[#333] dark:text-white placeholder-[#999] focus:ring-2 focus:ring-[#428bca] focus:border-[#428bca] transition-all"
+                    placeholder="Search by name, customer #, or contract (min 2 chars)..."
+                    className="w-full pl-10 pr-10 py-2.5 bg-white dark:bg-slate-700 border border-[#d4d4d4] dark:border-slate-600 rounded text-sm text-[#333] dark:text-white placeholder-[#999] focus:ring-2 focus:ring-[#428bca] focus:border-[#428bca] transition-all"
                   />
+                  {isSearching && (
+                    <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#428bca] animate-spin" />
+                  )}
                 </div>
 
                 {showResults && (
                   <div className="absolute z-50 mt-1 w-full bg-white dark:bg-slate-800 border border-[#d4d4d4] dark:border-slate-700 rounded shadow-lg max-h-80 overflow-y-auto">
-                    {filteredCustomers.length > 0 ? (
+                    {isSearching ? (
+                      <div className="px-4 py-8 text-center">
+                        <Loader2 className="h-6 w-6 text-[#428bca] animate-spin mx-auto mb-2" />
+                        <span className="text-sm text-[#666] dark:text-slate-400">Searching customers...</span>
+                      </div>
+                    ) : searchResults.length > 0 ? (
                       <div className="py-1">
-                        {filteredCustomers.slice(0, 50).map((customer) => (
+                        {searchResults.map((customer) => (
                           <button
                             key={customer.id}
                             onClick={() => handleCustomerSelect(customer)}
@@ -113,15 +140,15 @@ export const CustomerSelector: React.FC = () => {
                             </div>
                           </button>
                         ))}
-                        {filteredCustomers.length > 50 && (
-                          <div className="px-4 py-2 text-xs text-[#666] bg-[#f0f0f0] dark:bg-slate-700 text-center">
-                            Showing first 50 of {filteredCustomers.length} results
+                        {searchResults.length >= 50 && (
+                          <div className="px-4 py-2 text-xs text-[#666] dark:text-slate-400 bg-[#f0f0f0] dark:bg-slate-700 text-center">
+                            Showing first 50 results. Refine your search for more specific results.
                           </div>
                         )}
                       </div>
                     ) : (
-                      <div className="px-4 py-8 text-center text-sm text-[#666]">
-                        {searchTerm ? 'No customers found' : 'Start typing to search...'}
+                      <div className="px-4 py-8 text-center text-sm text-[#666] dark:text-slate-400">
+                        {searchTerm.length < 2 ? 'Type at least 2 characters to search...' : 'No customers found'}
                       </div>
                     )}
                   </div>

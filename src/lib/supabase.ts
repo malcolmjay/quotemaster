@@ -355,8 +355,7 @@ export const getCrossReferences = async () => {
   return data
 }
 
-export const searchProducts = async (searchTerm: string) => {
-  // Sanitize search term to prevent injection
+export const searchProducts = async (searchTerm: string, limit = 50) => {
   const sanitized = sanitizeSearchTerm(searchTerm);
 
   logger.debug('Searching products', { searchTerm: sanitized });
@@ -364,13 +363,22 @@ export const searchProducts = async (searchTerm: string) => {
   const { data, error } = await supabase
     .from('products')
     .select(`
-      *,
-      inventory_levels (*),
-      cross_references (*)
+      id,
+      sku,
+      name,
+      supplier,
+      list_price,
+      unit_cost,
+      category,
+      warehouse,
+      lead_time_days,
+      lead_time_text,
+      status,
+      inventory_levels (quantity_on_hand)
     `)
     .or(`sku.ilike.%${sanitized}%,name.ilike.%${sanitized}%`)
     .eq('status', 'active')
-    .limit(10)
+    .limit(limit)
 
   if (error) {
     logger.error('Product search failed', error);
@@ -378,6 +386,91 @@ export const searchProducts = async (searchTerm: string) => {
   }
 
   logger.debug('Product search completed', { results: data?.length || 0 });
+  return data;
+}
+
+export const searchCustomers = async (searchTerm: string, limit = 50) => {
+  const sanitized = sanitizeSearchTerm(searchTerm);
+
+  logger.debug('Searching customers', { searchTerm: sanitized });
+
+  const { data, error } = await supabase
+    .from('customers')
+    .select(`
+      id,
+      name,
+      customer_number,
+      contract_number,
+      type,
+      tier,
+      currency,
+      contacts:customer_contacts (
+        id,
+        first_name,
+        last_name,
+        email,
+        phone,
+        title,
+        is_primary
+      ),
+      addresses:customer_addresses (
+        id,
+        customer_number,
+        site_use_id,
+        address_line_1,
+        address_line_2,
+        city,
+        state,
+        postal_code,
+        country,
+        is_shipping,
+        is_billing,
+        is_primary
+      )
+    `)
+    .or(`name.ilike.%${sanitized}%,customer_number.ilike.%${sanitized}%,contract_number.ilike.%${sanitized}%`)
+    .order('name')
+    .limit(limit)
+
+  if (error) {
+    logger.error('Customer search failed', error);
+    throw new Error('Customer search failed. Please try again.');
+  }
+
+  logger.debug('Customer search completed', { results: data?.length || 0 });
+  return data;
+}
+
+export const searchCrossReferences = async (searchTerm: string, customerId?: string, limit = 50) => {
+  const sanitized = sanitizeSearchTerm(searchTerm);
+
+  logger.debug('Searching cross references', { searchTerm: sanitized, customerId });
+
+  let query = supabase
+    .from('cross_references')
+    .select(`
+      id,
+      internal_part_number,
+      customer_part_number,
+      supplier_part_number,
+      supplier_name,
+      customer_id,
+      product_id
+    `)
+    .or(`internal_part_number.ilike.%${sanitized}%,customer_part_number.ilike.%${sanitized}%,supplier_part_number.ilike.%${sanitized}%`)
+
+  if (customerId) {
+    query = query.eq('customer_id', customerId)
+  }
+
+  const { data, error } = await query.limit(limit)
+
+  if (error) {
+    logger.error('Cross reference search failed', error);
+    throw new Error('Cross reference search failed. Please try again.');
+  }
+
+  logger.debug('Cross reference search completed', { results: data?.length || 0 });
   return data;
 }
 
