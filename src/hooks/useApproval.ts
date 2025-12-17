@@ -227,14 +227,17 @@ export const useApproval = () => {
   const getPendingApprovalsForUser = async () => {
     setLoading(true)
     setError(null)
-    
+
     try {
+      console.log('useApproval: Calling getPendingApprovals...')
       const result = await getPendingApprovals()
+      console.log('useApproval: Got result:', result)
       return result
     } catch (err) {
+      console.error('useApproval: Error:', err)
       const errorMessage = err instanceof Error ? err.message : 'Failed to get pending approvals'
       setError(errorMessage)
-      throw new Error(errorMessage)
+      return []
     } finally {
       setLoading(false)
     }

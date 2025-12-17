@@ -23,23 +23,28 @@ export const PendingApprovals: React.FC = () => {
   const [approvalComments, setApprovalComments] = useState('')
   const [actionType, setActionType] = useState<'approve' | 'reject'>('approve')
   
-  const { 
+  const {
     userRole,
     canUserApprove,
     approve,
     reject,
     getPendingApprovalsForUser,
-    loading 
+    loading,
+    error: approvalError
   } = useApproval()
 
   useEffect(() => {
     const fetchPendingApprovals = async () => {
       try {
+        console.log('Fetching pending approvals, userRole:', userRole)
         const approvals = await getPendingApprovalsForUser()
+        console.log('Received approvals:', approvals)
         setPendingApprovals(approvals)
         setFilteredApprovals(approvals)
       } catch (error) {
         console.error('Error fetching pending approvals:', error)
+        setPendingApprovals([])
+        setFilteredApprovals([])
       }
     }
 
@@ -165,14 +170,22 @@ export const PendingApprovals: React.FC = () => {
         </div>
       </div>
 
-      {loading && (
+      {approvalError && (
+        <div className="bg-white rounded border border-[#d4d4d4] p-8 text-center">
+          <XCircle className="h-12 w-12 text-[#a94442] mx-auto mb-4" />
+          <h3 className="text-lg font-medium text-[#333] mb-2">Error Loading Approvals</h3>
+          <p className="text-[#666]">{approvalError}</p>
+        </div>
+      )}
+
+      {loading && !approvalError && (
         <div className="bg-white rounded border border-[#d4d4d4] p-8 text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-[#428bca] mx-auto mb-4"></div>
           <p className="text-[#666]">Loading pending approvals...</p>
         </div>
       )}
 
-      {!loading && filteredApprovals.length === 0 && (
+      {!loading && !approvalError && filteredApprovals.length === 0 && (
         <div className="bg-white rounded border border-[#d4d4d4] p-8 text-center">
           <Shield className="h-12 w-12 text-[#999] mx-auto mb-4" />
           <h3 className="text-lg font-medium text-[#333] mb-2">No Pending Approvals</h3>
@@ -185,7 +198,7 @@ export const PendingApprovals: React.FC = () => {
         </div>
       )}
 
-      {!loading && filteredApprovals.length > 0 && (
+      {!loading && !approvalError && filteredApprovals.length > 0 && (
         <div className="bg-white rounded border border-[#d4d4d4] overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full">
@@ -271,16 +284,22 @@ export const PendingApprovals: React.FC = () => {
                           </span>
                         </div>
 
-                        {approval.approval_actions_data && Array.isArray(approval.approval_actions_data) && approval.approval_actions_data.length > 0 && (
-                          <div className="mt-2">
-                            <div className="text-xs text-[#999]">Recent approvals:</div>
-                            {approval.approval_actions_data.slice(0, 2).map((action: any) => (
-                              <div key={action.id} className="text-xs text-[#666]">
-                                {action.approver_email} ({action.approver_role})
-                              </div>
-                            ))}
-                          </div>
-                        )}
+                        {(() => {
+                          const actions = typeof approval.approval_actions_data === 'string'
+                            ? JSON.parse(approval.approval_actions_data)
+                            : approval.approval_actions_data;
+
+                          return actions && Array.isArray(actions) && actions.length > 0 && (
+                            <div className="mt-2">
+                              <div className="text-xs text-[#999]">Recent approvals:</div>
+                              {actions.slice(0, 2).map((action: any) => (
+                                <div key={action.id} className="text-xs text-[#666]">
+                                  {action.approver_email} ({action.approver_role})
+                                </div>
+                              ))}
+                            </div>
+                          );
+                        })()}
                       </td>
 
                       <td className="px-6 py-4">

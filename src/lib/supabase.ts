@@ -817,10 +817,12 @@ export const getPendingApprovals = async () => {
   const { data, error } = await supabase.rpc('get_pending_approvals_optimized');
 
   if (error) {
+    console.error('RPC Error details:', error);
     logger.error('Failed to fetch pending approvals', error);
-    throw new Error('Failed to load pending approvals. Please try again.');
+    throw new Error(`Failed to load pending approvals: ${error.message}`);
   }
 
+  console.log('RPC returned data:', data);
   logger.debug('Pending approvals fetched', { count: data?.length || 0 });
   return data || [];
 }
