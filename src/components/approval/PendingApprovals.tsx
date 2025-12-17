@@ -39,8 +39,14 @@ export const PendingApprovals: React.FC = () => {
         console.log('Fetching pending approvals, userRole:', userRole)
         const approvals = await getPendingApprovalsForUser()
         console.log('Received approvals:', approvals)
-        setPendingApprovals(approvals)
-        setFilteredApprovals(approvals)
+
+        const uniqueApprovals = Array.from(
+          new Map(approvals.map(a => [a.id, a])).values()
+        )
+        console.log('Unique approvals:', uniqueApprovals)
+
+        setPendingApprovals(uniqueApprovals)
+        setFilteredApprovals(uniqueApprovals)
       } catch (error) {
         console.error('Error fetching pending approvals:', error)
         setPendingApprovals([])
@@ -213,13 +219,13 @@ export const PendingApprovals: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-[#d4d4d4]">
-                {filteredApprovals.map((approval) => {
+                {filteredApprovals.map((approval, index) => {
                   const quote = approval.quote_data
                   const urgency = getUrgencyIndicator(approval.created_at)
                   const userCanApproveThis = canUserApprove(quote?.total_value || 0)
 
                   return (
-                    <tr key={approval.id} className="hover:bg-[#f5f5f5] transition-colors">
+                    <tr key={`${approval.id}-${index}`} className="hover:bg-[#f5f5f5] transition-colors">
                       <td className="px-6 py-4">
                         <div>
                           <div className="font-medium text-[#333]">{quote?.quote_number}</div>
