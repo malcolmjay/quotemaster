@@ -33,7 +33,7 @@ export const QuoteManagement: React.FC = () => {
   const [displayQuotes, setDisplayQuotes] = useState<DisplayQuote[]>([]);
   const pageSize = 25;
 
-  const { customers, setSelectedCustomer } = useCustomer();
+  const { setSelectedCustomer } = useCustomer();
   const { setCurrentQuote } = useSupabaseQuote();
   const { deleteRecord } = useDeletion();
 
@@ -56,7 +56,7 @@ export const QuoteManagement: React.FC = () => {
       });
 
       const transformed = result.data.map((quote: any) => {
-        const customer = quote.customers || customers.find((c: any) => c.id === quote.customer_id);
+        const customer = quote.customers;
         const lineItems = quote.quote_line_items || [];
         const totalCost = quote.total_cost || 0;
         const totalPrice = quote.total_value || 0;
@@ -94,9 +94,15 @@ export const QuoteManagement: React.FC = () => {
   };
 
   const handleEditQuote = (quote: DisplayQuote) => {
-    const customer = customers.find((c: any) => c.id === quote.quote.customer_id);
+    console.log('Edit quote clicked:', quote.quote.quote_number);
+    console.log('Customer data:', quote.quote.customers);
+
+    const customer = quote.quote.customers;
     if (customer) {
       setSelectedCustomer(customer);
+      console.log('Customer set:', customer.name);
+    } else {
+      console.warn('No customer data found in quote');
     }
 
     setCurrentQuote(quote.quote);
@@ -108,7 +114,7 @@ export const QuoteManagement: React.FC = () => {
   };
 
   const generatePDF = (quote: DisplayQuote) => {
-    const customer = customers.find((c: any) => c.id === quote.quote.customer_id);
+    const customer = quote.quote.customers;
     const htmlContent = `
       <!DOCTYPE html>
       <html>

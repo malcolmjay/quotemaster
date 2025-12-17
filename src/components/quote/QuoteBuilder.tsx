@@ -24,7 +24,7 @@ export const QuoteBuilder: React.FC = () => {
   const [showCustomerDetails, setShowCustomerDetails] = useState(true);
 
   const { currentQuote, quotes, setCurrentQuote } = useSupabaseQuote();
-  const { selectedCustomer, setSelectedCustomer, customers } = useCustomer();
+  const { selectedCustomer, setSelectedCustomer } = useCustomer();
 
   const handleNewQuote = () => {
     setCurrentQuote(null);
@@ -47,11 +47,13 @@ export const QuoteBuilder: React.FC = () => {
     }
 
     if (currentQuote) {
-      if (!selectedCustomer && currentQuote.customer_id) {
-        const customer = customers.find(c => c.id === currentQuote.customer_id);
-        if (customer) {
-          setSelectedCustomer(customer);
-        }
+      console.log('QuoteBuilder: currentQuote loaded', currentQuote.quote_number);
+      console.log('QuoteBuilder: selectedCustomer', selectedCustomer?.name || 'none');
+      console.log('QuoteBuilder: customer in quote', currentQuote.customers);
+
+      if (!selectedCustomer && currentQuote.customers) {
+        console.log('QuoteBuilder: Setting customer from currentQuote');
+        setSelectedCustomer(currentQuote.customers);
       }
 
       if (currentQuote.quote_line_items && currentQuote.quote_line_items.length > 0) {
