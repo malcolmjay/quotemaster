@@ -22,6 +22,7 @@ export const PendingApprovals: React.FC = () => {
   const [showApprovalModal, setShowApprovalModal] = useState<string | null>(null)
   const [approvalComments, setApprovalComments] = useState('')
   const [actionType, setActionType] = useState<'approve' | 'reject'>('approve')
+  const [actionLoading, setActionLoading] = useState(false)
   
   const {
     userRole,
@@ -77,23 +78,41 @@ export const PendingApprovals: React.FC = () => {
   }, [pendingApprovals, searchTerm, levelFilter])
 
   const handleApprovalAction = async (quoteId: string) => {
-    if (!userRole) return
-    
+    if (!userRole || actionLoading) return
+
+    setActionLoading(true)
+    const modalQuoteId = showApprovalModal
+    const actionComments = approvalComments
+
     try {
       if (actionType === 'approve') {
-        await approve(quoteId, approvalComments)
+        await approve(quoteId, actionComments)
       } else {
-        await reject(quoteId, approvalComments)
+        await reject(quoteId, actionComments)
       }
-      
+
+      // Close modal after successful action
       setShowApprovalModal(null)
       setApprovalComments('')
-      
-      // Refresh pending approvals
+
+      // Refresh pending approvals after successful action
       const approvals = await getPendingApprovalsForUser()
-      setPendingApprovals(approvals)
+      const uniqueApprovals = Array.from(
+        new Map(approvals.map(a => [a.id, a])).values()
+      )
+
+      setPendingApprovals(uniqueApprovals)
+      setFilteredApprovals(uniqueApprovals)
     } catch (error) {
       console.error('Error processing approval:', error)
+
+      // Keep modal open on error so user can try again
+      if (!showApprovalModal) {
+        setShowApprovalModal(modalQuoteId)
+        setApprovalComments(actionComments)
+      }
+    } finally {
+      setActionLoading(false)
     }
   }
 
@@ -395,20 +414,21 @@ export const PendingApprovals: React.FC = () => {
                   setShowApprovalModal(null)
                   setApprovalComments('')
                 }}
-                className="px-4 py-2 text-[#666] hover:text-[#333] hover:bg-[#f5f5f5] border border-transparent hover:border-[#d4d4d4] rounded transition-colors"
+                disabled={actionLoading}
+                className="px-4 py-2 text-[#666] hover:text-[#333] hover:bg-[#f5f5f5] border border-transparent hover:border-[#d4d4d4] rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 Cancel
               </button>
               <button
                 onClick={() => handleApprovalAction(showApprovalModal!)}
-                disabled={loading || (actionType === 'reject' && !approvalComments.trim())}
+                disabled={actionLoading || (actionType === 'reject' && !approvalComments.trim())}
                 className={`px-4 py-2 rounded transition-colors disabled:opacity-50 ${
                   actionType === 'approve'
                     ? 'bg-[#428bca] hover:bg-[#3276b1] text-white'
                     : 'bg-[#a94442] hover:bg-[#843534] text-white'
                 }`}
               >
-                {loading ? 'Processing...' : (actionType === 'approve' ? 'Approve' : 'Reject')}
+                {actionLoading ? 'Processing...' : (actionType === 'approve' ? 'Approve' : 'Reject')}
               </button>
             </div>
           </div>
