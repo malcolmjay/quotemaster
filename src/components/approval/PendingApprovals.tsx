@@ -53,10 +53,10 @@ export const PendingApprovals: React.FC = () => {
 
     // Apply search filter
     if (searchTerm) {
-      filtered = filtered.filter(approval => 
-        approval.quotes?.quote_number?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        approval.quotes?.customers?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        approval.quotes?.profiles?.full_name?.toLowerCase().includes(searchTerm.toLowerCase())
+      filtered = filtered.filter(approval =>
+        approval.quote_data?.quote_number?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        approval.quote_data?.customer?.name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        approval.quote_data?.creator_email?.toLowerCase().includes(searchTerm.toLowerCase())
       )
     }
 
@@ -201,17 +201,17 @@ export const PendingApprovals: React.FC = () => {
               </thead>
               <tbody className="bg-white divide-y divide-[#d4d4d4]">
                 {filteredApprovals.map((approval) => {
-                  const quote = approval.quotes
+                  const quote = approval.quote_data
                   const urgency = getUrgencyIndicator(approval.created_at)
                   const userCanApproveThis = canUserApprove(quote?.total_value || 0)
-                  
+
                   return (
                     <tr key={approval.id} className="hover:bg-[#f5f5f5] transition-colors">
                       <td className="px-6 py-4">
                         <div>
                           <div className="font-medium text-[#333]">{quote?.quote_number}</div>
                           <div className="text-sm text-[#666]">
-                            Created by: {quote?.profiles?.full_name || 'Unknown'}
+                            Created by: {quote?.creator_email || 'Unknown'}
                           </div>
                           <div className="flex items-center space-x-2 mt-1">
                             <span className={`inline-flex items-center px-2 py-1 rounded text-xs font-medium ${urgency.color} bg-opacity-10`}>
@@ -224,9 +224,9 @@ export const PendingApprovals: React.FC = () => {
 
                       <td className="px-6 py-4">
                         <div>
-                          <div className="font-medium text-[#333]">{quote?.customers?.name}</div>
+                          <div className="font-medium text-[#333]">{quote?.customer?.name}</div>
                           <div className="text-sm text-[#666]">
-                            Type: {quote?.quote_type || 'Daily Quote'}
+                            Type: Daily Quote
                           </div>
                         </div>
                       </td>
@@ -253,11 +253,6 @@ export const PendingApprovals: React.FC = () => {
                             <Calendar className="h-3 w-3 mr-1" />
                             Submitted: {new Date(approval.created_at).toLocaleDateString()}
                           </div>
-                          {quote?.valid_until && (
-                            <div className="text-sm text-[#666]">
-                              Valid until: {new Date(quote.valid_until).toLocaleDateString()}
-                            </div>
-                          )}
                         </div>
                       </td>
 
@@ -276,12 +271,12 @@ export const PendingApprovals: React.FC = () => {
                           </span>
                         </div>
 
-                        {approval.approval_actions && approval.approval_actions.length > 0 && (
+                        {approval.approval_actions_data && Array.isArray(approval.approval_actions_data) && approval.approval_actions_data.length > 0 && (
                           <div className="mt-2">
                             <div className="text-xs text-[#999]">Recent approvals:</div>
-                            {approval.approval_actions.slice(0, 2).map((action: any) => (
+                            {approval.approval_actions_data.slice(0, 2).map((action: any) => (
                               <div key={action.id} className="text-xs text-[#666]">
-                                {action.profiles?.full_name} ({action.approver_role})
+                                {action.approver_email} ({action.approver_role})
                               </div>
                             ))}
                           </div>
@@ -336,7 +331,7 @@ export const PendingApprovals: React.FC = () => {
                 {actionType === 'approve' ? 'Approve Quote' : 'Reject Quote'}
               </h3>
               <p className="text-sm text-[#666] mt-1">
-                Quote: {pendingApprovals.find(a => a.quote_id === showApprovalModal)?.quotes?.quote_number}
+                Quote: {pendingApprovals.find(a => a.quote_id === showApprovalModal)?.quote_data?.quote_number}
               </p>
             </div>
 
@@ -349,7 +344,7 @@ export const PendingApprovals: React.FC = () => {
                   </span>
                 </div>
                 <div className="text-sm text-[#666]">
-                  Value: ${(pendingApprovals.find(a => a.quote_id === showApprovalModal)?.quotes?.total_value || 0).toLocaleString()}
+                  Value: ${(pendingApprovals.find(a => a.quote_id === showApprovalModal)?.quote_data?.total_value || 0).toLocaleString()}
                 </div>
               </div>
 
