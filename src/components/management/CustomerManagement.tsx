@@ -4,6 +4,7 @@ import { supabase } from '../../lib/supabase';
 import { CustomerEditModal } from './CustomerEditModal';
 import { AddressManagement } from './AddressManagement';
 import { ContactManagement } from './ContactManagement';
+import { Pagination } from '../common/Pagination';
 
 export const CustomerManagement: React.FC = () => {
   const [customers, setCustomers] = useState<any[]>([]);
@@ -14,41 +15,68 @@ export const CustomerManagement: React.FC = () => {
   const [isAddressModalOpen, setIsAddressModalOpen] = useState(false);
   const [isContactModalOpen, setIsContactModalOpen] = useState(false);
   const [isCreating, setIsCreating] = useState(false);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+  const pageSize = 50;
 
   useEffect(() => {
     fetchCustomers();
-  }, []);
+  }, [currentPage, searchTerm]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
 
   const fetchCustomers = async () => {
     try {
       setLoading(true);
 
-      const { data: customersData, error: customersError } = await supabase
+      const from = (currentPage - 1) * pageSize;
+      const to = from + pageSize - 1;
+
+      let query = supabase
         .from('customers')
-        .select('*')
+        .select('*', { count: 'exact' })
         .order('name');
+
+      if (searchTerm) {
+        query = query.or(`name.ilike.%${searchTerm}%,customer_number.ilike.%${searchTerm}%,type.ilike.%${searchTerm}%`);
+      }
+
+      const { data: customersData, error: customersError, count } = await query
+        .range(from, to);
 
       if (customersError) throw customersError;
 
-      const { data: addressesData, error: addressesError } = await supabase
-        .from('customer_addresses')
-        .select('*');
+      setTotalItems(count || 0);
 
-      if (addressesError) throw addressesError;
+      if (customersData && customersData.length > 0) {
+        const customerNumbers = customersData.map(c => c.customer_number);
 
-      const { data: contactsData, error: contactsError } = await supabase
-        .from('customer_contacts')
-        .select('*');
+        const { data: addressesData, error: addressesError } = await supabase
+          .from('customer_addresses')
+          .select('*')
+          .in('customer_number', customerNumbers);
 
-      if (contactsError) throw contactsError;
+        if (addressesError) throw addressesError;
 
-      const customersWithData = customersData?.map(customer => ({
-        ...customer,
-        addresses: addressesData?.filter(addr => addr.customer_number === customer.customer_number) || [],
-        contacts: contactsData?.filter(contact => contact.customer_number === customer.customer_number) || []
-      })) || [];
+        const { data: contactsData, error: contactsError } = await supabase
+          .from('customer_contacts')
+          .select('*')
+          .in('customer_number', customerNumbers);
 
-      setCustomers(customersWithData);
+        if (contactsError) throw contactsError;
+
+        const customersWithData = customersData.map(customer => ({
+          ...customer,
+          addresses: addressesData?.filter(addr => addr.customer_number === customer.customer_number) || [],
+          contacts: contactsData?.filter(contact => contact.customer_number === customer.customer_number) || []
+        }));
+
+        setCustomers(customersWithData);
+      } else {
+        setCustomers([]);
+      }
     } catch (err) {
       console.error('Error fetching customers:', err);
     } finally {
@@ -56,11 +84,6 @@ export const CustomerManagement: React.FC = () => {
     }
   };
 
-  const filteredCustomers = customers.filter(customer =>
-    customer.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    customer.customer_number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    customer.type.toLowerCase().includes(searchTerm.toLowerCase())
-  );
 
   const handleEdit = (customer: any) => {
     setSelectedCustomer(customer);
@@ -151,7 +174,7 @@ export const CustomerManagement: React.FC = () => {
               <div className="inline-block animate-spin rounded-full h-8 w-8 border-b-2 border-[#428bca]"></div>
               <p className="mt-2 text-sm text-[#666]">Loading customers...</p>
             </div>
-          ) : filteredCustomers.length === 0 ? (
+          ) : customers.length === 0 ? (
             <div className="p-8 text-center">
               <Building className="h-12 w-12 text-[#999] mx-auto mb-3" />
               <p className="text-[#666]">No customers found</p>
@@ -184,7 +207,7 @@ export const CustomerManagement: React.FC = () => {
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-[#d4d4d4]">
-                {filteredCustomers.map((customer) => (
+                {customers.map((customer) => (
                   <tr key={customer.id} className="hover:bg-[#f9f9f9] transition-colors">
                     <td className="px-6 py-4">
                       <div>
@@ -276,6 +299,15 @@ export const CustomerManagement: React.FC = () => {
             </table>
           )}
         </div>
+
+        {!loading && customers.length > 0 && (
+          <Pagination
+            currentPage={currentPage}
+            totalItems={totalItems}
+            itemsPerPage={pageSize}
+            onPageChange={setCurrentPage}
+          />
+        )}
       </div>
       </div>
       {/* End Main Content */}
