@@ -17,11 +17,6 @@ export const QuotePrintView: React.FC<QuotePrintViewProps> = ({
   onClose,
 }) => {
   const subtotal = lineItems.reduce((sum, item) => sum + item.subtotal, 0);
-  const totalCost = lineItems.reduce((sum, item) => sum + (item.cost * item.qty), 0);
-  const totalCarryingCost = totalCost * 0.0187;
-  const totalFreightOut = totalCost * 0.06;
-  const totalMargin = subtotal > 0 ? ((subtotal - totalCost) / subtotal) * 100 : 0;
-  const grossProfit = subtotal - totalCost;
 
   React.useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -140,47 +135,8 @@ export const QuotePrintView: React.FC<QuotePrintViewProps> = ({
               </table>
             </div>
 
-            <div className="grid grid-cols-2 gap-6 mb-8">
-              <div>
-                <h2 className="text-sm font-semibold text-blue-600 uppercase tracking-wider mb-4">
-                  Cost Analysis
-                </h2>
-                <div className="bg-gray-50 p-4 rounded border border-gray-200 space-y-3">
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Total Cost</span>
-                    <span className="font-medium text-gray-900">${totalCost.toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Carrying Cost (1.87%)</span>
-                    <span className="font-medium text-gray-900">${totalCarryingCost.toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-600">Freight Out (6%)</span>
-                    <span className="font-medium text-gray-900">${totalFreightOut.toFixed(2)}</span>
-                  </div>
-                  <div className="flex justify-between text-sm pt-3 border-t-2 border-gray-300">
-                    <span className="font-semibold text-blue-600">Gross Profit</span>
-                    <span className={`font-bold ${grossProfit >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                      ${grossProfit.toFixed(2)}
-                      <span className={`ml-2 inline-block px-2 py-1 rounded-full text-xs ${
-                        grossProfit >= 0 ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                      }`}>
-                        {totalMargin.toFixed(1)}%
-                      </span>
-                    </span>
-                  </div>
-                </div>
-                {quote?.notes && (
-                  <div className="mt-4">
-                    <h3 className="text-sm font-semibold text-blue-600 uppercase tracking-wider mb-2">Notes</h3>
-                    <div className="bg-gray-50 p-4 rounded border border-gray-200 text-sm text-gray-700">
-                      {quote.notes}
-                    </div>
-                  </div>
-                )}
-              </div>
-
-              <div>
+            <div className="flex justify-end mb-8">
+              <div className="w-full max-w-md">
                 <div className="bg-gradient-to-br from-blue-600 to-blue-700 text-white p-6 rounded-lg shadow-lg">
                   <h2 className="text-sm font-semibold uppercase tracking-wider mb-4 opacity-90">
                     Quote Total
@@ -202,6 +158,15 @@ export const QuotePrintView: React.FC<QuotePrintViewProps> = ({
                 </div>
               </div>
             </div>
+
+            {quote?.notes && (
+              <div className="mb-8">
+                <h2 className="text-sm font-semibold text-blue-600 uppercase tracking-wider mb-4">Notes</h2>
+                <div className="bg-gray-50 p-4 rounded border border-gray-200 text-sm text-gray-700">
+                  {quote.notes}
+                </div>
+              </div>
+            )}
 
             <div className="mt-12 pt-6 border-t border-gray-200 text-center text-xs text-gray-500">
               This is a computer-generated quote. For questions, please contact your sales representative.
