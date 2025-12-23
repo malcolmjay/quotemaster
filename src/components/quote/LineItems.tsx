@@ -958,6 +958,15 @@ export const LineItems: React.FC<LineItemsProps> = ({
                       >
                         <Calculator className="w-4 h-4 text-[#666] dark:text-slate-400" />
                       </button>
+                      {supplyPeriodMonths > 12 && onShowMultiYearPricing && (
+                        <button
+                          onClick={() => onShowMultiYearPricing(item)}
+                          className="p-1.5 hover:bg-[#e8e8e8] dark:hover:bg-slate-700 rounded transition-colors"
+                          title="Multi-Year Pricing"
+                        >
+                          <Calendar className="w-4 h-4 text-[#428bca]" />
+                        </button>
+                      )}
                       <button
                         onClick={() => setShowHistoryModal(item.id)}
                         className="p-1.5 hover:bg-[#e8e8e8] dark:hover:bg-slate-700 rounded transition-colors"
