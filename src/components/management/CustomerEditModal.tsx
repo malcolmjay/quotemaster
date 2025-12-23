@@ -25,10 +25,12 @@ export const CustomerEditModal: React.FC<CustomerEditModalProps> = ({
     currency: 'USD',
     tier: 'bronze' as 'bronze' | 'silver' | 'gold' | 'platinum',
     sales_manager: '',
-    sales_rep: ''
+    sales_rep: '',
+    primary_warehouse: ''
   });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [warehouseOptions, setWarehouseOptions] = useState<string[]>([]);
 
   useEffect(() => {
     if (customer && !isCreating) {
@@ -42,10 +44,31 @@ export const CustomerEditModal: React.FC<CustomerEditModalProps> = ({
         currency: customer.currency || 'USD',
         tier: customer.tier || 'bronze',
         sales_manager: customer.sales_manager || '',
-        sales_rep: customer.sales_rep || ''
+        sales_rep: customer.sales_rep || '',
+        primary_warehouse: customer.primary_warehouse || ''
       });
     }
   }, [customer, isCreating]);
+
+  useEffect(() => {
+    const loadWarehouseOptions = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('app_configurations')
+          .select('config_value')
+          .eq('config_key', 'warehouse_options')
+          .maybeSingle();
+        if (error) throw error;
+        if (data?.config_value) {
+          const options = JSON.parse(data.config_value);
+          setWarehouseOptions(options);
+        }
+      } catch (error) {
+        console.error('Error loading warehouse options:', error);
+      }
+    };
+    loadWarehouseOptions();
+  }, []);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -63,7 +86,8 @@ export const CustomerEditModal: React.FC<CustomerEditModalProps> = ({
         currency: formData.currency,
         tier: formData.tier,
         sales_manager: formData.sales_manager || null,
-        sales_rep: formData.sales_rep || null
+        sales_rep: formData.sales_rep || null,
+        primary_warehouse: formData.primary_warehouse || null
       };
 
       if (isCreating) {
@@ -255,6 +279,24 @@ export const CustomerEditModal: React.FC<CustomerEditModalProps> = ({
                 onChange={(e) => setFormData({ ...formData, sales_rep: e.target.value })}
                 className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
               />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Primary Warehouse
+              </label>
+              <select
+                value={formData.primary_warehouse}
+                onChange={(e) => setFormData({ ...formData, primary_warehouse: e.target.value })}
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+              >
+                <option value="">Select warehouse...</option>
+                {warehouseOptions.map((warehouse) => (
+                  <option key={warehouse} value={warehouse}>
+                    {warehouse}
+                  </option>
+                ))}
+              </select>
             </div>
           </div>
 

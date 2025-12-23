@@ -232,6 +232,7 @@ export const QuoteBuilder: React.FC = () => {
                   <div className="text-xs text-[#666]">
                     #{selectedCustomer.customer_number}
                     {selectedCustomer.contract_number && ` | Contract: ${selectedCustomer.contract_number}`}
+                    {selectedCustomer.primary_warehouse && ` | Warehouse: ${selectedCustomer.primary_warehouse}`}
                   </div>
                 )}
               </div>

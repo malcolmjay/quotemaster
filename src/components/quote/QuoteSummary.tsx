@@ -234,6 +234,7 @@ export const QuoteSummary: React.FC<QuoteSummaryProps> = ({ lineItems = [], onSa
           <div class="company-name">Quote ${currentQuote?.quote_number || ''}</div>
           <div class="quote-info">
             Customer: ${selectedCustomer?.name || 'N/A'}<br>
+            ${selectedCustomer?.primary_warehouse ? `Warehouse: ${selectedCustomer.primary_warehouse}<br>` : ''}
             Date: ${new Date().toLocaleDateString()}<br>
             Items: ${totalLineItems}
           </div>
