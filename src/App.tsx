@@ -35,12 +35,14 @@ function App() {
   React.useEffect(() => {
     const handleHashChange = () => {
       const hash = window.location.hash.replace('#', '');
-      if (hash && ['quote-builder', 'product-catalog', 'customer-profile', 'customer-management', 'quote-management', 'training-guide', 'pending-approvals', 'price-requests', 'settings', 'product-import', 'product-management', 'cross-reference-management', 'item-relationships', 'user-management', 'item-inquiry'].includes(hash)) {
-        setActiveTab(hash as ActiveTab);
+      const tabName = hash.split('?')[0];
+      if (tabName && ['quote-builder', 'product-catalog', 'customer-profile', 'customer-management', 'quote-management', 'training-guide', 'pending-approvals', 'price-requests', 'settings', 'product-import', 'product-management', 'cross-reference-management', 'item-relationships', 'user-management', 'item-inquiry'].includes(tabName)) {
+        setActiveTab(tabName as ActiveTab);
       }
     };
 
     window.addEventListener('hashchange', handleHashChange);
+    handleHashChange();
     return () => window.removeEventListener('hashchange', handleHashChange);
   }, []);
 
