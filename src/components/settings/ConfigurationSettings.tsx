@@ -23,6 +23,7 @@ import { reinitializeERPService } from '../../services/erpApiService';
 import { logger } from '../../utils/logger';
 import { useAuth } from '../../hooks/useAuth';
 import { ApprovalLimitsSettings } from './ApprovalLimitsSettings';
+import { HelpTooltip } from '../common/HelpTooltip';
 
 type TabType = 'api' | 'approval-limits';
 
@@ -436,17 +437,19 @@ export const ConfigurationSettings: React.FC = () => {
             ERP API Configuration
           </h2>
 
-          <label className="flex items-center space-x-2">
-            <input
-              type="checkbox"
-              checked={erpConfig.enabled}
-              onChange={(e) => setErpConfig({ ...erpConfig, enabled: e.target.checked })}
-              className="rounded border-[#d4d4d4] text-[#428bca] focus:ring-[#428bca]"
-            />
-            <span className="text-sm text-[#333]">
-              Enable ERP Integration
-            </span>
-          </label>
+          <HelpTooltip content="Automatically sync inventory data every hour. Keeps product availability current.">
+            <label className="flex items-center space-x-2">
+              <input
+                type="checkbox"
+                checked={erpConfig.enabled}
+                onChange={(e) => setErpConfig({ ...erpConfig, enabled: e.target.checked })}
+                className="rounded border-[#d4d4d4] text-[#428bca] focus:ring-[#428bca]"
+              />
+              <span className="text-sm text-[#333]">
+                Enable ERP Integration
+              </span>
+            </label>
+          </HelpTooltip>
         </div>
 
         <div className="space-y-4">
@@ -455,14 +458,16 @@ export const ConfigurationSettings: React.FC = () => {
             <label className="block text-sm font-medium text-[#333] mb-2">
               API Base URL *
             </label>
-            <input
-              type="url"
-              value={erpConfig.apiUrl}
-              onChange={(e) => setErpConfig({ ...erpConfig, apiUrl: e.target.value })}
-              placeholder="https://your-erp-api.com/api"
-              className="w-full px-3 py-2 border border-[#d4d4d4] rounded focus:ring-2 focus:ring-[#428bca] focus:border-[#428bca] bg-white text-[#333]"
-              disabled={!erpConfig.enabled}
-            />
+            <HelpTooltip content="Enter the base URL for your ERP system's REST API. This enables automatic inventory and customer data synchronization.">
+              <input
+                type="url"
+                value={erpConfig.apiUrl}
+                onChange={(e) => setErpConfig({ ...erpConfig, apiUrl: e.target.value })}
+                placeholder="https://your-erp-api.com/api"
+                className="w-full px-3 py-2 border border-[#d4d4d4] rounded focus:ring-2 focus:ring-[#428bca] focus:border-[#428bca] bg-white text-[#333]"
+                disabled={!erpConfig.enabled}
+              />
+            </HelpTooltip>
             <p className="text-xs text-[#666] mt-1">
               The base URL for your ERP REST API (e.g., https://erp.example.com/api)
             </p>
@@ -473,23 +478,25 @@ export const ConfigurationSettings: React.FC = () => {
             <label className="block text-sm font-medium text-[#333] mb-2">
               API Key *
             </label>
-            <div className="relative">
-              <input
-                type={showApiKey ? 'text' : 'password'}
-                value={erpConfig.apiKey}
-                onChange={(e) => setErpConfig({ ...erpConfig, apiKey: e.target.value })}
-                placeholder="Enter your ERP API key"
-                className="w-full px-3 py-2 pr-10 border border-[#d4d4d4] rounded focus:ring-2 focus:ring-[#428bca] focus:border-[#428bca] bg-white text-[#333]"
-                disabled={!erpConfig.enabled}
-              />
-              <button
-                type="button"
-                onClick={() => setShowApiKey(!showApiKey)}
-                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#666] hover:text-[#333]"
-              >
-                {showApiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-              </button>
-            </div>
+            <HelpTooltip content="Password for ERP authentication. This is stored securely and never displayed.">
+              <div className="relative">
+                <input
+                  type={showApiKey ? 'text' : 'password'}
+                  value={erpConfig.apiKey}
+                  onChange={(e) => setErpConfig({ ...erpConfig, apiKey: e.target.value })}
+                  placeholder="Enter your ERP API key"
+                  className="w-full px-3 py-2 pr-10 border border-[#d4d4d4] rounded focus:ring-2 focus:ring-[#428bca] focus:border-[#428bca] bg-white text-[#333]"
+                  disabled={!erpConfig.enabled}
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowApiKey(!showApiKey)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#666] hover:text-[#333]"
+                >
+                  {showApiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+            </HelpTooltip>
             <p className="text-xs text-[#666] mt-1">
               API key for authentication (stored securely in database)
             </p>
@@ -568,18 +575,20 @@ export const ConfigurationSettings: React.FC = () => {
 
           {/* Test Connection */}
           <div className="pt-4 border-t border-[#d4d4d4]">
-            <button
-              onClick={handleTestConnection}
-              disabled={testing || !erpConfig.enabled || !erpConfig.apiUrl}
-              className="flex items-center space-x-2 px-4 py-2 bg-[#428bca] text-white rounded hover:bg-[#3276b1] disabled:bg-[#d4d4d4] disabled:cursor-not-allowed transition"
-            >
-              {testing ? (
-                <RefreshCw className="h-4 w-4 animate-spin" />
-              ) : (
-                <TestTube className="h-4 w-4" />
-              )}
-              <span>{testing ? 'Testing...' : 'Test Connection'}</span>
-            </button>
+            <HelpTooltip content="Verify the ERP connection settings are correct and the API is reachable.">
+              <button
+                onClick={handleTestConnection}
+                disabled={testing || !erpConfig.enabled || !erpConfig.apiUrl}
+                className="flex items-center space-x-2 px-4 py-2 bg-[#428bca] text-white rounded hover:bg-[#3276b1] disabled:bg-[#d4d4d4] disabled:cursor-not-allowed transition"
+              >
+                {testing ? (
+                  <RefreshCw className="h-4 w-4 animate-spin" />
+                ) : (
+                  <TestTube className="h-4 w-4" />
+                )}
+                <span>{testing ? 'Testing...' : 'Test Connection'}</span>
+              </button>
+            </HelpTooltip>
 
             {testResult && (
               <div className={`mt-3 p-3 rounded border ${
@@ -1308,18 +1317,20 @@ export const ConfigurationSettings: React.FC = () => {
                 <span>Reload</span>
           </button>
 
-          <button
-            onClick={handleSaveConfiguration}
-            disabled={saving || !hasUnsavedChanges}
-            className="flex items-center space-x-2 px-6 py-2 bg-[#428bca] text-white rounded hover:bg-[#3276b1] disabled:bg-[#d4d4d4] disabled:cursor-not-allowed transition"
-          >
-            {saving ? (
-              <RefreshCw className="h-4 w-4 animate-spin" />
-            ) : (
-              <Save className="h-4 w-4" />
-            )}
-            <span>{saving ? 'Saving...' : 'Save Configuration'}</span>
-          </button>
+          <HelpTooltip content="Save all configuration settings. Changes take effect immediately.">
+            <button
+              onClick={handleSaveConfiguration}
+              disabled={saving || !hasUnsavedChanges}
+              className="flex items-center space-x-2 px-6 py-2 bg-[#428bca] text-white rounded hover:bg-[#3276b1] disabled:bg-[#d4d4d4] disabled:cursor-not-allowed transition"
+            >
+              {saving ? (
+                <RefreshCw className="h-4 w-4 animate-spin" />
+              ) : (
+                <Save className="h-4 w-4" />
+              )}
+              <span>{saving ? 'Saving...' : 'Save Configuration'}</span>
+            </button>
+          </HelpTooltip>
         </div>
       </div>
         </>

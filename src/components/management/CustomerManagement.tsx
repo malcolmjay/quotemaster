@@ -5,6 +5,7 @@ import { CustomerEditModal } from './CustomerEditModal';
 import { AddressManagement } from './AddressManagement';
 import { ContactManagement } from './ContactManagement';
 import { Pagination } from '../common/Pagination';
+import { HelpTooltip } from '../common/HelpTooltip';
 
 export const CustomerManagement: React.FC = () => {
   const [customers, setCustomers] = useState<any[]>([]);
@@ -141,13 +142,15 @@ export const CustomerManagement: React.FC = () => {
               <h1 className="text-2xl font-bold text-[#333]">Customer Management</h1>
             </div>
           </div>
-          <button
-            onClick={handleCreateNew}
-            className="flex items-center space-x-2 px-4 py-2 bg-[#428bca] text-white rounded hover:bg-[#3276b1] transition-colors"
-          >
-            <Plus className="h-4 w-4" />
-            <span>New Customer</span>
-          </button>
+          <HelpTooltip content="Create a new customer record with contact information, addresses, and account details.">
+            <button
+              onClick={handleCreateNew}
+              className="flex items-center space-x-2 px-4 py-2 bg-[#428bca] text-white rounded hover:bg-[#3276b1] transition-colors"
+            >
+              <Plus className="h-4 w-4" />
+              <span>New Customer</span>
+            </button>
+          </HelpTooltip>
         </div>
       </div>
 
@@ -156,16 +159,18 @@ export const CustomerManagement: React.FC = () => {
 
       <div className="bg-white rounded border border-[#d4d4d4]">
         <div className="p-4 border-b border-[#d4d4d4]">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-[#999]" />
-            <input
-              type="text"
-              placeholder="Search by name, customer number, or type..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-[#d4d4d4] rounded focus:ring-2 focus:ring-[#428bca] focus:border-[#428bca] bg-white text-[#333] placeholder-[#999]"
-            />
-          </div>
+          <HelpTooltip content="Search customers by name, customer number, or type. Results update as you type.">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-5 w-5 text-[#999]" />
+              <input
+                type="text"
+                placeholder="Search by name, customer number, or type..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-[#d4d4d4] rounded focus:ring-2 focus:ring-[#428bca] focus:border-[#428bca] bg-white text-[#333] placeholder-[#999]"
+              />
+            </div>
+          </HelpTooltip>
         </div>
 
         <div className="overflow-x-auto">
@@ -270,27 +275,33 @@ export const CustomerManagement: React.FC = () => {
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center space-x-2">
-                        <button
-                          onClick={() => handleEdit(customer)}
-                          className="p-2 text-[#666] hover:text-[#333] hover:bg-[#f5f5f5] rounded border border-transparent hover:border-[#d4d4d4] transition-colors"
-                          title="Edit Customer"
-                        >
-                          <Pencil className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={() => handleManageAddresses(customer)}
-                          className="p-2 text-[#666] hover:text-[#333] hover:bg-[#f5f5f5] rounded border border-transparent hover:border-[#d4d4d4] transition-colors"
-                          title="Manage Addresses"
-                        >
-                          <MapPin className="h-4 w-4" />
-                        </button>
-                        <button
-                          onClick={() => handleManageContacts(customer)}
-                          className="p-2 text-[#666] hover:text-[#333] hover:bg-[#f5f5f5] rounded border border-transparent hover:border-[#d4d4d4] transition-colors"
-                          title="Manage Contacts"
-                        >
-                          <Users className="h-4 w-4" />
-                        </button>
+                        <HelpTooltip content="Modify customer information including name, tier, sales assignments, and payment terms.">
+                          <button
+                            onClick={() => handleEdit(customer)}
+                            className="p-2 text-[#666] hover:text-[#333] hover:bg-[#f5f5f5] rounded border border-transparent hover:border-[#d4d4d4] transition-colors"
+                            title="Edit Customer"
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </button>
+                        </HelpTooltip>
+                        <HelpTooltip content="Add, edit, or remove shipping and billing addresses for this customer.">
+                          <button
+                            onClick={() => handleManageAddresses(customer)}
+                            className="p-2 text-[#666] hover:text-[#333] hover:bg-[#f5f5f5] rounded border border-transparent hover:border-[#d4d4d4] transition-colors"
+                            title="Manage Addresses"
+                          >
+                            <MapPin className="h-4 w-4" />
+                          </button>
+                        </HelpTooltip>
+                        <HelpTooltip content="Maintain the list of contact persons, including email addresses, phone numbers, and roles.">
+                          <button
+                            onClick={() => handleManageContacts(customer)}
+                            className="p-2 text-[#666] hover:text-[#333] hover:bg-[#f5f5f5] rounded border border-transparent hover:border-[#d4d4d4] transition-colors"
+                            title="Manage Contacts"
+                          >
+                            <Users className="h-4 w-4" />
+                          </button>
+                        </HelpTooltip>
                       </div>
                     </td>
                   </tr>

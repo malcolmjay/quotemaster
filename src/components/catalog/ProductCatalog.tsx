@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Search, Package, Star, ShoppingCart } from 'lucide-react';
 import { automotiveTestParts } from '../../data/automotive-test-data';
+import { HelpTooltip } from '../common/HelpTooltip';
 
 export const ProductCatalog: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
@@ -68,28 +69,32 @@ export const ProductCatalog: React.FC = () => {
         </div>
 
         <div className="flex flex-col md:flex-row gap-4 mb-6">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
-            <input
-              type="text"
-              placeholder="Search products by SKU, name, description"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-            />
-          </div>
-          
-          <select
-            value={selectedCategory}
-            onChange={(e) => setSelectedCategory(e.target.value)}
-            className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-          >
-            {categories.map(category => (
-              <option key={category} value={category}>
-                {category}
-              </option>
-            ))}
-          </select>
+          <HelpTooltip content="Search products by SKU, name, description, or supplier. Type at least 2 characters to see results.">
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
+              <input
+                type="text"
+                placeholder="Search products by SKU, name, description"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+              />
+            </div>
+          </HelpTooltip>
+
+          <HelpTooltip content="Filter products by category to narrow down the catalog to specific product types.">
+            <select
+              value={selectedCategory}
+              onChange={(e) => setSelectedCategory(e.target.value)}
+              className="px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+            >
+              {categories.map(category => (
+                <option key={category} value={category}>
+                  {category}
+                </option>
+              ))}
+            </select>
+          </HelpTooltip>
         </div>
       </div>
 
@@ -161,17 +166,19 @@ export const ProductCatalog: React.FC = () => {
               </div>
             </div>
 
-            <button 
-              className={`w-full flex items-center justify-center px-4 py-2 rounded-lg transition-colors ${
-                product.status === 'Superseded' 
-                  ? 'bg-orange-600 text-white hover:bg-orange-700' 
-                  : 'bg-blue-600 text-white hover:bg-blue-700'
-              }`}
-              disabled={product.status === 'Superseded' && product.stock === 0}
-            >
-              <ShoppingCart className="h-4 w-4 mr-2" />
-              {product.status === 'Superseded' ? 'View Replacement' : 'Select'}
-            </button>
+            <HelpTooltip content="Add this product to the current quote as a new line item with the displayed pricing.">
+              <button
+                className={`w-full flex items-center justify-center px-4 py-2 rounded-lg transition-colors ${
+                  product.status === 'Superseded'
+                    ? 'bg-orange-600 text-white hover:bg-orange-700'
+                    : 'bg-blue-600 text-white hover:bg-blue-700'
+                }`}
+                disabled={product.status === 'Superseded' && product.stock === 0}
+              >
+                <ShoppingCart className="h-4 w-4 mr-2" />
+                {product.status === 'Superseded' ? 'View Replacement' : 'Select'}
+              </button>
+            </HelpTooltip>
           </div>
         ))}
       </div>

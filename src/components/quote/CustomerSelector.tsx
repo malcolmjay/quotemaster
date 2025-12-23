@@ -3,6 +3,7 @@ import { ChevronDown, Search, X, Building2, User, MapPin, Loader2 } from 'lucide
 import { useCustomer } from '../../context/CustomerContext';
 import { searchCustomers } from '../../lib/supabase';
 import { useDebounce } from '../../hooks/useDebounce';
+import { HelpTooltip } from '../common/HelpTooltip';
 
 export const CustomerSelector: React.FC = () => {
   const { selectedCustomer, setSelectedCustomer } = useCustomer();
@@ -86,17 +87,19 @@ export const CustomerSelector: React.FC = () => {
               <>
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#999]" />
-                  <input
-                    type="text"
-                    value={searchTerm}
-                    onChange={(e) => {
-                      setSearchTerm(e.target.value);
-                      setShowResults(true);
-                    }}
-                    onFocus={() => setShowResults(true)}
-                    placeholder="Search by name, customer #, or contract (min 2 chars)..."
-                    className="w-full pl-10 pr-10 py-2.5 bg-white dark:bg-slate-700 border border-[#d4d4d4] dark:border-slate-600 rounded text-sm text-[#333] dark:text-white placeholder-[#999] focus:ring-2 focus:ring-[#428bca] focus:border-[#428bca] transition-all"
-                  />
+                  <HelpTooltip content="Search for customers by name, customer number, or contract number. Type at least 2 characters to see search results. Select a customer to begin building a quote.">
+                    <input
+                      type="text"
+                      value={searchTerm}
+                      onChange={(e) => {
+                        setSearchTerm(e.target.value);
+                        setShowResults(true);
+                      }}
+                      onFocus={() => setShowResults(true)}
+                      placeholder="Search by name, customer #, or contract (min 2 chars)..."
+                      className="w-full pl-10 pr-10 py-2.5 bg-white dark:bg-slate-700 border border-[#d4d4d4] dark:border-slate-600 rounded text-sm text-[#333] dark:text-white placeholder-[#999] focus:ring-2 focus:ring-[#428bca] focus:border-[#428bca] transition-all"
+                    />
+                  </HelpTooltip>
                   {isSearching && (
                     <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#428bca] animate-spin" />
                   )}
@@ -160,12 +163,14 @@ export const CustomerSelector: React.FC = () => {
                 <span className="flex-1 text-sm font-medium text-[#333] dark:text-white truncate">
                   {selectedCustomer.name}
                 </span>
-                <button
-                  onClick={handleClearSelection}
-                  className="p-1 hover:bg-[#f0f0f0] dark:hover:bg-slate-600 rounded transition-colors"
-                >
-                  <X className="h-4 w-4 text-[#666]" />
-                </button>
+                <HelpTooltip content="Clear the selected customer to choose a different one. This will reset the quote builder.">
+                  <button
+                    onClick={handleClearSelection}
+                    className="p-1 hover:bg-[#f0f0f0] dark:hover:bg-slate-600 rounded transition-colors"
+                  >
+                    <X className="h-4 w-4 text-[#666]" />
+                  </button>
+                </HelpTooltip>
               </div>
             )}
           </div>
@@ -176,18 +181,20 @@ export const CustomerSelector: React.FC = () => {
             Contact <span className="text-red-500">*</span>
           </label>
           <div className="relative">
-            <select
-              className="w-full appearance-none px-3 py-2.5 bg-white dark:bg-slate-700 border border-[#d4d4d4] dark:border-slate-600 rounded text-sm text-[#333] dark:text-white focus:ring-2 focus:ring-[#428bca] focus:border-[#428bca] transition-all"
-              disabled={!selectedCustomer}
-            >
-              <option value="">Select contact...</option>
-              {selectedCustomer?.contacts?.map((contact: any) => (
-                <option key={contact.id} value={contact.id}>
-                  {contact.first_name} {contact.last_name}
-                  {contact.is_primary ? ' (Primary)' : ''}
-                </option>
-              ))}
-            </select>
+            <HelpTooltip content="Select the primary contact person for this quote. This determines who receives quote communications and correspondence.">
+              <select
+                className="w-full appearance-none px-3 py-2.5 bg-white dark:bg-slate-700 border border-[#d4d4d4] dark:border-slate-600 rounded text-sm text-[#333] dark:text-white focus:ring-2 focus:ring-[#428bca] focus:border-[#428bca] transition-all"
+                disabled={!selectedCustomer}
+              >
+                <option value="">Select contact...</option>
+                {selectedCustomer?.contacts?.map((contact: any) => (
+                  <option key={contact.id} value={contact.id}>
+                    {contact.first_name} {contact.last_name}
+                    {contact.is_primary ? ' (Primary)' : ''}
+                  </option>
+                ))}
+              </select>
+            </HelpTooltip>
             <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#666] pointer-events-none" />
           </div>
         </div>

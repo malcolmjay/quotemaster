@@ -6,6 +6,7 @@ import { useCustomer } from '../../context/CustomerContext';
 import { useAuthContext } from '../auth/AuthProvider';
 import { useApproval } from '../../hooks/useApproval';
 import { QuotePrintView } from './QuotePrintView';
+import { HelpTooltip } from '../common/HelpTooltip';
 
 interface QuoteSummaryProps {
   lineItems?: any[];
@@ -244,39 +245,45 @@ export const QuoteSummary: React.FC<QuoteSummaryProps> = ({ lineItems = [], onSa
           )}
 
           <div className="flex items-center gap-2">
-            <button
-              onClick={handleSaveDraft}
-              disabled={saving}
-              className={`flex items-center gap-2 px-4 py-2 rounded text-sm font-medium transition-colors ${
-                saving
-                  ? 'bg-[#e8e8e8] text-[#999] cursor-not-allowed'
-                  : 'border border-[#d4d4d4] text-[#333] hover:bg-[#f0f0f0] dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700'
-              }`}
-            >
-              <Save className="w-4 h-4" />
-              {saving ? 'Saving...' : 'Save'}
-            </button>
+            <HelpTooltip content="Save the quote as a draft. The quote will be saved but not submitted for approval. You can continue editing it later.">
+              <button
+                onClick={handleSaveDraft}
+                disabled={saving}
+                className={`flex items-center gap-2 px-4 py-2 rounded text-sm font-medium transition-colors ${
+                  saving
+                    ? 'bg-[#e8e8e8] text-[#999] cursor-not-allowed'
+                    : 'border border-[#d4d4d4] text-[#333] hover:bg-[#f0f0f0] dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700'
+                }`}
+              >
+                <Save className="w-4 h-4" />
+                {saving ? 'Saving...' : 'Save'}
+              </button>
+            </HelpTooltip>
 
-            <button
-              onClick={handleBookQuote}
-              disabled={saving || !currentQuote}
-              className={`flex items-center gap-2 px-4 py-2 rounded text-sm font-medium transition-colors ${
-                saving || !currentQuote
-                  ? 'bg-[#e8e8e8] text-[#999] cursor-not-allowed'
-                  : 'bg-[#5cb85c] text-white hover:bg-[#449d44]'
-              }`}
-            >
-              <Send className="w-4 h-4" />
-              {saving ? 'Booking...' : 'Book'}
-            </button>
+            <HelpTooltip content="Submit the quote for approval and booking. Quotes are automatically approved if within your approval limit, or sent to managers for review if over your limit. Ensure all line items and pricing are complete.">
+              <button
+                onClick={handleBookQuote}
+                disabled={saving || !currentQuote}
+                className={`flex items-center gap-2 px-4 py-2 rounded text-sm font-medium transition-colors ${
+                  saving || !currentQuote
+                    ? 'bg-[#e8e8e8] text-[#999] cursor-not-allowed'
+                    : 'bg-[#5cb85c] text-white hover:bg-[#449d44]'
+                }`}
+              >
+                <Send className="w-4 h-4" />
+                {saving ? 'Booking...' : 'Book'}
+              </button>
+            </HelpTooltip>
 
-            <button
-              onClick={generateQuotePDF}
-              className="flex items-center gap-2 px-4 py-2 bg-[#428bca] hover:bg-[#3276b1] text-white rounded text-sm font-medium transition-colors"
-            >
-              <Download className="w-4 h-4" />
-              PDF
-            </button>
+            <HelpTooltip content="Generate a PDF version of the quote for printing or emailing to the customer. The PDF includes all line items, pricing, and terms.">
+              <button
+                onClick={generateQuotePDF}
+                className="flex items-center gap-2 px-4 py-2 bg-[#428bca] hover:bg-[#3276b1] text-white rounded text-sm font-medium transition-colors"
+              >
+                <Download className="w-4 h-4" />
+                PDF
+              </button>
+            </HelpTooltip>
           </div>
         </div>
       </div>

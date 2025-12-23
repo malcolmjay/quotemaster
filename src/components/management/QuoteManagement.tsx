@@ -6,6 +6,7 @@ import { DeleteConfirmationModal } from '../common/DeleteConfirmationModal';
 import { Pagination } from '../common/Pagination';
 import { useDeletion } from '../../hooks/useDeletion';
 import { getPaginatedQuotes } from '../../lib/supabase';
+import { HelpTooltip } from '../common/HelpTooltip';
 
 interface DisplayQuote {
   id: string;
@@ -264,14 +265,18 @@ export const QuoteManagement: React.FC = () => {
             </div>
 
             <div className="flex items-center gap-2">
-              <button className="inline-flex items-center px-4 py-1.5 text-sm text-[#666] hover:text-[#333] hover:bg-[#f5f5f5] rounded border border-transparent hover:border-[#d4d4d4] transition-colors">
-                <Download className="h-4 w-4 mr-2" />
-                Export
-              </button>
-              <button className="inline-flex items-center px-4 py-1.5 bg-[#428bca] hover:bg-[#3276b1] text-white text-sm font-medium rounded transition-colors">
-                <FileText className="h-4 w-4 mr-2" />
-                New Quote
-              </button>
+              <HelpTooltip content="Export filtered quotes to CSV for reporting or analysis.">
+                <button className="inline-flex items-center px-4 py-1.5 text-sm text-[#666] hover:text-[#333] hover:bg-[#f5f5f5] rounded border border-transparent hover:border-[#d4d4d4] transition-colors">
+                  <Download className="h-4 w-4 mr-2" />
+                  Export
+                </button>
+              </HelpTooltip>
+              <HelpTooltip content="Navigate to the quote builder to create a new quote.">
+                <button className="inline-flex items-center px-4 py-1.5 bg-[#428bca] hover:bg-[#3276b1] text-white text-sm font-medium rounded transition-colors">
+                  <FileText className="h-4 w-4 mr-2" />
+                  New Quote
+                </button>
+              </HelpTooltip>
             </div>
           </div>
         </div>
@@ -282,36 +287,40 @@ export const QuoteManagement: React.FC = () => {
         {/* Search and Filter Panel */}
         <div className="bg-white rounded border border-[#d4d4d4] p-4">
           <div className="flex flex-col md:flex-row gap-4">
-            <div className="flex-1 relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-[#999]" />
-              <input
-                type="text"
-                placeholder="Search quotes by number or customer..."
-                value={searchTerm}
-                onChange={(e) => {
-                  setSearchTerm(e.target.value);
-                  setCurrentPage(1);
-                }}
-                className="w-full pl-10 pr-4 py-2 border border-[#d4d4d4] rounded focus:ring-2 focus:ring-[#428bca] focus:border-[#428bca]"
-              />
-            </div>
+            <HelpTooltip content="Search quotes by quote number or customer name. Find quotes quickly for review or editing.">
+              <div className="flex-1 relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-[#999]" />
+                <input
+                  type="text"
+                  placeholder="Search quotes by number or customer..."
+                  value={searchTerm}
+                  onChange={(e) => {
+                    setSearchTerm(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  className="w-full pl-10 pr-4 py-2 border border-[#d4d4d4] rounded focus:ring-2 focus:ring-[#428bca] focus:border-[#428bca]"
+                />
+              </div>
+            </HelpTooltip>
 
-            <div className="flex items-center space-x-2">
-              <Filter className="h-4 w-4 text-[#999]" />
-              <select
-                value={statusFilter}
-                onChange={(e) => {
-                  setStatusFilter(e.target.value);
-                  setCurrentPage(1);
-                }}
-                className="px-4 py-2 border border-[#d4d4d4] rounded focus:ring-2 focus:ring-[#428bca] focus:border-[#428bca] text-[#333]"
-              >
-                <option value="all">All Status</option>
-                <option value="draft">Draft</option>
-                <option value="pending_approval">Pending Approval</option>
-                <option value="approved">Approved</option>
-              </select>
-            </div>
+            <HelpTooltip content="Filter quotes by status: Draft (being edited), Pending Approval (awaiting manager review), or Approved (ready to book).">
+              <div className="flex items-center space-x-2">
+                <Filter className="h-4 w-4 text-[#999]" />
+                <select
+                  value={statusFilter}
+                  onChange={(e) => {
+                    setStatusFilter(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  className="px-4 py-2 border border-[#d4d4d4] rounded focus:ring-2 focus:ring-[#428bca] focus:border-[#428bca] text-[#333]"
+                >
+                  <option value="all">All Status</option>
+                  <option value="draft">Draft</option>
+                  <option value="pending_approval">Pending Approval</option>
+                  <option value="approved">Approved</option>
+                </select>
+              </div>
+            </HelpTooltip>
           </div>
 
           {loading && (
@@ -389,30 +398,38 @@ export const QuoteManagement: React.FC = () => {
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center space-x-2">
-                      <button className="p-1.5 text-[#428bca] hover:bg-[#e8e8e8] rounded transition-colors" title="View">
-                        <Eye className="h-4 w-4" />
-                      </button>
-                      <button
-                        onClick={() => handleEditQuote(quote)}
-                        className="p-1.5 text-[#666] hover:bg-[#e8e8e8] rounded transition-colors"
-                        title="Edit"
-                      >
-                        <Edit className="h-4 w-4" />
-                      </button>
-                      <button
-                        onClick={() => generatePDF(quote)}
-                        className="p-1.5 text-[#5cb85c] hover:bg-[#e8e8e8] rounded transition-colors"
-                        title="Generate PDF"
-                      >
-                        <FileDown className="h-4 w-4" />
-                      </button>
-                      <button
-                        onClick={() => handleDeleteQuote(quote.id)}
-                        className="p-1.5 text-[#d9534f] hover:bg-[#e8e8e8] rounded transition-colors"
-                        title="Delete"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
+                      <HelpTooltip content="View detailed quote information including all line items, pricing, and status.">
+                        <button className="p-1.5 text-[#428bca] hover:bg-[#e8e8e8] rounded transition-colors" title="View">
+                          <Eye className="h-4 w-4" />
+                        </button>
+                      </HelpTooltip>
+                      <HelpTooltip content="Open this quote in the quote builder to modify line items, pricing, or details.">
+                        <button
+                          onClick={() => handleEditQuote(quote)}
+                          className="p-1.5 text-[#666] hover:bg-[#e8e8e8] rounded transition-colors"
+                          title="Edit"
+                        >
+                          <Edit className="h-4 w-4" />
+                        </button>
+                      </HelpTooltip>
+                      <HelpTooltip content="Create a PDF version of the quote for printing or emailing to the customer.">
+                        <button
+                          onClick={() => generatePDF(quote)}
+                          className="p-1.5 text-[#5cb85c] hover:bg-[#e8e8e8] rounded transition-colors"
+                          title="Generate PDF"
+                        >
+                          <FileDown className="h-4 w-4" />
+                        </button>
+                      </HelpTooltip>
+                      <HelpTooltip content="Permanently delete this quote and all associated line items. This cannot be undone.">
+                        <button
+                          onClick={() => handleDeleteQuote(quote.id)}
+                          className="p-1.5 text-[#d9534f] hover:bg-[#e8e8e8] rounded transition-colors"
+                          title="Delete"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </button>
+                      </HelpTooltip>
                     </div>
                   </td>
                 </tr>

@@ -13,6 +13,7 @@ import { useCustomer } from '../../context/CustomerContext';
 import { useDeletion } from '../../hooks/useDeletion';
 import { useProducts } from '../../hooks/useSupabaseData';
 import { supabase } from '../../lib/supabase';
+import { HelpTooltip } from '../common/HelpTooltip';
 
 const PriceRequestInfo: React.FC<{ itemId: string }> = ({ itemId }) => {
   const [priceRequest, setPriceRequest] = React.useState<any>(null);
@@ -639,62 +640,70 @@ export const LineItems: React.FC<LineItemsProps> = ({
           </div>
 
           <div className="flex items-center gap-2">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#999]" />
-              <input
-                ref={searchInputRef}
-                type="text"
-                placeholder="Add product (Shift+S)"
-                value={newItemSku}
-                onChange={(e) => handleSkuSearch(e.target.value)}
-                className="w-56 pl-9 pr-3 py-2 bg-white dark:bg-slate-700 border border-[#d4d4d4] dark:border-slate-600 rounded text-sm focus:ring-2 focus:ring-[#428bca] focus:border-[#428bca]"
-              />
-              {showSearchResults && searchResults.length > 0 && (
-                <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-slate-800 border border-[#d4d4d4] dark:border-slate-700 rounded shadow-lg z-20 max-h-64 overflow-y-auto">
-                  {searchResults.slice(0, 10).map((product) => (
-                    <button
-                      key={product.sku}
-                      onClick={() => handleProductSelect(product)}
-                      className="w-full px-3 py-2.5 text-left hover:bg-[#f0f0f0] dark:hover:bg-slate-700 border-b border-[#e8e8e8] dark:border-slate-700 last:border-b-0"
-                    >
-                      <div className="flex items-center justify-between">
-                        <div>
-                          <div className="font-medium text-sm text-[#333] dark:text-white">{product.sku}</div>
-                          <div className="text-xs text-[#666] truncate">{product.name}</div>
+            <HelpTooltip content="Search for products by SKU, name, or description to add them to your quote. Use Shift+S keyboard shortcut to quickly focus this field. Type at least 2 characters to see results.">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#999]" />
+                <input
+                  ref={searchInputRef}
+                  type="text"
+                  placeholder="Add product (Shift+S)"
+                  value={newItemSku}
+                  onChange={(e) => handleSkuSearch(e.target.value)}
+                  className="w-56 pl-9 pr-3 py-2 bg-white dark:bg-slate-700 border border-[#d4d4d4] dark:border-slate-600 rounded text-sm focus:ring-2 focus:ring-[#428bca] focus:border-[#428bca]"
+                />
+                {showSearchResults && searchResults.length > 0 && (
+                  <div className="absolute top-full left-0 right-0 mt-1 bg-white dark:bg-slate-800 border border-[#d4d4d4] dark:border-slate-700 rounded shadow-lg z-20 max-h-64 overflow-y-auto">
+                    {searchResults.slice(0, 10).map((product) => (
+                      <button
+                        key={product.sku}
+                        onClick={() => handleProductSelect(product)}
+                        className="w-full px-3 py-2.5 text-left hover:bg-[#f0f0f0] dark:hover:bg-slate-700 border-b border-[#e8e8e8] dark:border-slate-700 last:border-b-0"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <div className="font-medium text-sm text-[#333] dark:text-white">{product.sku}</div>
+                            <div className="text-xs text-[#666] truncate">{product.name}</div>
+                          </div>
+                          <div className="text-xs text-[#428bca]">${product.price?.toLocaleString()}</div>
                         </div>
-                        <div className="text-xs text-[#428bca]">${product.price?.toLocaleString()}</div>
-                      </div>
-                    </button>
-                  ))}
-                </div>
-              )}
-            </div>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            </HelpTooltip>
 
-            <button
-              onClick={() => setShowProductModal(true)}
-              className="px-3 py-2 text-sm text-[#333] dark:text-slate-300 hover:bg-[#e8e8e8] dark:hover:bg-slate-700 rounded transition-colors"
-            >
-              Browse
-            </button>
+            <HelpTooltip content="Browse the complete product catalog to add items to your quote. Use filters to narrow down products by category, supplier, or other criteria.">
+              <button
+                onClick={() => setShowProductModal(true)}
+                className="px-3 py-2 text-sm text-[#333] dark:text-slate-300 hover:bg-[#e8e8e8] dark:hover:bg-slate-700 rounded transition-colors"
+              >
+                Browse
+              </button>
+            </HelpTooltip>
 
             <div className="h-5 w-px bg-[#d4d4d4] dark:bg-slate-600" />
 
-            <button
-              onClick={() => { setCsvUploadMode('add'); setShowCSVUploadModal(true); }}
-              className="flex items-center gap-1.5 px-3 py-2 bg-[#428bca] hover:bg-[#3276b1] text-white text-sm font-medium rounded transition-colors"
-            >
-              <Upload className="w-4 h-4" />
-              Import
-            </button>
+            <HelpTooltip content="Upload a CSV file to bulk-add or update line items. Download the template first to ensure correct formatting. This saves time when quoting large orders.">
+              <button
+                onClick={() => { setCsvUploadMode('add'); setShowCSVUploadModal(true); }}
+                className="flex items-center gap-1.5 px-3 py-2 bg-[#428bca] hover:bg-[#3276b1] text-white text-sm font-medium rounded transition-colors"
+              >
+                <Upload className="w-4 h-4" />
+                Import
+              </button>
+            </HelpTooltip>
 
             {lineItems.length > 0 && (
-              <button
-                onClick={exportToCSV}
-                className="flex items-center gap-1.5 px-3 py-2 text-sm text-[#333] dark:text-slate-300 hover:bg-[#e8e8e8] dark:hover:bg-slate-700 rounded transition-colors"
-              >
-                <Download className="w-4 h-4" />
-                Export
-              </button>
+              <HelpTooltip content="Export all line items to a CSV file for editing in Excel, backup purposes, or sharing with others. The export includes all item details, pricing, and quantities.">
+                <button
+                  onClick={exportToCSV}
+                  className="flex items-center gap-1.5 px-3 py-2 text-sm text-[#333] dark:text-slate-300 hover:bg-[#e8e8e8] dark:hover:bg-slate-700 rounded transition-colors"
+                >
+                  <Download className="w-4 h-4" />
+                  Export
+                </button>
+              </HelpTooltip>
             )}
           </div>
         </div>
@@ -705,30 +714,38 @@ export const LineItems: React.FC<LineItemsProps> = ({
               {selectedItems.length} selected
             </span>
             <div className="flex items-center gap-2">
-              <button onClick={() => handleBulkAction('price-request')} className="px-3 py-1.5 bg-[#428bca] text-white text-xs font-medium rounded hover:bg-[#3276b1]">
-                Request Pricing
-              </button>
-              <button onClick={() => handleBulkAction('lead-time-request')} className="px-3 py-1.5 border border-[#428bca] text-[#428bca] text-xs font-medium rounded hover:bg-[#d9edf7]">
-                Request Lead Time
-              </button>
-              <button onClick={() => setSelectedItems([])} className="px-3 py-1.5 text-[#666] text-xs hover:bg-[#e8e8e8] rounded">
-                Clear
-              </button>
+              <HelpTooltip content="Create price requests for selected items. This notifies buyers to obtain current pricing from suppliers for these specific products.">
+                <button onClick={() => handleBulkAction('price-request')} className="px-3 py-1.5 bg-[#428bca] text-white text-xs font-medium rounded hover:bg-[#3276b1]">
+                  Request Pricing
+                </button>
+              </HelpTooltip>
+              <HelpTooltip content="Request current lead time information for selected items from suppliers. Helps provide accurate delivery estimates to customers.">
+                <button onClick={() => handleBulkAction('lead-time-request')} className="px-3 py-1.5 border border-[#428bca] text-[#428bca] text-xs font-medium rounded hover:bg-[#d9edf7]">
+                  Request Lead Time
+                </button>
+              </HelpTooltip>
+              <HelpTooltip content="Clear the current selection and deselect all items. This allows you to start a new bulk action with different items.">
+                <button onClick={() => setSelectedItems([])} className="px-3 py-1.5 text-[#666] text-xs hover:bg-[#e8e8e8] rounded">
+                  Clear
+                </button>
+              </HelpTooltip>
             </div>
           </div>
         )}
 
         <div className="mt-3 flex items-center gap-2">
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className={`flex items-center gap-1.5 px-2.5 py-1.5 text-xs rounded transition-colors ${
-              hasActiveFilters ? 'bg-[#d9edf7] text-[#31708f] border border-[#bce8f1]' : 'text-[#666] hover:bg-[#e8e8e8] dark:text-slate-400 dark:hover:bg-slate-700'
-            }`}
-          >
-            <Filter className="w-3.5 h-3.5" />
-            Filters
-            {hasActiveFilters && <span className="ml-1 px-1.5 py-0.5 bg-[#428bca] text-white text-xs rounded-full">{[filterProductNumber, filterSupplier, filterExpiredCost !== 'all', filterStatus !== 'all'].filter(Boolean).length}</span>}
-          </button>
+          <HelpTooltip content="Show or hide advanced filters for SKU, supplier, cost expiration, and status. Use filters to quickly find specific items in large quotes.">
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className={`flex items-center gap-1.5 px-2.5 py-1.5 text-xs rounded transition-colors ${
+                hasActiveFilters ? 'bg-[#d9edf7] text-[#31708f] border border-[#bce8f1]' : 'text-[#666] hover:bg-[#e8e8e8] dark:text-slate-400 dark:hover:bg-slate-700'
+              }`}
+            >
+              <Filter className="w-3.5 h-3.5" />
+              Filters
+              {hasActiveFilters && <span className="ml-1 px-1.5 py-0.5 bg-[#428bca] text-white text-xs rounded-full">{[filterProductNumber, filterSupplier, filterExpiredCost !== 'all', filterStatus !== 'all'].filter(Boolean).length}</span>}
+            </button>
+          </HelpTooltip>
 
           {showFilters && (
             <>

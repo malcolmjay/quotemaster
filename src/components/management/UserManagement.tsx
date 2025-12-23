@@ -3,6 +3,7 @@ import { Search, UserCog, Shield, Calendar, Mail, Clock, RefreshCw, AlertCircle,
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../hooks/useAuth';
 import { RoleAssignmentModal } from './RoleAssignmentModal';
+import { HelpTooltip } from '../common/HelpTooltip';
 
 interface UserProfile {
   id: string;
@@ -334,20 +335,24 @@ export const UserManagement: React.FC = () => {
               <p className="text-[#666] text-sm mt-1">Manage user accounts and role assignments</p>
             </div>
             <div className="flex items-center gap-2">
-              <button
-                onClick={fetchUsers}
-                className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-[#666] hover:text-[#333] hover:bg-[#f5f5f5] rounded border border-transparent hover:border-[#d4d4d4] transition-colors"
-              >
-                <RefreshCw className="w-4 h-4" />
-                <span>Refresh</span>
-              </button>
-              <button
-                onClick={() => setShowCreateModal(true)}
-                className="flex items-center gap-1.5 px-4 py-1.5 bg-[#428bca] hover:bg-[#3276b1] text-white text-sm font-medium rounded transition-colors"
-              >
-                <UserPlus className="w-4 h-4" />
-                <span>Create User</span>
-              </button>
+              <HelpTooltip content="Reload user data to see the latest account status and role assignments.">
+                <button
+                  onClick={fetchUsers}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-[#666] hover:text-[#333] hover:bg-[#f5f5f5] rounded border border-transparent hover:border-[#d4d4d4] transition-colors"
+                >
+                  <RefreshCw className="w-4 h-4" />
+                  <span>Refresh</span>
+                </button>
+              </HelpTooltip>
+              <HelpTooltip content="Add a new user account with email, password, and role assignments. Users receive a confirmation email.">
+                <button
+                  onClick={() => setShowCreateModal(true)}
+                  className="flex items-center gap-1.5 px-4 py-1.5 bg-[#428bca] hover:bg-[#3276b1] text-white text-sm font-medium rounded transition-colors"
+                >
+                  <UserPlus className="w-4 h-4" />
+                  <span>Create User</span>
+                </button>
+              </HelpTooltip>
             </div>
           </div>
         </div>
@@ -367,16 +372,18 @@ export const UserManagement: React.FC = () => {
 
         <div className="bg-white rounded border border-[#d4d4d4]">
         <div className="p-4 border-b border-[#d4d4d4]">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#999] w-5 h-5" />
-            <input
-              type="text"
-              placeholder="Search users by email..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-[#d4d4d4] rounded focus:ring-2 focus:ring-[#428bca] focus:border-transparent text-[#333]"
-            />
-          </div>
+          <HelpTooltip content="Search users by email address to quickly find user accounts.">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#999] w-5 h-5" />
+              <input
+                type="text"
+                placeholder="Search users by email..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-[#d4d4d4] rounded focus:ring-2 focus:ring-[#428bca] focus:border-transparent text-[#333]"
+              />
+            </div>
+          </HelpTooltip>
         </div>
 
         <div className="overflow-x-auto">
@@ -487,36 +494,42 @@ export const UserManagement: React.FC = () => {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-right">
                         <div className="flex items-center justify-end space-x-2">
-                          <button
-                            onClick={() => handleEditUser(user)}
-                            className="inline-flex items-center space-x-1 px-3 py-1.5 text-[#666] hover:text-[#333] hover:bg-[#f5f5f5] text-sm rounded border border-transparent hover:border-[#d4d4d4] transition-colors"
-                            title="Edit User"
-                          >
-                            <Edit className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => setSelectedUser(user)}
-                            className="inline-flex items-center space-x-1 px-3 py-1.5 bg-[#428bca] hover:bg-[#3276b1] text-white text-sm rounded transition-colors"
-                            title="Manage Roles"
-                          >
-                            <UserCog className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => handleDisableUser(user)}
-                            className={`inline-flex items-center space-x-1 px-3 py-1.5 text-sm rounded transition-colors ${
-                              user.is_disabled
-                                ? 'bg-[#dff0d8] text-[#3c763d] hover:bg-[#d0e9c6] border border-[#d6e9c6]'
-                                : 'bg-[#f2dede] text-[#a94442] hover:bg-[#ebccd1] border border-[#ebccd1]'
-                            }`}
-                            title={user.is_disabled ? 'Enable User' : 'Disable User'}
-                            disabled={user.id === currentUser?.id}
-                          >
-                            {user.is_disabled ? (
-                              <UserCheck className="w-4 h-4" />
-                            ) : (
-                              <UserX className="w-4 h-4" />
-                            )}
-                          </button>
+                          <HelpTooltip content="Update user display name and account information. Email addresses cannot be changed after creation.">
+                            <button
+                              onClick={() => handleEditUser(user)}
+                              className="inline-flex items-center space-x-1 px-3 py-1.5 text-[#666] hover:text-[#333] hover:bg-[#f5f5f5] text-sm rounded border border-transparent hover:border-[#d4d4d4] transition-colors"
+                              title="Edit User"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </button>
+                          </HelpTooltip>
+                          <HelpTooltip content="Assign or remove user roles (CSR, Manager, Director, VP, President, Admin). Roles determine approval limits and system access.">
+                            <button
+                              onClick={() => setSelectedUser(user)}
+                              className="inline-flex items-center space-x-1 px-3 py-1.5 bg-[#428bca] hover:bg-[#3276b1] text-white text-sm rounded transition-colors"
+                              title="Manage Roles"
+                            >
+                              <UserCog className="w-4 h-4" />
+                            </button>
+                          </HelpTooltip>
+                          <HelpTooltip content="Enable or disable user access. Disabled users cannot log in but their data is preserved.">
+                            <button
+                              onClick={() => handleDisableUser(user)}
+                              className={`inline-flex items-center space-x-1 px-3 py-1.5 text-sm rounded transition-colors ${
+                                user.is_disabled
+                                  ? 'bg-[#dff0d8] text-[#3c763d] hover:bg-[#d0e9c6] border border-[#d6e9c6]'
+                                  : 'bg-[#f2dede] text-[#a94442] hover:bg-[#ebccd1] border border-[#ebccd1]'
+                              }`}
+                              title={user.is_disabled ? 'Enable User' : 'Disable User'}
+                              disabled={user.id === currentUser?.id}
+                            >
+                              {user.is_disabled ? (
+                                <UserCheck className="w-4 h-4" />
+                              ) : (
+                                <UserX className="w-4 h-4" />
+                              )}
+                            </button>
+                          </HelpTooltip>
                         </div>
                       </td>
                     </tr>

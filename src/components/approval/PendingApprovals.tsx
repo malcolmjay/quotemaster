@@ -13,6 +13,7 @@ import {
   Search
 } from 'lucide-react'
 import { useApproval } from '../../hooks/useApproval'
+import { HelpTooltip } from '../common/HelpTooltip'
 
 export const PendingApprovals: React.FC = () => {
   const [pendingApprovals, setPendingApprovals] = useState<any[]>([])
@@ -168,31 +169,35 @@ export const PendingApprovals: React.FC = () => {
         </div>
 
         <div className="flex flex-col md:flex-row gap-4 mb-6">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-[#999]" />
-            <input
-              type="text"
-              placeholder="Search by quote number, customer, or creator..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-[#d4d4d4] rounded focus:ring-2 focus:ring-[#428bca]"
-            />
-          </div>
+          <HelpTooltip content="Search pending approvals by quote number or customer name to quickly find quotes awaiting your review.">
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-[#999]" />
+              <input
+                type="text"
+                placeholder="Search by quote number, customer, or creator..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-[#d4d4d4] rounded focus:ring-2 focus:ring-[#428bca]"
+              />
+            </div>
+          </HelpTooltip>
 
           <div className="flex items-center space-x-2">
             <Filter className="h-4 w-4 text-[#999]" />
-            <select
-              value={levelFilter}
-              onChange={(e) => setLevelFilter(e.target.value)}
-              className="px-4 py-2 border border-[#d4d4d4] rounded focus:ring-2 focus:ring-[#428bca]"
-            >
-              <option value="all">All Levels</option>
-              <option value="CSR">CSR</option>
-              <option value="Manager">Manager</option>
-              <option value="Director">Director</option>
-              <option value="VP">VP</option>
-              <option value="President">President</option>
-            </select>
+            <HelpTooltip content="Filter quotes by total amount ranges to prioritize high-value approvals.">
+              <select
+                value={levelFilter}
+                onChange={(e) => setLevelFilter(e.target.value)}
+                className="px-4 py-2 border border-[#d4d4d4] rounded focus:ring-2 focus:ring-[#428bca]"
+              >
+                <option value="all">All Levels</option>
+                <option value="CSR">CSR</option>
+                <option value="Manager">Manager</option>
+                <option value="Director">Director</option>
+                <option value="VP">VP</option>
+                <option value="President">President</option>
+              </select>
+            </HelpTooltip>
           </div>
         </div>
       </div>
@@ -332,28 +337,32 @@ export const PendingApprovals: React.FC = () => {
                       <td className="px-6 py-4">
                         {userCanApproveThis ? (
                           <div className="flex items-center space-x-2">
-                            <button
-                              onClick={() => {
-                                setShowApprovalModal(approval.quote_id)
-                                setActionType('approve')
-                                setActionError(null)
-                              }}
-                              className="p-2 text-[#3c763d] hover:bg-[#dff0d8] rounded transition-colors"
-                              title="Approve"
-                            >
-                              <CheckCircle className="h-4 w-4" />
-                            </button>
-                            <button
-                              onClick={() => {
-                                setShowApprovalModal(approval.quote_id)
-                                setActionType('reject')
-                                setActionError(null)
-                              }}
-                              className="p-2 text-[#a94442] hover:bg-[#f2dede] rounded transition-colors"
-                              title="Reject"
-                            >
-                              <XCircle className="h-4 w-4" />
-                            </button>
+                            <HelpTooltip content="Approve this quote, allowing it to be booked as an order. Ensures you have authority for this amount.">
+                              <button
+                                onClick={() => {
+                                  setShowApprovalModal(approval.quote_id)
+                                  setActionType('approve')
+                                  setActionError(null)
+                                }}
+                                className="p-2 text-[#3c763d] hover:bg-[#dff0d8] rounded transition-colors"
+                                title="Approve"
+                              >
+                                <CheckCircle className="h-4 w-4" />
+                              </button>
+                            </HelpTooltip>
+                            <HelpTooltip content="Reject this quote and send it back to the CSR with feedback for corrections.">
+                              <button
+                                onClick={() => {
+                                  setShowApprovalModal(approval.quote_id)
+                                  setActionType('reject')
+                                  setActionError(null)
+                                }}
+                                className="p-2 text-[#a94442] hover:bg-[#f2dede] rounded transition-colors"
+                                title="Reject"
+                              >
+                                <XCircle className="h-4 w-4" />
+                              </button>
+                            </HelpTooltip>
                           </div>
                         ) : (
                           <div className="text-xs text-[#999] text-center">

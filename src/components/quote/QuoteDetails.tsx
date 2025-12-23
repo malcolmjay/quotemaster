@@ -1,5 +1,6 @@
 import React from 'react';
 import { FileText, ChevronDown, Calendar, AlertTriangle } from 'lucide-react';
+import { HelpTooltip } from '../common/HelpTooltip';
 
 interface QuoteDetailsProps {
   quoteStatus?: string;
@@ -63,14 +64,16 @@ export const QuoteDetails: React.FC<QuoteDetailsProps> = ({ quoteStatus = 'draft
             Quote Type <span className="text-red-500">*</span>
           </label>
           <div className="relative">
-            <select 
-              value={quoteType}
-              onChange={(e) => setQuoteType(e.target.value)}
-              className="appearance-none w-full px-2 py-1 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-xs"
-            >
-              <option>Daily Quote</option>
-              <option>Bid</option>
-            </select>
+            <HelpTooltip content="Select the quote type. Choose 'Daily Quote' for standard quotes or 'Bid' for formal bids with special requirements. Bid types include additional compliance fields.">
+              <select
+                value={quoteType}
+                onChange={(e) => setQuoteType(e.target.value)}
+                className="appearance-none w-full px-2 py-1 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-xs"
+              >
+                <option>Daily Quote</option>
+                <option>Bid</option>
+              </select>
+            </HelpTooltip>
             <ChevronDown className="absolute right-1 top-1.5 h-2 w-2 text-gray-400" />
           </div>
         </div>
@@ -115,15 +118,17 @@ export const QuoteDetails: React.FC<QuoteDetailsProps> = ({ quoteStatus = 'draft
           <label className="block text-xs font-medium text-gray-700 mb-1">
             Supply Period (months)
           </label>
-          <input
-            type="number"
-            placeholder="e.g., 36 for 3 years"
-            value={supplyPeriod}
-            onChange={(e) => handleSupplyPeriodChange(e.target.value)}
-            className="w-full px-2 py-1 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-xs bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-            min="1"
-            max="60"
-          />
+          <HelpTooltip content="Enter the contract duration in months. For multi-year contracts (over 12 months), additional pricing columns will be enabled for year-over-year price adjustments.">
+            <input
+              type="number"
+              placeholder="e.g., 36 for 3 years"
+              value={supplyPeriod}
+              onChange={(e) => handleSupplyPeriodChange(e.target.value)}
+              className="w-full px-2 py-1 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-xs bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+              min="1"
+              max="60"
+            />
+          </HelpTooltip>
           {parseInt(supplyPeriod) > 12 && (
             <div className="text-xs text-blue-600 mt-1">
               Multi-year contract: {Math.ceil(parseInt(supplyPeriod) / 12)} years

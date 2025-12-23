@@ -3,6 +3,7 @@ import { Search, Edit2, Plus, Filter, X, Download, Upload, RefreshCw } from 'luc
 import { supabase, getAllProducts } from '../../lib/supabase';
 import { Database } from '../../lib/database.types';
 import ProductEditModal from './ProductEditModal';
+import { HelpTooltip } from '../common/HelpTooltip';
 
 type Product = Database['public']['Tables']['products']['Row'];
 
@@ -189,51 +190,61 @@ export default function ProductManagement() {
           </p>
         </div>
         <div className="flex gap-2">
-          <button
-            onClick={exportToCSV}
-            className="flex items-center gap-2 px-4 py-2 text-[#666] hover:text-[#333] hover:bg-[#f5f5f5] border border-transparent hover:border-[#d4d4d4] rounded"
-          >
-            <Download className="w-4 h-4" />
-            Export
-          </button>
-          <button
-            onClick={loadProducts}
-            className="flex items-center gap-2 px-4 py-2 text-[#666] hover:text-[#333] hover:bg-[#f5f5f5] border border-transparent hover:border-[#d4d4d4] rounded"
-          >
-            <RefreshCw className="w-4 h-4" />
-            Refresh
-          </button>
-          <button
-            onClick={handleCreate}
-            className="flex items-center gap-2 px-4 py-2 bg-[#428bca] hover:bg-[#3276b1] text-white rounded"
-          >
-            <Plus className="w-4 h-4" />
-            Add Product
-          </button>
+          <HelpTooltip content="Export filtered products to CSV including all details like pricing, lead times, and supplier information.">
+            <button
+              onClick={exportToCSV}
+              className="flex items-center gap-2 px-4 py-2 text-[#666] hover:text-[#333] hover:bg-[#f5f5f5] border border-transparent hover:border-[#d4d4d4] rounded"
+            >
+              <Download className="w-4 h-4" />
+              Export
+            </button>
+          </HelpTooltip>
+          <HelpTooltip content="Reload product data from the database to see the latest updates.">
+            <button
+              onClick={loadProducts}
+              className="flex items-center gap-2 px-4 py-2 text-[#666] hover:text-[#333] hover:bg-[#f5f5f5] border border-transparent hover:border-[#d4d4d4] rounded"
+            >
+              <RefreshCw className="w-4 h-4" />
+              Refresh
+            </button>
+          </HelpTooltip>
+          <HelpTooltip content="Create a new product record with SKU, pricing, supplier details, and inventory information.">
+            <button
+              onClick={handleCreate}
+              className="flex items-center gap-2 px-4 py-2 bg-[#428bca] hover:bg-[#3276b1] text-white rounded"
+            >
+              <Plus className="w-4 h-4" />
+              Add Product
+            </button>
+          </HelpTooltip>
         </div>
       </div>
 
       <div className="bg-white rounded border border-[#d4d4d4] p-4 space-y-4">
         <div className="flex gap-4">
-          <div className="flex-1 relative">
-            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#999] w-5 h-5" />
-            <input
-              type="text"
-              placeholder="Search by SKU, name, or description..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-[#d4d4d4] rounded focus:ring-2 focus:ring-[#428bca] focus:border-transparent"
-            />
-          </div>
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className={`flex items-center gap-2 px-4 py-2 border rounded ${
-              showFilters ? 'bg-[#428bca] border-[#428bca] text-white' : 'text-[#666] hover:text-[#333] hover:bg-[#f5f5f5] border-transparent hover:border-[#d4d4d4]'
-            }`}
-          >
-            <Filter className="w-4 h-4" />
-            Filters
-          </button>
+          <HelpTooltip content="Search products by SKU, name, or description. Searches across all product fields for comprehensive results.">
+            <div className="flex-1 relative">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-[#999] w-5 h-5" />
+              <input
+                type="text"
+                placeholder="Search by SKU, name, or description..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="w-full pl-10 pr-4 py-2 border border-[#d4d4d4] rounded focus:ring-2 focus:ring-[#428bca] focus:border-transparent"
+              />
+            </div>
+          </HelpTooltip>
+          <HelpTooltip content="Apply filters for category, supplier, status, item type, category set, or warehouse to narrow results.">
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className={`flex items-center gap-2 px-4 py-2 border rounded ${
+                showFilters ? 'bg-[#428bca] border-[#428bca] text-white' : 'text-[#666] hover:text-[#333] hover:bg-[#f5f5f5] border-transparent hover:border-[#d4d4d4]'
+              }`}
+            >
+              <Filter className="w-4 h-4" />
+              Filters
+            </button>
+          </HelpTooltip>
           {hasActiveFilters && (
             <button
               onClick={clearFilters}
@@ -396,13 +407,15 @@ export default function ProductManagement() {
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <button
-                      onClick={() => handleEdit(product)}
-                      className="text-[#428bca] hover:text-[#3276b1] inline-flex items-center gap-1"
-                    >
-                      <Edit2 className="w-4 h-4" />
-                      Edit
-                    </button>
+                    <HelpTooltip content="Update product details including pricing, descriptions, lead times, and supplier information.">
+                      <button
+                        onClick={() => handleEdit(product)}
+                        className="text-[#428bca] hover:text-[#3276b1] inline-flex items-center gap-1"
+                      >
+                        <Edit2 className="w-4 h-4" />
+                        Edit
+                      </button>
+                    </HelpTooltip>
                   </td>
                 </tr>
               ))}

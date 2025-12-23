@@ -4,6 +4,7 @@ import { Database } from '../../lib/database.types';
 import { Plus, Search, Filter, CreditCard as Edit, ChevronDown, ChevronUp, Upload, Download } from 'lucide-react';
 import { PriceRequestEntry } from './PriceRequestEntry';
 import { PriceRequestUpload } from './PriceRequestUpload';
+import { HelpTooltip } from '../common/HelpTooltip';
 
 type PriceRequest = Database['public']['Tables']['price_requests']['Row'];
 type PriceBreak = {
@@ -290,29 +291,35 @@ export function PriceRequests() {
           </p>
         </div>
         <div className="flex items-center space-x-3">
-          <button
-            onClick={exportToCSV}
-            disabled={filteredRequests.length === 0}
-            className="flex items-center space-x-2 px-4 py-2 text-[#666] hover:text-[#333] hover:bg-[#f5f5f5] border border-transparent hover:border-[#d4d4d4] rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-            title={`Export ${filteredRequests.length} filtered record(s)`}
-          >
-            <Download className="w-4 h-4" />
-            <span>Export CSV</span>
-          </button>
-          <button
-            onClick={() => setShowUploadModal(true)}
-            className="flex items-center space-x-2 px-4 py-2 bg-[#5cb85c] hover:bg-[#4cae4c] text-white rounded transition-colors"
-          >
-            <Upload className="w-4 h-4" />
-            <span>Upload CSV</span>
-          </button>
-          <button
-            onClick={() => openEntryForm()}
-            className="flex items-center space-x-2 px-4 py-2 bg-[#428bca] hover:bg-[#3276b1] text-white rounded transition-colors"
-          >
-            <Plus className="w-4 h-4" />
-            <span>New Request</span>
-          </button>
+          <HelpTooltip content="Export filtered price requests to CSV for reporting or sharing with buyers.">
+            <button
+              onClick={exportToCSV}
+              disabled={filteredRequests.length === 0}
+              className="flex items-center space-x-2 px-4 py-2 text-[#666] hover:text-[#333] hover:bg-[#f5f5f5] border border-transparent hover:border-[#d4d4d4] rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              title={`Export ${filteredRequests.length} filtered record(s)`}
+            >
+              <Download className="w-4 h-4" />
+              <span>Export CSV</span>
+            </button>
+          </HelpTooltip>
+          <HelpTooltip content="Bulk upload price requests from a CSV file. Useful for processing large RFQs.">
+            <button
+              onClick={() => setShowUploadModal(true)}
+              className="flex items-center space-x-2 px-4 py-2 bg-[#5cb85c] hover:bg-[#4cae4c] text-white rounded transition-colors"
+            >
+              <Upload className="w-4 h-4" />
+              <span>Upload CSV</span>
+            </button>
+          </HelpTooltip>
+          <HelpTooltip content="Create a single price request manually with product details, customer info, and quantity.">
+            <button
+              onClick={() => openEntryForm()}
+              className="flex items-center space-x-2 px-4 py-2 bg-[#428bca] hover:bg-[#3276b1] text-white rounded transition-colors"
+            >
+              <Plus className="w-4 h-4" />
+              <span>New Request</span>
+            </button>
+          </HelpTooltip>
         </div>
       </div>
 
@@ -320,41 +327,47 @@ export function PriceRequests() {
       <div className="bg-white rounded border border-[#d4d4d4] p-4 space-y-3">
         <div className="flex items-center gap-3">
           {/* Global Search */}
-          <div className="flex-1 relative">
-            <Search className="w-5 h-5 absolute left-3 top-2.5 text-[#999]" />
-            <input
-              ref={searchInputRef}
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search by product, customer, supplier, buyer, or quote... (Shift+S)"
-              className="w-full pl-10 pr-4 py-2 border border-[#d4d4d4] rounded bg-white text-[#333] focus:ring-2 focus:ring-[#428bca]"
-            />
-          </div>
+          <HelpTooltip content="Search price requests by product number, customer, supplier, buyer, or quote number. Use Shift+S to focus this field.">
+            <div className="flex-1 relative">
+              <Search className="w-5 h-5 absolute left-3 top-2.5 text-[#999]" />
+              <input
+                ref={searchInputRef}
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search by product, customer, supplier, buyer, or quote... (Shift+S)"
+                className="w-full pl-10 pr-4 py-2 border border-[#d4d4d4] rounded bg-white text-[#333] focus:ring-2 focus:ring-[#428bca]"
+              />
+            </div>
+          </HelpTooltip>
 
           {/* Status Filter */}
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value as any)}
-            className="px-3 py-2 border border-[#d4d4d4] rounded bg-white text-[#333] focus:ring-2 focus:ring-[#428bca]"
-          >
-            <option value="all">All Status</option>
-            <option value="pending">Pending</option>
-            <option value="completed">Completed</option>
-          </select>
+          <HelpTooltip content="Filter by request status: Pending (awaiting supplier response) or Completed (pricing received).">
+            <select
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value as any)}
+              className="px-3 py-2 border border-[#d4d4d4] rounded bg-white text-[#333] focus:ring-2 focus:ring-[#428bca]"
+            >
+              <option value="all">All Status</option>
+              <option value="pending">Pending</option>
+              <option value="completed">Completed</option>
+            </select>
+          </HelpTooltip>
 
           {/* Toggle Advanced Filters */}
-          <button
-            onClick={() => setShowFilters(!showFilters)}
-            className={`flex items-center space-x-2 px-4 py-2 border rounded transition-colors ${
-              showFilters || buyerFilter || supplierFilter || customerFilter
-                ? 'border-[#428bca] bg-[#d9edf7] text-[#31708f]'
-                : 'border-[#d4d4d4] text-[#666] hover:text-[#333] hover:bg-[#f5f5f5]'
-            }`}
-          >
-            <Filter className="w-4 h-4" />
-            <span>Filters</span>
-          </button>
+          <HelpTooltip content="Show advanced filters for buyer, supplier, and customer to narrow down requests.">
+            <button
+              onClick={() => setShowFilters(!showFilters)}
+              className={`flex items-center space-x-2 px-4 py-2 border rounded transition-colors ${
+                showFilters || buyerFilter || supplierFilter || customerFilter
+                  ? 'border-[#428bca] bg-[#d9edf7] text-[#31708f]'
+                  : 'border-[#d4d4d4] text-[#666] hover:text-[#333] hover:bg-[#f5f5f5]'
+              }`}
+            >
+              <Filter className="w-4 h-4" />
+              <span>Filters</span>
+            </button>
+          </HelpTooltip>
         </div>
 
         {/* Advanced Filters */}
@@ -556,13 +569,15 @@ export function PriceRequests() {
                     {request.requested_at ? new Date(request.requested_at).toLocaleDateString() : '-'}
                   </td>
                   <td className="px-3 py-2.5 text-center">
-                    <button
-                      onClick={() => openEntryForm(request)}
-                      className="inline-flex items-center justify-center p-1.5 text-[#428bca] hover:text-[#3276b1] hover:bg-[#f5f5f5] rounded transition-colors"
-                      title="Edit Request"
-                    >
-                      <Edit className="w-4 h-4" />
-                    </button>
+                    <HelpTooltip content="Update price request details or mark as completed with pricing information.">
+                      <button
+                        onClick={() => openEntryForm(request)}
+                        className="inline-flex items-center justify-center p-1.5 text-[#428bca] hover:text-[#3276b1] hover:bg-[#f5f5f5] rounded transition-colors"
+                        title="Edit Request"
+                      >
+                        <Edit className="w-4 h-4" />
+                      </button>
+                    </HelpTooltip>
                   </td>
                 </tr>
               ))}
