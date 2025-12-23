@@ -833,6 +833,15 @@ export const LineItems: React.FC<LineItemsProps> = ({
                       <div className="min-w-0">
                         <div className="flex items-center gap-1.5">
                           <span className="font-semibold text-sm text-[#333] dark:text-white">{item.sku}</span>
+                          <button
+                            onClick={() => {
+                              window.location.hash = `item-inquiry?sku=${encodeURIComponent(item.sku)}`;
+                            }}
+                            className="text-[#428bca] hover:text-[#3276b1]"
+                            title="View in Item Inquiry"
+                          >
+                            <Search className="w-3.5 h-3.5" />
+                          </button>
                           {hasRelationships(item.sku) && (
                             <button onClick={() => setShowSupersessionModal(item.id)} className="text-[#f0ad4e]" title="Alternatives available">
                               <AlertCircle className="w-3.5 h-3.5" />

@@ -60,8 +60,21 @@ export const ItemInquiry: React.FC = () => {
   const [openOrders, setOpenOrders] = useState<Order[]>([]);
   const [shippedOrders, setShippedOrders] = useState<Order[]>([]);
 
-  const handleSearch = async () => {
-    if (!searchTerm.trim()) {
+  React.useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.hash.split('?')[1]);
+    const skuParam = urlParams.get('sku');
+    if (skuParam) {
+      setSearchTerm(skuParam);
+      setTimeout(() => {
+        handleSearch(skuParam);
+      }, 100);
+    }
+  }, []);
+
+  const handleSearch = async (skuOverride?: string) => {
+    const term = (skuOverride || searchTerm).trim();
+
+    if (!term) {
       setError('Please enter a part number or cross reference');
       return;
     }
@@ -75,7 +88,6 @@ export const ItemInquiry: React.FC = () => {
     setShippedOrders([]);
 
     try {
-      const term = searchTerm.trim();
 
       const { data: productData, error: productError } = await supabase
         .from('products')
