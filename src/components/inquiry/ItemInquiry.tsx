@@ -60,18 +60,7 @@ export const ItemInquiry: React.FC = () => {
   const [openOrders, setOpenOrders] = useState<Order[]>([]);
   const [shippedOrders, setShippedOrders] = useState<Order[]>([]);
 
-  React.useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.hash.split('?')[1]);
-    const skuParam = urlParams.get('sku');
-    if (skuParam) {
-      setSearchTerm(skuParam);
-      setTimeout(() => {
-        handleSearch(skuParam);
-      }, 100);
-    }
-  }, []);
-
-  const handleSearch = async (skuOverride?: string) => {
+  const handleSearch = React.useCallback(async (skuOverride?: string) => {
     const term = (skuOverride || searchTerm).trim();
 
     if (!term) {
@@ -141,7 +130,19 @@ export const ItemInquiry: React.FC = () => {
     } finally {
       setSearching(false);
     }
-  };
+  }, [searchTerm]);
+
+  React.useEffect(() => {
+    const hashParts = window.location.hash.split('?');
+    if (hashParts.length > 1) {
+      const urlParams = new URLSearchParams(hashParts[1]);
+      const skuParam = urlParams.get('sku');
+      if (skuParam) {
+        setSearchTerm(skuParam);
+        handleSearch(skuParam);
+      }
+    }
+  }, [handleSearch]);
 
   const fetchAdditionalData = async (sku: string, inventoryItemId: string) => {
     setInventoryLoading(true);
