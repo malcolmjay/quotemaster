@@ -142,6 +142,7 @@ export const LineItems: React.FC<LineItemsProps> = ({
   const [deleteLoading, setDeleteLoading] = useState(false);
   const [showLostDetailsModal, setShowLostDetailsModal] = useState<string | null>(null);
   const [customerAddresses, setCustomerAddresses] = useState<any[]>([]);
+  const [warehouseOptions, setWarehouseOptions] = useState<string[]>(['MB', 'CA', 'ON', 'KY', 'NJ']);
   const [filterProductNumber, setFilterProductNumber] = useState('');
   const [filterSupplier, setFilterSupplier] = useState('');
   const [filterExpiredCost, setFilterExpiredCost] = useState<'all' | 'expired' | 'valid'>('all');
@@ -261,6 +262,26 @@ export const LineItems: React.FC<LineItemsProps> = ({
       setCustomerAddresses([]);
     }
   }, [selectedCustomer]);
+
+  useEffect(() => {
+    const loadWarehouseOptions = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('app_configurations')
+          .select('config_value')
+          .eq('config_key', 'warehouse_options')
+          .maybeSingle();
+        if (error) throw error;
+        if (data?.config_value) {
+          const options = JSON.parse(data.config_value);
+          setWarehouseOptions(options);
+        }
+      } catch (error) {
+        console.error('Error loading warehouse options:', error);
+      }
+    };
+    loadWarehouseOptions();
+  }, []);
 
   const supplierPriceBreaks: Record<string, Array<{ minQty: number; maxQty: number; unitCost: number; description: string; discount: number }>> = {
     'GM-12635273': [
@@ -1001,15 +1022,30 @@ export const LineItems: React.FC<LineItemsProps> = ({
                             </div>
                           )}
                           <div>
-                            <label className="block text-xs font-medium text-[#666] mb-1">Shipping Instructions</label>
-                            <textarea
-                              value={item.shippingInstructions || ''}
-                              onChange={(e) => setLineItems(prev => prev.map(li => li.id === item.id ? { ...li, shippingInstructions: e.target.value } : li))}
-                              placeholder="Special instructions..."
-                              rows={2}
+                            <label className="block text-xs font-medium text-[#666] mb-1">Warehouse</label>
+                            <select
+                              value={item.warehouse || ''}
+                              onChange={(e) => setLineItems(prev => prev.map(li => li.id === item.id ? { ...li, warehouse: e.target.value || null } : li))}
                               className="w-full px-3 py-2 border border-[#d4d4d4] dark:border-slate-600 rounded text-xs bg-white dark:bg-slate-700"
-                            />
+                            >
+                              <option value="">Select warehouse...</option>
+                              {warehouseOptions.map((warehouse) => (
+                                <option key={warehouse} value={warehouse}>
+                                  {warehouse}
+                                </option>
+                              ))}
+                            </select>
                           </div>
+                        </div>
+                        <div>
+                          <label className="block text-xs font-medium text-[#666] mb-1">Shipping Instructions</label>
+                          <textarea
+                            value={item.shippingInstructions || ''}
+                            onChange={(e) => setLineItems(prev => prev.map(li => li.id === item.id ? { ...li, shippingInstructions: e.target.value } : li))}
+                            placeholder="Special instructions..."
+                            rows={2}
+                            className="w-full px-3 py-2 border border-[#d4d4d4] dark:border-slate-600 rounded text-xs bg-white dark:bg-slate-700"
+                          />
                         </div>
 
                         {getLineItemCostDates(item).to && (

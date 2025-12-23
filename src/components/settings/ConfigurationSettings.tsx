@@ -86,6 +86,11 @@ export const ConfigurationSettings: React.FC = () => {
     timeout: 30000
   });
 
+  // Warehouse Options Configuration
+  const [warehouseOptions, setWarehouseOptions] = useState<string[]>(['MB', 'CA', 'ON', 'KY', 'NJ']);
+  const [newWarehouse, setNewWarehouse] = useState('');
+  const [originalWarehouseOptions, setOriginalWarehouseOptions] = useState<string[]>(['MB', 'CA', 'ON', 'KY', 'NJ']);
+
   const [originalConfig, setOriginalConfig] = useState<ERPApiConfig>(erpConfig);
   const [originalImportConfig, setOriginalImportConfig] = useState(importApiConfig);
   const [originalCrossRefImportConfig, setOriginalCrossRefImportConfig] = useState(crossRefImportApiConfig);
@@ -170,6 +175,14 @@ export const ConfigurationSettings: React.FC = () => {
       setQuoteExportApiConfig(quoteExportApi);
       setOriginalQuoteExportApiConfig(quoteExportApi);
 
+      // Load Warehouse Options
+      const warehouseConfig = await configService.getConfiguration('warehouse_options');
+      if (warehouseConfig?.config_value) {
+        const options = JSON.parse(warehouseConfig.config_value);
+        setWarehouseOptions(options);
+        setOriginalWarehouseOptions(options);
+      }
+
       logger.operation('loadConfiguration', 'success');
     } catch (error) {
       logger.error('Failed to load configuration', error);
@@ -224,7 +237,8 @@ export const ConfigurationSettings: React.FC = () => {
         { config_key: 'quote_export_api_url', config_value: quoteExportApiConfig.url },
         { config_key: 'quote_export_api_username', config_value: quoteExportApiConfig.username },
         { config_key: 'quote_export_api_password', config_value: quoteExportApiConfig.password },
-        { config_key: 'quote_export_api_timeout', config_value: quoteExportApiConfig.timeout.toString() }
+        { config_key: 'quote_export_api_timeout', config_value: quoteExportApiConfig.timeout.toString() },
+        { config_key: 'warehouse_options', config_value: JSON.stringify(warehouseOptions) }
       ];
 
       const result = await configService.updateConfigs(updates, user.id);
@@ -236,6 +250,7 @@ export const ConfigurationSettings: React.FC = () => {
         setOriginalCrossRefImportConfig({ ...crossRefImportApiConfig });
         setOriginalCustomerImportConfig({ ...customerImportApiConfig });
         setOriginalQuoteExportApiConfig({ ...quoteExportApiConfig });
+        setOriginalWarehouseOptions([...warehouseOptions]);
 
         // Reinitialize ERP service with new config
         await reinitializeERPService();
@@ -309,6 +324,7 @@ export const ConfigurationSettings: React.FC = () => {
     JSON.stringify(erpConfig) !== JSON.stringify(originalConfig) ||
     JSON.stringify(importApiConfig) !== JSON.stringify(originalImportConfig) ||
     JSON.stringify(crossRefImportApiConfig) !== JSON.stringify(originalCrossRefImportConfig) ||
+    JSON.stringify(warehouseOptions) !== JSON.stringify(originalWarehouseOptions) ||
     JSON.stringify(customerImportApiConfig) !== JSON.stringify(originalCustomerImportConfig) ||
     JSON.stringify(quoteExportApiConfig) !== JSON.stringify(originalQuoteExportApiConfig);
 
@@ -1189,6 +1205,87 @@ export const ConfigurationSettings: React.FC = () => {
               </pre>
             </div>
           )}
+        </div>
+      </div>
+
+      {/* Warehouse Options Configuration */}
+      <div className="bg-white rounded border border-[#d4d4d4] p-6 space-y-6">
+        <div className="flex items-center justify-between border-b border-[#d4d4d4] pb-4">
+          <div>
+            <h3 className="text-lg font-medium text-[#333]">Warehouse Options</h3>
+            <p className="text-sm text-[#666] mt-1">
+              Configure available warehouse locations for quote line items
+            </p>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          {/* Current Warehouse Options */}
+          <div>
+            <label className="block text-sm font-medium text-[#333] mb-2">
+              Available Warehouses
+            </label>
+            <div className="flex flex-wrap gap-2 mb-3">
+              {warehouseOptions.map((warehouse, index) => (
+                <div
+                  key={index}
+                  className="flex items-center gap-2 px-3 py-1.5 bg-[#f5f5f5] border border-[#d4d4d4] rounded"
+                >
+                  <span className="text-sm text-[#333]">{warehouse}</span>
+                  <button
+                    onClick={() => setWarehouseOptions(prev => prev.filter((_, i) => i !== index))}
+                    className="text-[#d9534f] hover:text-[#c9302c]"
+                    title="Remove warehouse"
+                  >
+                    ×
+                  </button>
+                </div>
+              ))}
+            </div>
+            <p className="text-xs text-[#666]">
+              Click × to remove a warehouse option
+            </p>
+          </div>
+
+          {/* Add New Warehouse */}
+          <div>
+            <label className="block text-sm font-medium text-[#333] mb-2">
+              Add Warehouse
+            </label>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={newWarehouse}
+                onChange={(e) => setNewWarehouse(e.target.value.toUpperCase())}
+                placeholder="e.g., TX, FL, CA"
+                maxLength={10}
+                className="flex-1 px-3 py-2 border border-[#d4d4d4] rounded focus:ring-2 focus:ring-[#428bca] focus:border-[#428bca] bg-white text-[#333]"
+                onKeyPress={(e) => {
+                  if (e.key === 'Enter' && newWarehouse.trim()) {
+                    if (!warehouseOptions.includes(newWarehouse.trim())) {
+                      setWarehouseOptions(prev => [...prev, newWarehouse.trim()]);
+                      setNewWarehouse('');
+                    }
+                  }
+                }}
+              />
+              <button
+                onClick={() => {
+                  if (newWarehouse.trim() && !warehouseOptions.includes(newWarehouse.trim())) {
+                    setWarehouseOptions(prev => [...prev, newWarehouse.trim()]);
+                    setNewWarehouse('');
+                  }
+                }}
+                disabled={!newWarehouse.trim() || warehouseOptions.includes(newWarehouse.trim())}
+                className="px-4 py-2 bg-[#428bca] text-white rounded hover:bg-[#3276b1] disabled:bg-[#d4d4d4] disabled:cursor-not-allowed transition"
+              >
+                Add
+              </button>
+            </div>
+            <p className="text-xs text-[#666] mt-1">
+              Enter warehouse code (up to 10 characters) and press Enter or click Add
+            </p>
+          </div>
         </div>
       </div>
 
