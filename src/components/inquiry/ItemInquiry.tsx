@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, Package, Warehouse, TrendingUp, TrendingDown, Truck, CheckCircle, AlertCircle, Info } from 'lucide-react';
+import { Search, Package, Warehouse, TrendingUp, TrendingDown, Truck, CheckCircle, AlertCircle, Info, ChevronLeft } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { logger } from '../../utils/logger';
 
@@ -181,6 +181,14 @@ export const ItemInquiry: React.FC = () => {
   return (
     <div className="min-h-screen bg-[#fafafa] dark:bg-slate-900">
       <div className="max-w-7xl mx-auto p-6 space-y-6">
+        <button
+          onClick={() => window.location.hash = 'quote-builder'}
+          className="flex items-center gap-2 px-4 py-2 text-sm text-[#666] dark:text-slate-400 hover:text-[#428bca] dark:hover:text-blue-400 transition-colors"
+        >
+          <ChevronLeft className="w-4 h-4" />
+          Back to Quote
+        </button>
+
         <div className="bg-white dark:bg-slate-800 rounded border border-[#d4d4d4] dark:border-slate-700 p-6">
           <div className="flex items-center gap-3 mb-6">
             <div className="w-10 h-10 bg-[#428bca] rounded-lg flex items-center justify-center">
