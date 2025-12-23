@@ -9,6 +9,7 @@ import { useSupabaseQuote } from '../../context/SupabaseQuoteContext';
 import { useCustomer } from '../../context/CustomerContext';
 import { supabase } from '../../lib/supabase';
 import { Plus, ChevronDown, ChevronRight, Settings } from 'lucide-react';
+import { HelpTooltip } from '../common/HelpTooltip';
 
 export const QuoteBuilder: React.FC = () => {
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -194,21 +195,25 @@ export const QuoteBuilder: React.FC = () => {
             </div>
 
             <div className="flex items-center gap-2">
-              <button
-                onClick={() => setShowQuoteDetails(!showQuoteDetails)}
-                className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-[#666] hover:text-[#333] hover:bg-[#f5f5f5] rounded border border-transparent hover:border-[#d4d4d4] transition-colors"
-              >
-                <Settings className="w-4 h-4" />
-                Options
-                {showQuoteDetails ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
-              </button>
-              <button
-                onClick={handleNewQuote}
-                className="flex items-center gap-1.5 px-4 py-1.5 bg-[#428bca] hover:bg-[#3276b1] text-white text-sm font-medium rounded transition-colors"
-              >
-                <Plus className="w-4 h-4" />
-                New Quote
-              </button>
+              <HelpTooltip content="Toggle quote options like quote number, PO number, terms, and expiration date. These details help manage and track your quotes effectively.">
+                <button
+                  onClick={() => setShowQuoteDetails(!showQuoteDetails)}
+                  className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-[#666] hover:text-[#333] hover:bg-[#f5f5f5] rounded border border-transparent hover:border-[#d4d4d4] transition-colors"
+                >
+                  <Settings className="w-4 h-4" />
+                  Options
+                  {showQuoteDetails ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
+                </button>
+              </HelpTooltip>
+              <HelpTooltip content="Start a new quote from scratch. This will clear the current quote and allow you to select a new customer and add fresh line items.">
+                <button
+                  onClick={handleNewQuote}
+                  className="flex items-center gap-1.5 px-4 py-1.5 bg-[#428bca] hover:bg-[#3276b1] text-white text-sm font-medium rounded transition-colors"
+                >
+                  <Plus className="w-4 h-4" />
+                  New Quote
+                </button>
+              </HelpTooltip>
             </div>
           </div>
         </div>

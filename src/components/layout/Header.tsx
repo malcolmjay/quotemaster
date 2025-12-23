@@ -1,15 +1,18 @@
 import React, { useState } from 'react';
-import { Building2, User, Bell, Sun, Moon, LogOut } from 'lucide-react';
+import { Building2, User, Bell, Sun, Moon, LogOut, HelpCircle } from 'lucide-react';
 import { useAuthContext } from '../auth/AuthProvider';
 import { useCustomer } from '../../context/CustomerContext';
 import { useSupabaseQuote } from '../../context/SupabaseQuoteContext';
 import { useTheme } from '../../context/ThemeContext';
+import { useHelp } from '../../context/HelpContext';
+import { HelpTooltip } from '../common/HelpTooltip';
 
 export const Header: React.FC = () => {
   const { user, signOut } = useAuthContext();
   const { selectedCustomer } = useCustomer();
   const { quotes } = useSupabaseQuote();
   const { theme, toggleTheme } = useTheme();
+  const { helpMode, toggleHelpMode } = useHelp();
   const [loggingOut, setLoggingOut] = useState(false);
 
   // Calculate quote statistics
@@ -41,38 +44,58 @@ export const Header: React.FC = () => {
 
         <div className="flex items-center space-x-3 lg:space-x-6">
           <div className="flex items-center space-x-2 lg:space-x-4">
+            <HelpTooltip content={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode. Dark mode is easier on the eyes in low-light environments.`}>
+              <button
+                onClick={toggleTheme}
+                className="p-2 text-[#666] hover:text-[#333] hover:bg-[#f5f5f5] rounded transition-colors"
+                title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+              >
+                {theme === 'light' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+              </button>
+            </HelpTooltip>
+
             <button
-              onClick={toggleTheme}
-              className="p-2 text-[#666] hover:text-[#333] hover:bg-[#f5f5f5] rounded transition-colors"
-              title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+              onClick={toggleHelpMode}
+              className={`p-2 rounded transition-colors ${
+                helpMode
+                  ? 'text-blue-600 bg-blue-50 hover:bg-blue-100'
+                  : 'text-[#666] hover:text-[#333] hover:bg-[#f5f5f5]'
+              }`}
+              title={`${helpMode ? 'Disable' : 'Enable'} help mode - Shows helpful tooltips when hovering over buttons and fields`}
             >
-              {theme === 'light' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
+              <HelpCircle className="h-4 w-4" />
             </button>
 
-            <button className="p-2 text-[#666] hover:text-[#333] hover:bg-[#f5f5f5] rounded transition-colors">
-              <Bell className="h-4 w-4" />
-            </button>
+            <HelpTooltip content="View system notifications and important alerts. Stay informed about quote approvals and status changes.">
+              <button className="p-2 text-[#666] hover:text-[#333] hover:bg-[#f5f5f5] rounded transition-colors">
+                <Bell className="h-4 w-4" />
+              </button>
+            </HelpTooltip>
 
-            <div className="flex items-center space-x-2 px-2 py-1 hover:bg-[#f5f5f5] rounded transition-colors">
-              <div className="hidden sm:flex flex-col text-right">
-                <span className="text-xs font-medium text-[#333]">
-                  {user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User'}
-                </span>
-                <span className="text-xs text-[#666] truncate max-w-28">
-                  {user?.email || 'No Email'}
-                </span>
+            <HelpTooltip content="Your user profile information. This shows your name and email address associated with your account.">
+              <div className="flex items-center space-x-2 px-2 py-1 hover:bg-[#f5f5f5] rounded transition-colors">
+                <div className="hidden sm:flex flex-col text-right">
+                  <span className="text-xs font-medium text-[#333]">
+                    {user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'User'}
+                  </span>
+                  <span className="text-xs text-[#666] truncate max-w-28">
+                    {user?.email || 'No Email'}
+                  </span>
+                </div>
+                <User className="h-5 w-5 text-[#666]" />
               </div>
-              <User className="h-5 w-5 text-[#666]" />
-            </div>
+            </HelpTooltip>
 
-            <button
-              onClick={handleLogout}
-              disabled={loggingOut}
-              className="p-2 text-[#666] hover:text-[#a94442] hover:bg-[#f2dede] rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-              title="Log out"
-            >
-              <LogOut className="h-4 w-4" />
-            </button>
+            <HelpTooltip content="Log out of your account. You will need to sign in again to access the system.">
+              <button
+                onClick={handleLogout}
+                disabled={loggingOut}
+                className="p-2 text-[#666] hover:text-[#a94442] hover:bg-[#f2dede] rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                title="Log out"
+              >
+                <LogOut className="h-4 w-4" />
+              </button>
+            </HelpTooltip>
           </div>
         </div>
       </div>

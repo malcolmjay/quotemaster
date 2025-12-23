@@ -2,6 +2,7 @@ import React, { useState, Suspense, lazy } from 'react';
 import { AuthProvider } from './components/auth/AuthProvider';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { ThemeProvider } from './context/ThemeContext';
+import { HelpProvider } from './context/HelpContext';
 import { SupabaseQuoteProvider } from './context/SupabaseQuoteContext';
 import { QuoteProvider } from './context/QuoteContext';
 import { Header } from './components/layout/Header';
@@ -76,25 +77,27 @@ function App() {
 
   return (
     <ThemeProvider>
-      <AuthProvider>
-        <ProtectedRoute>
-          <SupabaseQuoteProvider>
-            <QuoteProvider>
-              <CustomerProvider>
-                <InventoryProvider>
-                  <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
-                    <Header />
-                    <Navigation activeTab={activeTab} onTabChange={setActiveTab} />
-                    <main className="p-3 pt-20">
-                      {renderActiveTab()}
-                    </main>
-                  </div>
-                </InventoryProvider>
-              </CustomerProvider>
-            </QuoteProvider>
-          </SupabaseQuoteProvider>
-        </ProtectedRoute>
-      </AuthProvider>
+      <HelpProvider>
+        <AuthProvider>
+          <ProtectedRoute>
+            <SupabaseQuoteProvider>
+              <QuoteProvider>
+                <CustomerProvider>
+                  <InventoryProvider>
+                    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
+                      <Header />
+                      <Navigation activeTab={activeTab} onTabChange={setActiveTab} />
+                      <main className="p-3 pt-20">
+                        {renderActiveTab()}
+                      </main>
+                    </div>
+                  </InventoryProvider>
+                </CustomerProvider>
+              </QuoteProvider>
+            </SupabaseQuoteProvider>
+          </ProtectedRoute>
+        </AuthProvider>
+      </HelpProvider>
     </ThemeProvider>
   );
 }
