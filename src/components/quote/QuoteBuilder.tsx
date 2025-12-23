@@ -73,7 +73,7 @@ export const QuoteBuilder: React.FC = () => {
           status: item.status ? item.status.charAt(0).toUpperCase() + item.status.slice(1) : 'Pending',
           leadTime: item.lead_time || '10 days',
           quotedLeadTime: item.quoted_lead_time || '',
-          warehouse: 'wh-main',
+          warehouse: item.warehouse || '',
           reserved: '0 / ' + item.quantity + ' units',
           shippingInstructions: item.shipping_instructions || '',
           customerPartNumber: item.customer_part_number || '',
