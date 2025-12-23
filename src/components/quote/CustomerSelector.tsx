@@ -204,6 +204,11 @@ export const CustomerSelector: React.FC = () => {
             <div className="text-xs text-[#666] dark:text-slate-400 mt-0.5">
               #{selectedCustomer.customer_number} | {selectedCustomer.type}
             </div>
+            {selectedCustomer.primary_warehouse && (
+              <div className="text-xs text-[#666] dark:text-slate-400 mt-1">
+                Warehouse: {selectedCustomer.primary_warehouse}
+              </div>
+            )}
             <div className="flex items-center gap-2 mt-2">
               {selectedCustomer.tier && (
                 <span className={`px-2 py-0.5 rounded text-xs font-medium ${
