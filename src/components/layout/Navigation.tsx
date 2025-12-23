@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { FileText, BarChart3, FolderOpen, BookOpen, Menu, X, Shield, DollarSign, Settings, Database, Edit3, Link2, GitBranch, Users, Building } from 'lucide-react';
+import { FileText, BarChart3, FolderOpen, BookOpen, Menu, X, Shield, DollarSign, Settings, Database, Edit3, Link2, GitBranch, Users, Building, Search } from 'lucide-react';
 import { ActiveTab } from '../../App';
 
 interface NavigationProps {
@@ -14,6 +14,7 @@ export const Navigation: React.FC<NavigationProps> = ({ activeTab, onTabChange }
     { id: 'quote-builder', label: 'Quote Builder', icon: FileText },
     { id: 'pending-approvals', label: 'Pending Approvals', icon: Shield },
     { id: 'price-requests', label: 'Price Requests', icon: DollarSign },
+    { id: 'item-inquiry', label: 'Item Inquiry', icon: Search },
     { id: 'customer-profile', label: 'Customer Profile', icon: BarChart3 },
     { id: 'customer-management', label: 'Customer Management', icon: Building },
     { id: 'quote-management', label: 'Quote Management', icon: FolderOpen },
