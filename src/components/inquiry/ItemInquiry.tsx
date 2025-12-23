@@ -23,7 +23,7 @@ interface ProductData {
   unit_of_measure: string | null;
   inventory_levels?: Array<{
     quantity_on_hand: number;
-    warehouse_code: string;
+    warehouse: string;
   }>;
 }
 
@@ -81,7 +81,7 @@ export const ItemInquiry: React.FC = () => {
         .from('products')
         .select(`
           *,
-          inventory_levels (quantity_on_hand, warehouse_code)
+          inventory_levels (quantity_on_hand, warehouse)
         `)
         .eq('sku', term)
         .maybeSingle();
@@ -101,7 +101,7 @@ export const ItemInquiry: React.FC = () => {
             *,
             products (
               *,
-              inventory_levels (quantity_on_hand, warehouse_code)
+              inventory_levels (quantity_on_hand, warehouse)
             )
           `)
           .or(`customer_part_number.eq.${term},supplier_part_number.eq.${term}`)
