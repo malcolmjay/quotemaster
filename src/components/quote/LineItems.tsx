@@ -491,7 +491,7 @@ export const LineItems: React.FC<LineItemsProps> = ({
       status: 'Pending',
       leadTime: product.leadTime || '10 days',
       quotedLeadTime: '',
-      warehouse: 'wh-main',
+      warehouse: selectedCustomer?.primary_warehouse || '',
       reserved: '0 / 1 units',
       shippingInstructions: '',
       crossReference: product.matchedReference || null,
@@ -1107,7 +1107,7 @@ export const LineItems: React.FC<LineItemsProps> = ({
       })()}
       {showSupersessionModal && <SupersessionModal item={lineItems.find(i => i.id === showSupersessionModal)} onClose={() => setShowSupersessionModal(null)} onSelectReplacement={handleSupersessionSelect} />}
       {showHistoryModal && <HistoryModal item={lineItems.find(i => i.id === showHistoryModal)} currentQuoteId={currentQuote?.id} customerId={selectedCustomer?.id} onClose={() => setShowHistoryModal(null)} />}
-      {showCSVUploadModal && <CSVUploadModal onClose={() => setShowCSVUploadModal(false)} onUpload={handleCSVUpload} mode={csvUploadMode} existingLineItems={lineItems} />}
+      {showCSVUploadModal && <CSVUploadModal onClose={() => setShowCSVUploadModal(false)} onUpload={handleCSVUpload} mode={csvUploadMode} existingLineItems={lineItems} selectedCustomer={selectedCustomer} />}
       {showDeleteModal && <DeleteConfirmationModal isOpen={true} onClose={() => setShowDeleteModal(null)} onConfirm={confirmDeleteItem} title="Delete Line Item" message="Remove this item from the quote?" itemName={lineItems.find(i => i.id === showDeleteModal)?.name || ''} deleteType="hard" loading={deleteLoading} cascadeWarning="This cannot be undone." />}
       {showLostDetailsModal && <LostDetailsModal lineItem={lineItems.find(i => i.id === showLostDetailsModal)} onClose={() => setShowLostDetailsModal(null)} onSave={(id, details) => { setLineItems(prev => prev.map(i => i.id === id ? { ...i, status: 'Lost' } : i)); setShowLostDetailsModal(null); }} isOpen={true} />}
     </div>

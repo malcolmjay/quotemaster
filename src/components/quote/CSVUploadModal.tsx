@@ -6,13 +6,15 @@ interface CSVUploadModalProps {
   onUpload: (items: any[], mode: 'add' | 'update') => void;
   mode?: 'add' | 'update';
   existingLineItems?: any[];
+  selectedCustomer?: any;
 }
 
 export const CSVUploadModal: React.FC<CSVUploadModalProps> = ({
   onClose,
   onUpload,
   mode = 'add',
-  existingLineItems = []
+  existingLineItems = [],
+  selectedCustomer
 }) => {
   const [dragActive, setDragActive] = useState(false);
   const [file, setFile] = useState<File | null>(null);
@@ -166,7 +168,7 @@ export const CSVUploadModal: React.FC<CSVUploadModalProps> = ({
         status: row.status || 'Pending',
         leadTime: row.leadtime || row.leadTime || '10 days',
         quotedLeadTime: row.quotedleadtime || row.quotedLeadTime || '',
-        warehouse: row.warehouse || 'wh-main',
+        warehouse: row.warehouse || selectedCustomer?.primary_warehouse || '',
         reserved: '0 / ' + (quantity || 1) + ' units',
         shippingInstructions: row.shippinginstructions || row.shippingInstructions || '',
         ship_to_address_id: row.ship_to_address_id || null,
