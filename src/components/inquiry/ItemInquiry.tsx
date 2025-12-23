@@ -7,20 +7,20 @@ interface ProductData {
   id: string;
   sku: string;
   name: string;
-  description: string;
+  description: string | null;
   supplier: string;
-  supplier_email: string;
+  supplier_email: string | null;
   list_price: number;
   unit_cost: number;
-  category: string;
-  category_set: string;
-  item_type: string;
-  warehouse: string;
+  category: string | null;
+  category_set: string | null;
+  item_type: string | null;
+  warehouse: string | null;
   lead_time_days: number;
-  lead_time_text: string;
+  lead_time_text: string | null;
   status: string;
-  inventory_item_id: string;
-  uom: string;
+  inventory_item_id: string | null;
+  unit_of_measure: string | null;
   inventory_levels?: Array<{
     quantity_on_hand: number;
     warehouse_code: string;
@@ -286,7 +286,7 @@ export const ItemInquiry: React.FC = () => {
                   </div>
                   <div>
                     <label className="block text-xs font-medium text-[#666] dark:text-slate-400 mb-1">UOM</label>
-                    <p className="text-sm text-[#333] dark:text-white">{product.uom || 'N/A'}</p>
+                    <p className="text-sm text-[#333] dark:text-white">{product.unit_of_measure || 'N/A'}</p>
                   </div>
                   <div>
                     <label className="block text-xs font-medium text-[#666] dark:text-slate-400 mb-1">List Price</label>
