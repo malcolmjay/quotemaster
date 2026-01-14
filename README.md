@@ -23,6 +23,11 @@ A comprehensive quote and bid management system built with React, TypeScript, an
 
 ## 📋 Prerequisites
 
+### For Local Development
+- Node.js 18+
+- npm or yarn
+- Supabase account (free tier available)
+
 ### For Cloud Deployment (Supabase Cloud)
 - Node.js 16+
 - npm or yarn
@@ -37,7 +42,23 @@ A comprehensive quote and bid management system built with React, TypeScript, an
 
 ## 🔧 Installation & Setup
 
-### Quick Start - Self-Hosted Deployment (Recommended)
+### 🖥️ Local Development Setup (Start Here!)
+
+**New to the project?** Start with our comprehensive local setup guide:
+
+**[→ Local Deployment Guide](LOCAL-DEPLOYMENT-GUIDE.md)** ⭐ **RECOMMENDED FOR FIRST-TIME SETUP**
+
+This step-by-step guide includes:
+- Installing all required tools (Node.js, Git, Docker)
+- Setting up Supabase (cloud or local)
+- Configuring the application
+- Running database migrations
+- Creating your first user
+- Troubleshooting common issues
+
+---
+
+### Quick Start - Self-Hosted Deployment (Production)
 
 For a complete self-hosted deployment with Supabase on Docker, follow our comprehensive guide:
 
@@ -58,6 +79,7 @@ This includes:
 See also:
 - [Self-Hosted Deployment Guide](SELF-HOSTED-DEPLOYMENT.md) - Detailed architecture and configuration
 - [Database Setup Guide](DATABASE-SETUP-GUIDE.md) - Database schema and migrations
+- [Quick Reference Guide](QUICK-REFERENCE.md) - Common commands and tasks
 
 ---
 
