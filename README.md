@@ -2,7 +2,7 @@
 
 A comprehensive quote and bid management system built with React, TypeScript, and Supabase for seamless backend integration.
 
-## 🚀 Features
+## Features
 
 - **User Authentication**: Secure email/password authentication with Supabase Auth
 - **Quote Management**: Create, edit, and track quotes with real-time updates
@@ -13,7 +13,7 @@ A comprehensive quote and bid management system built with React, TypeScript, an
 - **Real-time Updates**: Live synchronization across all users
 - **Responsive Design**: Mobile-first design that works on all devices
 
-## 🛠 Technology Stack
+## Technology Stack
 
 - **Frontend**: React 18 + TypeScript + Tailwind CSS
 - **Backend**: Supabase (PostgreSQL + Real-time + Auth)
@@ -21,7 +21,7 @@ A comprehensive quote and bid management system built with React, TypeScript, an
 - **Icons**: Lucide React
 - **State Management**: React Context + Supabase hooks
 
-## 📋 Prerequisites
+## Prerequisites
 
 ### For Local Development
 - Node.js 18+
@@ -40,13 +40,13 @@ A comprehensive quote and bid management system built with React, TypeScript, an
 - 4GB RAM, 2 CPU cores minimum
 - 20GB free disk space
 
-## 🔧 Installation & Setup
+## Installation & Setup
 
-### 🖥️ Local Development Setup (Start Here!)
+### Local Development Setup (Start Here!)
 
 **New to the project?** Start with our comprehensive local setup guide:
 
-**[→ Local Deployment Guide](LOCAL-DEPLOYMENT-GUIDE.md)** ⭐ **RECOMMENDED FOR FIRST-TIME SETUP**
+**[→ Local Deployment Guide](LOCAL-DEPLOYMENT-GUIDE.md)** **RECOMMENDED FOR FIRST-TIME SETUP**
 
 This step-by-step guide includes:
 - Installing all required tools (Node.js, Git, Docker)
@@ -137,7 +137,7 @@ npm run dev
 
 The application will be available at `http://localhost:5173`
 
-## 🗄 Database Schema
+## Database Schema
 
 The application uses the following main tables:
 
@@ -153,14 +153,14 @@ The application uses the following main tables:
 - **reservations** - Inventory reservations
 - **cost_analysis** - Cost analysis data
 
-## 🔐 Security
+## Security
 
 - **Row Level Security (RLS)** enabled on all tables
 - **User-based data isolation** - users can only access their own data
 - **Secure authentication** with Supabase Auth
 - **API key protection** through environment variables
 
-## 📱 Key Features
+## Key Features
 
 ### Authentication
 - Email/password sign up and sign in
@@ -190,7 +190,7 @@ The application uses the following main tables:
 - Customer-specific part numbers
 - Usage frequency tracking
 
-## 🚀 Deployment
+## Deployment
 
 ### Frontend Deployment (Netlify/Vercel)
 
@@ -210,7 +210,7 @@ npm run build
 
 Your Supabase project is already configured and ready. No additional deployment needed for the backend.
 
-## 🔧 Development
+## Development
 
 ### Project Structure
 
@@ -243,7 +243,7 @@ src/
 3. **React hooks**: Create custom hooks in `src/hooks/`
 4. **Components**: Follow existing patterns in `src/components/`
 
-## 🐛 Troubleshooting
+## Troubleshooting
 
 ### Common Issues
 
@@ -267,14 +267,14 @@ src/
 - Review Supabase logs in the dashboard
 - Ensure all environment variables are correctly set
 
-## 📊 Performance Considerations
+## Performance Considerations
 
 - **Database indexing**: Indexes are created for frequently queried columns
 - **Real-time subscriptions**: Used judiciously to avoid excessive updates
 - **Lazy loading**: Components load data as needed
 - **Caching**: Supabase client handles caching automatically
 
-## 🔄 Data Migration
+## Data Migration
 
 If migrating from an existing system:
 
@@ -283,7 +283,7 @@ If migrating from an existing system:
 3. **Use Supabase dashboard** to import data
 4. **Run data validation** queries to ensure integrity
 
-## 🤝 Contributing
+## Contributing
 
 1. Fork the repository
 2. Create a feature branch
@@ -291,11 +291,11 @@ If migrating from an existing system:
 4. Add tests if applicable
 5. Submit a pull request
 
-## 📄 License
+## License
 
 This project is licensed under the MIT License.
 
-## 🆘 Support
+## Support
 
 For support and questions:
 - Check the documentation
