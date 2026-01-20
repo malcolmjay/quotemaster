@@ -80,6 +80,7 @@ See also:
 - [Self-Hosted Deployment Guide](SELF-HOSTED-DEPLOYMENT.md) - Detailed architecture and configuration
 - [Database Setup Guide](DATABASE-SETUP-GUIDE.md) - Database schema and migrations
 - [Quick Reference Guide](QUICK-REFERENCE.md) - Common commands and tasks
+- [Architecture Diagram](ARCHITECTURE-DIAGRAM.md) - Visual system architecture
 
 ---
 
