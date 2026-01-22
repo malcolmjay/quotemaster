@@ -1,4 +1,4 @@
-import React, { useState, Suspense, lazy } from 'react';
+import React, { useState, Suspense } from 'react';
 import { AuthProvider } from './components/auth/AuthProvider';
 import { ProtectedRoute } from './components/auth/ProtectedRoute';
 import { ThemeProvider } from './context/ThemeContext';
@@ -9,25 +9,9 @@ import { Header } from './components/layout/Header';
 import { Navigation } from './components/layout/Navigation';
 import { CustomerProvider } from './context/CustomerContext';
 import { InventoryProvider } from './context/InventoryContext';
+import { TabId, getTabConfig, isValidTabId } from './config/tabs';
 
-const QuoteBuilder = lazy(() => import('./components/quote/QuoteBuilder').then(m => ({ default: m.QuoteBuilder })));
-const ProductCatalog = lazy(() => import('./components/catalog/ProductCatalog').then(m => ({ default: m.ProductCatalog })));
-const CrossReference = lazy(() => import('./components/reference/CrossReference').then(m => ({ default: m.CrossReference })));
-const CustomerProfile = lazy(() => import('./components/customer/CustomerProfile').then(m => ({ default: m.CustomerProfile })));
-const QuoteManagement = lazy(() => import('./components/management/QuoteManagement').then(m => ({ default: m.QuoteManagement })));
-const TrainingGuide = lazy(() => import('./components/training/TrainingGuide').then(m => ({ default: m.TrainingGuide })));
-const PendingApprovals = lazy(() => import('./components/approval/PendingApprovals').then(m => ({ default: m.PendingApprovals })));
-const PriceRequests = lazy(() => import('./components/management/PriceRequests').then(m => ({ default: m.PriceRequests })));
-const ConfigurationSettings = lazy(() => import('./components/settings/ConfigurationSettings').then(m => ({ default: m.ConfigurationSettings })));
-const ProductImport = lazy(() => import('./components/management/ProductImport').then(m => ({ default: m.ProductImport })));
-const ProductManagement = lazy(() => import('./components/management/ProductManagement'));
-const CrossReferenceManagement = lazy(() => import('./components/management/CrossReferenceManagement'));
-const ItemRelationshipManagement = lazy(() => import('./components/management/ItemRelationshipManagement'));
-const UserManagement = lazy(() => import('./components/management/UserManagement').then(m => ({ default: m.UserManagement })));
-const CustomerManagement = lazy(() => import('./components/management/CustomerManagement').then(m => ({ default: m.CustomerManagement })));
-const ItemInquiry = lazy(() => import('./components/inquiry/ItemInquiry').then(m => ({ default: m.ItemInquiry })));
-
-export type ActiveTab = 'quote-builder' | 'product-catalog' | 'cross-reference' | 'customer-profile' | 'customer-management' | 'quote-management' | 'training-guide' | 'pending-approvals' | 'price-requests' | 'settings' | 'product-import' | 'product-management' | 'cross-reference-management' | 'item-relationships' | 'user-management' | 'item-inquiry';
+export type ActiveTab = TabId;
 
 function App() {
   const [activeTab, setActiveTab] = useState<ActiveTab>('quote-builder');
@@ -37,8 +21,8 @@ function App() {
     const handleHashChange = () => {
       const hash = window.location.hash.replace('#', '');
       const tabName = hash.split('?')[0];
-      if (tabName && ['quote-builder', 'product-catalog', 'customer-profile', 'customer-management', 'quote-management', 'training-guide', 'pending-approvals', 'price-requests', 'settings', 'product-import', 'product-management', 'cross-reference-management', 'item-relationships', 'user-management', 'item-inquiry'].includes(tabName)) {
-        setActiveTab(tabName as ActiveTab);
+      if (tabName && isValidTabId(tabName)) {
+        setActiveTab(tabName);
       }
     };
 
@@ -54,23 +38,16 @@ function App() {
       </div>
     );
 
+    const tabConfig = getTabConfig(activeTab);
+    if (!tabConfig) {
+      return <div className="text-center p-8 text-gray-500">Tab not found</div>;
+    }
+
+    const Component = tabConfig.component;
+
     return (
       <Suspense fallback={<LoadingFallback />}>
-        {activeTab === 'quote-builder' && <QuoteBuilder />}
-        {activeTab === 'product-catalog' && <ProductCatalog />}
-        {activeTab === 'pending-approvals' && <PendingApprovals />}
-        {activeTab === 'price-requests' && <PriceRequests />}
-        {activeTab === 'customer-profile' && <CustomerProfile />}
-        {activeTab === 'quote-management' && <QuoteManagement />}
-        {activeTab === 'training-guide' && <TrainingGuide />}
-        {activeTab === 'settings' && <ConfigurationSettings />}
-        {activeTab === 'product-import' && <ProductImport />}
-        {activeTab === 'product-management' && <ProductManagement />}
-        {activeTab === 'cross-reference-management' && <CrossReferenceManagement />}
-        {activeTab === 'item-relationships' && <ItemRelationshipManagement />}
-        {activeTab === 'user-management' && <UserManagement />}
-        {activeTab === 'customer-management' && <CustomerManagement />}
-        {activeTab === 'item-inquiry' && <ItemInquiry />}
+        <Component />
       </Suspense>
     );
   };
