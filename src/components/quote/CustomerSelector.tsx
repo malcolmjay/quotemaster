@@ -201,63 +201,83 @@ export const CustomerSelector: React.FC = () => {
       </div>
 
       {selectedCustomer && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          <div className="bg-[#f0f0f0] dark:bg-slate-700/50 rounded p-3 border border-[#e8e8e8] dark:border-slate-600">
-            <div className="flex items-center gap-2 mb-2">
-              <Building2 className="h-3.5 w-3.5 text-[#666]" />
-              <span className="text-xs font-medium text-[#666] dark:text-slate-400">Customer</span>
+        <div className="space-y-3">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="bg-[#f0f0f0] dark:bg-slate-700/50 rounded p-3 border border-[#e8e8e8] dark:border-slate-600">
+              <div className="flex items-center gap-2 mb-2">
+                <Building2 className="h-3.5 w-3.5 text-[#666]" />
+                <span className="text-xs font-medium text-[#666] dark:text-slate-400">Customer</span>
+              </div>
+              <div className="text-sm font-medium text-[#333] dark:text-white">{selectedCustomer.name}</div>
+              <div className="text-xs text-[#666] dark:text-slate-400 mt-0.5">
+                #{selectedCustomer.customer_number} | {selectedCustomer.type}
+              </div>
+              {selectedCustomer.primary_warehouse && (
+                <div className="text-xs text-[#666] dark:text-slate-400 mt-1">
+                  Warehouse: {selectedCustomer.primary_warehouse}
+                </div>
+              )}
+              <div className="flex items-center gap-2 mt-2">
+                {selectedCustomer.tier && (
+                  <span className={`px-2 py-0.5 rounded text-xs font-medium ${
+                    selectedCustomer.tier === 'platinum' ? 'bg-[#1a3a5c] text-white' :
+                    selectedCustomer.tier === 'gold' ? 'bg-[#c9a227] text-white' :
+                    selectedCustomer.tier === 'silver' ? 'bg-[#6c757d] text-white' :
+                    'bg-[#428bca] text-white'
+                  }`}>
+                    {selectedCustomer.tier.charAt(0).toUpperCase() + selectedCustomer.tier.slice(1)}
+                  </span>
+                )}
+                <span className="px-2 py-0.5 rounded text-xs font-medium bg-[#5cb85c] text-white">
+                  {selectedCustomer.currency}
+                </span>
+              </div>
             </div>
-            <div className="text-sm font-medium text-[#333] dark:text-white">{selectedCustomer.name}</div>
-            <div className="text-xs text-[#666] dark:text-slate-400 mt-0.5">
-              #{selectedCustomer.customer_number} | {selectedCustomer.type}
-            </div>
-            {selectedCustomer.primary_warehouse && (
-              <div className="text-xs text-[#666] dark:text-slate-400 mt-1">
-                Warehouse: {selectedCustomer.primary_warehouse}
+
+            {primaryContact && (
+              <div className="bg-[#f0f0f0] dark:bg-slate-700/50 rounded p-3 border border-[#e8e8e8] dark:border-slate-600">
+                <div className="flex items-center gap-2 mb-2">
+                  <User className="h-3.5 w-3.5 text-[#666]" />
+                  <span className="text-xs font-medium text-[#666] dark:text-slate-400">Primary Contact</span>
+                </div>
+                <div className="text-sm font-medium text-[#333] dark:text-white">
+                  {primaryContact.first_name} {primaryContact.last_name}
+                </div>
+                <div className="text-xs text-[#666] dark:text-slate-400 mt-0.5 truncate">
+                  {primaryContact.title && <>{primaryContact.title} | </>}
+                  {primaryContact.email}
+                </div>
               </div>
             )}
-            <div className="flex items-center gap-2 mt-2">
-              {selectedCustomer.tier && (
-                <span className={`px-2 py-0.5 rounded text-xs font-medium ${
-                  selectedCustomer.tier === 'platinum' ? 'bg-[#1a3a5c] text-white' :
-                  selectedCustomer.tier === 'gold' ? 'bg-[#c9a227] text-white' :
-                  selectedCustomer.tier === 'silver' ? 'bg-[#6c757d] text-white' :
-                  'bg-[#428bca] text-white'
-                }`}>
-                  {selectedCustomer.tier.charAt(0).toUpperCase() + selectedCustomer.tier.slice(1)}
-                </span>
-              )}
-              <span className="px-2 py-0.5 rounded text-xs font-medium bg-[#5cb85c] text-white">
-                {selectedCustomer.currency}
-              </span>
-            </div>
+
+            {primaryAddress && (
+              <div className="bg-[#f0f0f0] dark:bg-slate-700/50 rounded p-3 border border-[#e8e8e8] dark:border-slate-600">
+                <div className="flex items-center gap-2 mb-2">
+                  <MapPin className="h-3.5 w-3.5 text-[#666]" />
+                  <span className="text-xs font-medium text-[#666] dark:text-slate-400">Ship To</span>
+                </div>
+                <div className="text-xs text-[#333] dark:text-slate-300 leading-relaxed">
+                  {primaryAddress.address_line_1}<br />
+                  {primaryAddress.city}, {primaryAddress.state} {primaryAddress.postal_code}
+                </div>
+              </div>
+            )}
           </div>
 
-          {primaryContact && (
-            <div className="bg-[#f0f0f0] dark:bg-slate-700/50 rounded p-3 border border-[#e8e8e8] dark:border-slate-600">
-              <div className="flex items-center gap-2 mb-2">
-                <User className="h-3.5 w-3.5 text-[#666]" />
-                <span className="text-xs font-medium text-[#666] dark:text-slate-400">Primary Contact</span>
-              </div>
-              <div className="text-sm font-medium text-[#333] dark:text-white">
-                {primaryContact.first_name} {primaryContact.last_name}
-              </div>
-              <div className="text-xs text-[#666] dark:text-slate-400 mt-0.5 truncate">
-                {primaryContact.title && <>{primaryContact.title} | </>}
-                {primaryContact.email}
-              </div>
-            </div>
-          )}
-
-          {primaryAddress && (
-            <div className="bg-[#f0f0f0] dark:bg-slate-700/50 rounded p-3 border border-[#e8e8e8] dark:border-slate-600">
-              <div className="flex items-center gap-2 mb-2">
-                <MapPin className="h-3.5 w-3.5 text-[#666]" />
-                <span className="text-xs font-medium text-[#666] dark:text-slate-400">Ship To</span>
-              </div>
-              <div className="text-xs text-[#333] dark:text-slate-300 leading-relaxed">
-                {primaryAddress.address_line_1}<br />
-                {primaryAddress.city}, {primaryAddress.state} {primaryAddress.postal_code}
+          {selectedCustomer.customer_notes && (
+            <div className="bg-[#fff9e6] dark:bg-slate-700/50 rounded p-3 border border-[#ffe58f] dark:border-slate-600">
+              <div className="flex items-start gap-2">
+                <div className="flex-shrink-0 mt-0.5">
+                  <svg className="h-4 w-4 text-[#d4a028]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-xs font-medium text-[#8a6d3b] dark:text-yellow-400 mb-1">Customer Notes</div>
+                  <div className="text-xs text-[#333] dark:text-slate-300 whitespace-pre-wrap break-words">
+                    {selectedCustomer.customer_notes}
+                  </div>
+                </div>
               </div>
             </div>
           )}
