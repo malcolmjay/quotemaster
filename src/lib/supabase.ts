@@ -1174,7 +1174,7 @@ export const getQuoteMessages = async (quoteId: string): Promise<Message[]> => {
   const messagesWithUserInfo = await Promise.all(
     (data || []).map(async (msg) => {
       const { data: userProfile } = await supabase
-        .from('user_profiles')
+        .from('user_display_info')
         .select('display_name, email')
         .eq('id', msg.created_by)
         .maybeSingle();
@@ -1216,7 +1216,7 @@ export const getLineItemMessages = async (lineItemId: string): Promise<Message[]
   const messagesWithUserInfo = await Promise.all(
     (data || []).map(async (msg) => {
       const { data: userProfile } = await supabase
-        .from('user_profiles')
+        .from('user_display_info')
         .select('display_name, email')
         .eq('id', msg.created_by)
         .maybeSingle();
@@ -1263,7 +1263,7 @@ export const createMessage = async (
   }
 
   const { data: userProfile } = await supabase
-    .from('user_profiles')
+    .from('user_display_info')
     .select('display_name, email')
     .eq('id', user.id)
     .maybeSingle();
