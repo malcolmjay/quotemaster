@@ -1428,15 +1428,28 @@ const createNotificationsForMentions = async (
 
   if (notifications.length > 0) {
     logger.debug('Inserting notifications into database', { count: notifications.length, messageId });
-    const { data, error } = await supabase
-      .from('notifications')
-      .insert(notifications)
-      .select();
 
-    if (error) {
-      logger.error('Failed to create notifications', error, { notifications, messageId });
-    } else {
-      logger.debug('Notifications created successfully', { count: notifications.length, data, messageId });
+    // Use security definer function to bypass RLS issues
+    const results = await Promise.all(
+      notifications.map(async (notification) => {
+        const { data, error } = await supabase.rpc('create_notification', {
+          p_user_id: notification.user_id,
+          p_message_id: notification.message_id,
+          p_created_by: notification.created_by,
+          p_type: notification.type
+        });
+
+        if (error) {
+          logger.error('Failed to create notification', error, { notification, messageId });
+          return null;
+        }
+        return data;
+      })
+    );
+
+    const successCount = results.filter(r => r !== null).length;
+    if (successCount > 0) {
+      logger.debug('Notifications created successfully', { count: successCount, messageId });
     }
   } else {
     logger.debug('No notifications to create after filtering out creator');
