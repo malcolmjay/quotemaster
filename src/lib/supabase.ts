@@ -1133,3 +1133,209 @@ export const getPaginatedPendingApprovals = async (params: PaginationParams): Pr
     totalPages: Math.ceil(total / pageSize)
   };
 };
+
+export interface Message {
+  id: string;
+  quote_id?: string;
+  line_item_id?: string;
+  message: string;
+  created_by: string;
+  created_at: string;
+  updated_at: string;
+  is_edited: boolean;
+  user_email?: string;
+  user_name?: string;
+}
+
+export const getQuoteMessages = async (quoteId: string): Promise<Message[]> => {
+  logger.debug('Fetching messages for quote', { quoteId });
+
+  const { data, error } = await supabase
+    .from('messages')
+    .select(`
+      id,
+      quote_id,
+      line_item_id,
+      message,
+      created_by,
+      created_at,
+      updated_at,
+      is_edited
+    `)
+    .eq('quote_id', quoteId)
+    .is('line_item_id', null)
+    .order('created_at', { ascending: true });
+
+  if (error) {
+    logger.error('Failed to fetch quote messages', error);
+    throw new Error('Failed to load messages. Please try again.');
+  }
+
+  const messagesWithUserInfo = await Promise.all(
+    (data || []).map(async (msg) => {
+      const { data: userRole } = await supabase
+        .from('user_roles')
+        .select('email')
+        .eq('user_id', msg.created_by)
+        .maybeSingle();
+
+      return {
+        ...msg,
+        user_email: userRole?.email || 'Unknown User',
+        user_name: userRole?.email?.split('@')[0] || 'Unknown'
+      };
+    })
+  );
+
+  return messagesWithUserInfo;
+};
+
+export const getLineItemMessages = async (lineItemId: string): Promise<Message[]> => {
+  logger.debug('Fetching messages for line item', { lineItemId });
+
+  const { data, error } = await supabase
+    .from('messages')
+    .select(`
+      id,
+      quote_id,
+      line_item_id,
+      message,
+      created_by,
+      created_at,
+      updated_at,
+      is_edited
+    `)
+    .eq('line_item_id', lineItemId)
+    .order('created_at', { ascending: true });
+
+  if (error) {
+    logger.error('Failed to fetch line item messages', error);
+    throw new Error('Failed to load messages. Please try again.');
+  }
+
+  const messagesWithUserInfo = await Promise.all(
+    (data || []).map(async (msg) => {
+      const { data: userRole } = await supabase
+        .from('user_roles')
+        .select('email')
+        .eq('user_id', msg.created_by)
+        .maybeSingle();
+
+      return {
+        ...msg,
+        user_email: userRole?.email || 'Unknown User',
+        user_name: userRole?.email?.split('@')[0] || 'Unknown'
+      };
+    })
+  );
+
+  return messagesWithUserInfo;
+};
+
+export const createMessage = async (
+  message: string,
+  quoteId?: string,
+  lineItemId?: string
+): Promise<Message> => {
+  logger.debug('Creating message', { quoteId, lineItemId });
+
+  const user = await getCurrentUser();
+  if (!user) throw new Error('User not authenticated');
+
+  if (!quoteId && !lineItemId) {
+    throw new Error('Either quoteId or lineItemId must be provided');
+  }
+
+  const { data, error } = await supabase
+    .from('messages')
+    .insert({
+      message: message.trim(),
+      quote_id: quoteId || null,
+      line_item_id: lineItemId || null,
+      created_by: user.id
+    })
+    .select()
+    .single();
+
+  if (error) {
+    logger.error('Failed to create message', error);
+    throw new Error('Failed to send message. Please try again.');
+  }
+
+  const { data: userRole } = await supabase
+    .from('user_roles')
+    .select('email')
+    .eq('user_id', user.id)
+    .maybeSingle();
+
+  return {
+    ...data,
+    user_email: userRole?.email || 'Unknown User',
+    user_name: userRole?.email?.split('@')[0] || 'Unknown'
+  };
+};
+
+export const updateMessage = async (messageId: string, newMessage: string): Promise<Message> => {
+  logger.debug('Updating message', { messageId });
+
+  const { data, error } = await supabase
+    .from('messages')
+    .update({ message: newMessage.trim() })
+    .eq('id', messageId)
+    .select()
+    .single();
+
+  if (error) {
+    logger.error('Failed to update message', error);
+    throw new Error('Failed to update message. Please try again.');
+  }
+
+  return data;
+};
+
+export const deleteMessage = async (messageId: string): Promise<void> => {
+  logger.debug('Deleting message', { messageId });
+
+  const { error } = await supabase
+    .from('messages')
+    .delete()
+    .eq('id', messageId);
+
+  if (error) {
+    logger.error('Failed to delete message', error);
+    throw new Error('Failed to delete message. Please try again.');
+  }
+
+  logger.info('Message deleted successfully', { messageId });
+};
+
+export const subscribeToMessages = (
+  quoteId?: string,
+  lineItemId?: string,
+  callback?: (payload: any) => void
+) => {
+  const channelName = quoteId
+    ? `messages_quote_${quoteId}`
+    : `messages_line_item_${lineItemId}`;
+
+  let filter = '';
+  if (quoteId) {
+    filter = `quote_id=eq.${quoteId}`;
+  } else if (lineItemId) {
+    filter = `line_item_id=eq.${lineItemId}`;
+  }
+
+  return supabase
+    .channel(channelName)
+    .on(
+      'postgres_changes',
+      {
+        event: '*',
+        schema: 'public',
+        table: 'messages',
+        filter: filter
+      },
+      callback || (() => {})
+    )
+    .subscribe();
+};

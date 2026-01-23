@@ -8,8 +8,9 @@ import { MultiYearPricing } from './MultiYearPricing';
 import { useSupabaseQuote } from '../../context/SupabaseQuoteContext';
 import { useCustomer } from '../../context/CustomerContext';
 import { supabase } from '../../lib/supabase';
-import { Plus, ChevronDown, ChevronRight, Settings } from 'lucide-react';
+import { Plus, ChevronDown, ChevronRight, Settings, MessageCircle } from 'lucide-react';
 import { HelpTooltip } from '../common/HelpTooltip';
+import { MessagePanel } from '../common/MessagePanel';
 
 export const QuoteBuilder: React.FC = () => {
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -23,6 +24,7 @@ export const QuoteBuilder: React.FC = () => {
   const [createdByEmail, setCreatedByEmail] = useState<string | null>(null);
   const [showQuoteDetails, setShowQuoteDetails] = useState(false);
   const [showCustomerDetails, setShowCustomerDetails] = useState(true);
+  const [showMessages, setShowMessages] = useState(false);
 
   const { currentQuote, quotes, setCurrentQuote } = useSupabaseQuote();
   const { selectedCustomer, setSelectedCustomer } = useCustomer();
@@ -195,6 +197,17 @@ export const QuoteBuilder: React.FC = () => {
             </div>
 
             <div className="flex items-center gap-2">
+              {currentQuote && (
+                <HelpTooltip content="View and add messages to coordinate with team members on this quote. Messages are visible to all users who can access this quote.">
+                  <button
+                    onClick={() => setShowMessages(!showMessages)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-[#666] hover:text-[#333] hover:bg-[#f5f5f5] rounded border border-transparent hover:border-[#d4d4d4] transition-colors"
+                  >
+                    <MessageCircle className="w-4 h-4" />
+                    Messages
+                  </button>
+                </HelpTooltip>
+              )}
               <HelpTooltip content="Toggle quote options like quote number, PO number, terms, and expiration date. These details help manage and track your quotes effectively.">
                 <button
                   onClick={() => setShowQuoteDetails(!showQuoteDetails)}
@@ -320,6 +333,15 @@ export const QuoteBuilder: React.FC = () => {
           supplyPeriodMonths={supplyPeriodMonths}
           onClose={() => setShowMultiYearPricing(false)}
           onSave={handleSaveMultiYearPricing}
+        />
+      )}
+
+      {/* Message Panel */}
+      {showMessages && currentQuote && (
+        <MessagePanel
+          quoteId={currentQuote.id}
+          title={`Quote ${currentQuote.quote_number} Messages`}
+          onClose={() => setShowMessages(false)}
         />
       )}
     </div>

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Package, Plus, Upload, Search, ChevronDown, Trash2, Calendar, AlertCircle, Eye, Calculator, FileCheck, Filter, X, Download, ChevronRight } from 'lucide-react';
+import { Package, Plus, Upload, Search, ChevronDown, Trash2, Calendar, AlertCircle, Eye, Calculator, FileCheck, Filter, X, Download, ChevronRight, MessageCircle } from 'lucide-react';
 import { ProductModal } from '../catalog/ProductModal';
 import { PriceBreakModal } from './PriceBreakModal';
 import { SupersessionModal } from './SupersessionModal';
@@ -14,6 +14,7 @@ import { useDeletion } from '../../hooks/useDeletion';
 import { useProducts } from '../../hooks/useSupabaseData';
 import { supabase } from '../../lib/supabase';
 import { HelpTooltip } from '../common/HelpTooltip';
+import { MessagePanel } from '../common/MessagePanel';
 
 const PriceRequestInfo: React.FC<{ itemId: string }> = ({ itemId }) => {
   const [priceRequest, setPriceRequest] = React.useState<any>(null);
@@ -149,6 +150,7 @@ export const LineItems: React.FC<LineItemsProps> = ({
   const [filterExpiredCost, setFilterExpiredCost] = useState<'all' | 'expired' | 'valid'>('all');
   const [filterStatus, setFilterStatus] = useState<'all' | 'pending' | 'approved' | 'lost'>('all');
   const [showFilters, setShowFilters] = useState(false);
+  const [showMessagePanel, setShowMessagePanel] = useState<string | null>(null);
 
   const searchInputRef = useRef<HTMLInputElement>(null);
 
@@ -1001,6 +1003,13 @@ export const LineItems: React.FC<LineItemsProps> = ({
                         <Eye className="w-4 h-4 text-[#666] dark:text-slate-400" />
                       </button>
                       <button
+                        onClick={() => setShowMessagePanel(item.id)}
+                        className="p-1.5 hover:bg-[#e8e8e8] dark:hover:bg-slate-700 rounded transition-colors"
+                        title="Messages"
+                      >
+                        <MessageCircle className="w-4 h-4 text-[#428bca] dark:text-blue-400" />
+                      </button>
+                      <button
                         onClick={() => handleDeleteItem(item.id)}
                         className="p-1.5 hover:bg-[#f2dede] dark:hover:bg-red-900/20 rounded transition-colors"
                         title="Delete"
@@ -1145,6 +1154,16 @@ export const LineItems: React.FC<LineItemsProps> = ({
       {showCSVUploadModal && <CSVUploadModal onClose={() => setShowCSVUploadModal(false)} onUpload={handleCSVUpload} mode={csvUploadMode} existingLineItems={lineItems} selectedCustomer={selectedCustomer} />}
       {showDeleteModal && <DeleteConfirmationModal isOpen={true} onClose={() => setShowDeleteModal(null)} onConfirm={confirmDeleteItem} title="Delete Line Item" message="Remove this item from the quote?" itemName={lineItems.find(i => i.id === showDeleteModal)?.name || ''} deleteType="hard" loading={deleteLoading} cascadeWarning="This cannot be undone." />}
       {showLostDetailsModal && <LostDetailsModal lineItem={lineItems.find(i => i.id === showLostDetailsModal)} onClose={() => setShowLostDetailsModal(null)} onSave={(id, details) => { setLineItems(prev => prev.map(i => i.id === id ? { ...i, status: 'Lost' } : i)); setShowLostDetailsModal(null); }} isOpen={true} />}
+      {showMessagePanel && (() => {
+        const item = lineItems.find(i => i.id === showMessagePanel);
+        return item ? (
+          <MessagePanel
+            lineItemId={item.id}
+            title={`Messages: ${item.sku} - ${item.name}`}
+            onClose={() => setShowMessagePanel(null)}
+          />
+        ) : null;
+      })()}
     </div>
   );
 };
