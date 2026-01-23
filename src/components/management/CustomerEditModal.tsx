@@ -26,7 +26,8 @@ export const CustomerEditModal: React.FC<CustomerEditModalProps> = ({
     tier: 'bronze' as 'bronze' | 'silver' | 'gold' | 'platinum',
     sales_manager: '',
     sales_rep: '',
-    primary_warehouse: ''
+    primary_warehouse: '',
+    customer_notes: ''
   });
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -45,7 +46,8 @@ export const CustomerEditModal: React.FC<CustomerEditModalProps> = ({
         tier: customer.tier || 'bronze',
         sales_manager: customer.sales_manager || '',
         sales_rep: customer.sales_rep || '',
-        primary_warehouse: customer.primary_warehouse || ''
+        primary_warehouse: customer.primary_warehouse || '',
+        customer_notes: customer.customer_notes || ''
       });
     }
   }, [customer, isCreating]);
@@ -87,7 +89,8 @@ export const CustomerEditModal: React.FC<CustomerEditModalProps> = ({
         tier: formData.tier,
         sales_manager: formData.sales_manager || null,
         sales_rep: formData.sales_rep || null,
-        primary_warehouse: formData.primary_warehouse || null
+        primary_warehouse: formData.primary_warehouse || null,
+        customer_notes: formData.customer_notes || null
       };
 
       if (isCreating) {
@@ -297,6 +300,19 @@ export const CustomerEditModal: React.FC<CustomerEditModalProps> = ({
                   </option>
                 ))}
               </select>
+            </div>
+
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Customer Notes
+              </label>
+              <textarea
+                value={formData.customer_notes}
+                onChange={(e) => setFormData({ ...formData, customer_notes: e.target.value })}
+                rows={4}
+                placeholder="Add any notes about this customer..."
+                className="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 resize-vertical"
+              />
             </div>
           </div>
 
