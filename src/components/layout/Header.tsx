@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Building2, User, Bell, Sun, Moon, LogOut, HelpCircle } from 'lucide-react';
 import { useAuthContext } from '../auth/AuthProvider';
 import { useCustomer } from '../../context/CustomerContext';
@@ -6,6 +6,8 @@ import { useSupabaseQuote } from '../../context/SupabaseQuoteContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useHelp } from '../../context/HelpContext';
 import { HelpTooltip } from '../common/HelpTooltip';
+import { NotificationDropdown } from '../common/NotificationDropdown';
+import { getUnreadNotificationCount, subscribeToNotifications } from '../../lib/supabase';
 
 export const Header: React.FC = () => {
   const { user, signOut } = useAuthContext();
@@ -14,12 +16,33 @@ export const Header: React.FC = () => {
   const { theme, toggleTheme } = useTheme();
   const { helpMode, toggleHelpMode } = useHelp();
   const [loggingOut, setLoggingOut] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [showNotifications, setShowNotifications] = useState(false);
 
   // Calculate quote statistics
   const totalQuotes = quotes.length;
   const draftQuotes = quotes.filter(q => q.status === 'draft').length;
   const sentQuotes = quotes.filter(q => q.status === 'sent').length;
   const acceptedQuotes = quotes.filter(q => q.status === 'accepted').length;
+
+  useEffect(() => {
+    if (!user) return;
+
+    const fetchUnreadCount = async () => {
+      const count = await getUnreadNotificationCount();
+      setUnreadCount(count);
+    };
+
+    fetchUnreadCount();
+
+    const subscription = subscribeToNotifications(() => {
+      fetchUnreadCount();
+    });
+
+    return () => {
+      subscription.unsubscribe();
+    };
+  }, [user]);
 
   const handleLogout = async () => {
     try {
@@ -30,6 +53,11 @@ export const Header: React.FC = () => {
     } finally {
       setLoggingOut(false);
     }
+  };
+
+  const refreshNotificationCount = async () => {
+    const count = await getUnreadNotificationCount();
+    setUnreadCount(count);
   };
 
   return (
@@ -67,9 +95,24 @@ export const Header: React.FC = () => {
             </button>
 
             <HelpTooltip content="View system notifications and important alerts. Stay informed about quote approvals and status changes.">
-              <button className="p-2 text-[#666] hover:text-[#333] hover:bg-[#f5f5f5] rounded transition-colors">
-                <Bell className="h-4 w-4" />
-              </button>
+              <div className="relative">
+                <button
+                  onClick={() => setShowNotifications(!showNotifications)}
+                  className="p-2 text-[#666] hover:text-[#333] hover:bg-[#f5f5f5] rounded transition-colors relative"
+                >
+                  <Bell className="h-4 w-4" />
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-semibold rounded-full h-4 min-w-[16px] flex items-center justify-center px-1">
+                      {unreadCount > 99 ? '99+' : unreadCount}
+                    </span>
+                  )}
+                </button>
+                <NotificationDropdown
+                  isOpen={showNotifications}
+                  onClose={() => setShowNotifications(false)}
+                  onCountChange={refreshNotificationCount}
+                />
+              </div>
             </HelpTooltip>
 
             <HelpTooltip content="Your user profile information. This shows your name and email address associated with your account.">

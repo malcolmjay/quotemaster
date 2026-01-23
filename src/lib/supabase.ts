@@ -1268,6 +1268,8 @@ export const createMessage = async (
     .eq('id', user.id)
     .maybeSingle();
 
+  await createNotificationsForMentions(message, data.id, user.id);
+
   return {
     ...data,
     user_email: userProfile?.email || 'Unknown User',
@@ -1334,6 +1336,184 @@ export const subscribeToMessages = (
         schema: 'public',
         table: 'messages',
         filter: filter
+      },
+      callback || (() => {})
+    )
+    .subscribe();
+};
+
+const extractMentions = (text: string): string[] => {
+  const mentionRegex = /@([a-zA-Z0-9._-]+(?:\s+[a-zA-Z0-9._-]+)*)/g;
+  const mentions: string[] = [];
+  let match;
+
+  while ((match = mentionRegex.exec(text)) !== null) {
+    mentions.push(match[1].trim());
+  }
+
+  return mentions;
+};
+
+const findUsersByNameOrEmail = async (searchTerms: string[]): Promise<any[]> => {
+  if (searchTerms.length === 0) return [];
+
+  const { data, error } = await supabase
+    .from('user_display_info')
+    .select('id, email, display_name');
+
+  if (error) {
+    logger.error('Failed to fetch users for mentions', error);
+    return [];
+  }
+
+  const users = data || [];
+  const matchedUsers: any[] = [];
+
+  for (const term of searchTerms) {
+    const lowerTerm = term.toLowerCase();
+
+    const user = users.find(u =>
+      u.display_name.toLowerCase() === lowerTerm ||
+      u.email.toLowerCase() === lowerTerm ||
+      u.email.toLowerCase().startsWith(lowerTerm + '@')
+    );
+
+    if (user && !matchedUsers.find(m => m.id === user.id)) {
+      matchedUsers.push(user);
+    }
+  }
+
+  return matchedUsers;
+};
+
+const createNotificationsForMentions = async (
+  messageText: string,
+  messageId: string,
+  createdBy: string
+): Promise<void> => {
+  const mentions = extractMentions(messageText);
+  if (mentions.length === 0) return;
+
+  const mentionedUsers = await findUsersByNameOrEmail(mentions);
+
+  if (mentionedUsers.length === 0) return;
+
+  const notifications = mentionedUsers
+    .filter(user => user.id !== createdBy)
+    .map(user => ({
+      user_id: user.id,
+      message_id: messageId,
+      created_by: createdBy,
+      type: 'mention' as const
+    }));
+
+  if (notifications.length > 0) {
+    const { error } = await supabase
+      .from('notifications')
+      .insert(notifications);
+
+    if (error) {
+      logger.error('Failed to create notifications', error);
+    }
+  }
+};
+
+export const getUnreadNotificationCount = async (): Promise<number> => {
+  const user = await getCurrentUser();
+  if (!user) return 0;
+
+  const { count, error } = await supabase
+    .from('notifications')
+    .select('*', { count: 'exact', head: true })
+    .eq('user_id', user.id)
+    .eq('is_read', false);
+
+  if (error) {
+    logger.error('Failed to fetch unread notification count', error);
+    return 0;
+  }
+
+  return count || 0;
+};
+
+export const getNotifications = async (limit = 50): Promise<any[]> => {
+  const user = await getCurrentUser();
+  if (!user) return [];
+
+  const { data: notifications, error } = await supabase
+    .from('notifications')
+    .select('*')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false })
+    .limit(limit);
+
+  if (error) {
+    logger.error('Failed to fetch notifications', error);
+    return [];
+  }
+
+  const enrichedNotifications = await Promise.all(
+    (notifications || []).map(async (notification) => {
+      const { data: message } = await supabase
+        .from('messages')
+        .select('message, quote_id, line_item_id')
+        .eq('id', notification.message_id)
+        .maybeSingle();
+
+      const { data: creator } = await supabase
+        .from('user_display_info')
+        .select('display_name, email')
+        .eq('id', notification.created_by)
+        .maybeSingle();
+
+      return {
+        ...notification,
+        message: message || { message: '[Deleted message]', quote_id: null, line_item_id: null },
+        creator: creator || { display_name: 'Unknown', email: 'unknown@example.com' }
+      };
+    })
+  );
+
+  return enrichedNotifications;
+};
+
+export const markNotificationAsRead = async (notificationId: string): Promise<void> => {
+  const { error } = await supabase
+    .from('notifications')
+    .update({ is_read: true, read_at: new Date().toISOString() })
+    .eq('id', notificationId);
+
+  if (error) {
+    logger.error('Failed to mark notification as read', error);
+    throw new Error('Failed to mark notification as read');
+  }
+};
+
+export const markAllNotificationsAsRead = async (): Promise<void> => {
+  const user = await getCurrentUser();
+  if (!user) throw new Error('User not authenticated');
+
+  const { error } = await supabase
+    .from('notifications')
+    .update({ is_read: true, read_at: new Date().toISOString() })
+    .eq('user_id', user.id)
+    .eq('is_read', false);
+
+  if (error) {
+    logger.error('Failed to mark all notifications as read', error);
+    throw new Error('Failed to mark all notifications as read');
+  }
+};
+
+export const subscribeToNotifications = (callback?: (payload: any) => void) => {
+  return supabase
+    .channel('notifications_changes')
+    .on(
+      'postgres_changes',
+      {
+        event: '*',
+        schema: 'public',
+        table: 'notifications'
       },
       callback || (() => {})
     )

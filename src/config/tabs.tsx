@@ -14,6 +14,7 @@ import {
   Users,
   Building,
   Search,
+  Bell,
   LucideIcon
 } from 'lucide-react';
 
@@ -23,6 +24,7 @@ const CustomerProfile = lazy(() => import('../components/customer/CustomerProfil
 const QuoteManagement = lazy(() => import('../components/management/QuoteManagement').then(m => ({ default: m.QuoteManagement })));
 const TrainingGuide = lazy(() => import('../components/training/TrainingGuide').then(m => ({ default: m.TrainingGuide })));
 const PendingApprovals = lazy(() => import('../components/approval/PendingApprovals').then(m => ({ default: m.PendingApprovals })));
+const NotificationsPage = lazy(() => import('../components/common/NotificationsPage').then(m => ({ default: m.NotificationsPage })));
 const PriceRequests = lazy(() => import('../components/management/PriceRequests').then(m => ({ default: m.PriceRequests })));
 const ConfigurationSettings = lazy(() => import('../components/settings/ConfigurationSettings').then(m => ({ default: m.ConfigurationSettings })));
 const ProductImport = lazy(() => import('../components/management/ProductImport').then(m => ({ default: m.ProductImport })));
@@ -57,6 +59,14 @@ export const TAB_CONFIG: readonly TabConfig[] = [
     icon: Shield,
     help: 'Review and approve quotes that require management authorization.',
     component: PendingApprovals,
+    showInNav: true
+  },
+  {
+    id: 'notifications',
+    label: 'Notifications',
+    icon: Bell,
+    help: 'View all your notifications and mentions from team members.',
+    component: NotificationsPage,
     showInNav: true
   },
   {

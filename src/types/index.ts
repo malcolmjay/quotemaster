@@ -301,3 +301,36 @@ export interface CreateLostDetailsInput {
   bidPrice2?: number | null;
   createdBy: string;
 }
+
+// Notification Types
+export interface Notification {
+  id: string;
+  user_id: string;
+  message_id: string;
+  created_by: string;
+  type: 'mention' | 'reply';
+  is_read: boolean;
+  read_at: string | null;
+  created_at: string;
+  message?: {
+    message: string;
+    quote_id?: string;
+    line_item_id?: string;
+  };
+  creator?: {
+    display_name: string;
+    email: string;
+  };
+}
+
+export interface NotificationWithDetails extends Notification {
+  message: {
+    message: string;
+    quote_id?: string;
+    line_item_id?: string;
+  };
+  creator: {
+    display_name: string;
+    email: string;
+  };
+}
