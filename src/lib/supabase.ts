@@ -1394,11 +1394,17 @@ const createNotificationsForMentions = async (
   createdBy: string
 ): Promise<void> => {
   const mentions = extractMentions(messageText);
+  logger.debug('Extracted mentions', { mentions, messageText });
+
   if (mentions.length === 0) return;
 
   const mentionedUsers = await findUsersByNameOrEmail(mentions);
+  logger.debug('Found mentioned users', { mentionedUsers, mentions });
 
-  if (mentionedUsers.length === 0) return;
+  if (mentionedUsers.length === 0) {
+    logger.warn('No users found for mentions', { mentions });
+    return;
+  }
 
   const notifications = mentionedUsers
     .filter(user => user.id !== createdBy)
@@ -1409,6 +1415,8 @@ const createNotificationsForMentions = async (
       type: 'mention' as const
     }));
 
+  logger.debug('Notifications to create', { notifications, createdBy });
+
   if (notifications.length > 0) {
     const { error } = await supabase
       .from('notifications')
@@ -1416,7 +1424,11 @@ const createNotificationsForMentions = async (
 
     if (error) {
       logger.error('Failed to create notifications', error);
+    } else {
+      logger.debug('Notifications created successfully', { count: notifications.length });
     }
+  } else {
+    logger.debug('No notifications to create after filtering out creator');
   }
 };
 
