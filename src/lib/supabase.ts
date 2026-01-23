@@ -1173,20 +1173,16 @@ export const getQuoteMessages = async (quoteId: string): Promise<Message[]> => {
 
   const messagesWithUserInfo = await Promise.all(
     (data || []).map(async (msg) => {
-      const { data: userMetadata } = await supabase
-        .from('user_metadata')
-        .select('first_name, last_name, email')
-        .eq('user_id', msg.created_by)
+      const { data: userProfile } = await supabase
+        .from('user_profiles')
+        .select('display_name, email')
+        .eq('id', msg.created_by)
         .maybeSingle();
-
-      const firstName = userMetadata?.first_name || userMetadata?.email?.split('@')[0] || 'Unknown';
-      const lastName = userMetadata?.last_name || '';
-      const displayName = lastName ? `${firstName} ${lastName}` : firstName;
 
       return {
         ...msg,
-        user_email: userMetadata?.email || 'Unknown User',
-        user_name: displayName
+        user_email: userProfile?.email || 'Unknown User',
+        user_name: userProfile?.display_name || 'Unknown'
       };
     })
   );
@@ -1219,20 +1215,16 @@ export const getLineItemMessages = async (lineItemId: string): Promise<Message[]
 
   const messagesWithUserInfo = await Promise.all(
     (data || []).map(async (msg) => {
-      const { data: userMetadata } = await supabase
-        .from('user_metadata')
-        .select('first_name, last_name, email')
-        .eq('user_id', msg.created_by)
+      const { data: userProfile } = await supabase
+        .from('user_profiles')
+        .select('display_name, email')
+        .eq('id', msg.created_by)
         .maybeSingle();
-
-      const firstName = userMetadata?.first_name || userMetadata?.email?.split('@')[0] || 'Unknown';
-      const lastName = userMetadata?.last_name || '';
-      const displayName = lastName ? `${firstName} ${lastName}` : firstName;
 
       return {
         ...msg,
-        user_email: userMetadata?.email || 'Unknown User',
-        user_name: displayName
+        user_email: userProfile?.email || 'Unknown User',
+        user_name: userProfile?.display_name || 'Unknown'
       };
     })
   );
@@ -1270,20 +1262,16 @@ export const createMessage = async (
     throw new Error('Failed to send message. Please try again.');
   }
 
-  const { data: userMetadata } = await supabase
-    .from('user_metadata')
-    .select('first_name, last_name, email')
-    .eq('user_id', user.id)
+  const { data: userProfile } = await supabase
+    .from('user_profiles')
+    .select('display_name, email')
+    .eq('id', user.id)
     .maybeSingle();
-
-  const firstName = userMetadata?.first_name || userMetadata?.email?.split('@')[0] || 'Unknown';
-  const lastName = userMetadata?.last_name || '';
-  const displayName = lastName ? `${firstName} ${lastName}` : firstName;
 
   return {
     ...data,
-    user_email: userMetadata?.email || 'Unknown User',
-    user_name: displayName
+    user_email: userProfile?.email || 'Unknown User',
+    user_name: userProfile?.display_name || 'Unknown'
   };
 };
 
