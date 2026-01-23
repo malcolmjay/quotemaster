@@ -1372,14 +1372,16 @@ const findUsersByNameOrEmail = async (searchTerms: string[]): Promise<any[]> => 
   for (const term of searchTerms) {
     const lowerTerm = term.toLowerCase();
 
-    const user = users.find(u =>
+    const matchingUsers = users.filter(u =>
       u.display_name.toLowerCase() === lowerTerm ||
       u.email.toLowerCase() === lowerTerm ||
       u.email.toLowerCase().startsWith(lowerTerm + '@')
     );
 
-    if (user && !matchedUsers.find(m => m.id === user.id)) {
-      matchedUsers.push(user);
+    for (const user of matchingUsers) {
+      if (!matchedUsers.find(m => m.id === user.id)) {
+        matchedUsers.push(user);
+      }
     }
   }
 
