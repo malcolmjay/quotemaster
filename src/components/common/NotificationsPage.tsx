@@ -187,15 +187,21 @@ export const NotificationsPage: React.FC = () => {
                       {notification.message.message}
                     </p>
 
-                    <div className="flex items-center space-x-4 text-xs text-gray-500 dark:text-gray-400">
+                    <div className="flex items-center flex-wrap gap-x-4 gap-y-1 text-xs text-gray-500 dark:text-gray-400">
                       <span>{formatTimestamp(notification.created_at)}</span>
-                      {notification.message.quote_id && (
+                      {notification.quote?.quote_number && (
                         <span className="flex items-center space-x-1">
                           <span>•</span>
-                          <span>Quote</span>
+                          <span className="font-medium">Quote {notification.quote.quote_number}</span>
                         </span>
                       )}
-                      {notification.message.line_item_id && (
+                      {notification.lineItem?.part_number && (
+                        <span className="flex items-center space-x-1">
+                          <span>•</span>
+                          <span className="font-medium">Part {notification.lineItem.part_number}</span>
+                        </span>
+                      )}
+                      {(notification.message.line_item_id && !notification.lineItem?.part_number) && (
                         <span className="flex items-center space-x-1">
                           <span>•</span>
                           <span>Line Item</span>

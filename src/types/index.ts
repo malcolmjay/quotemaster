@@ -333,4 +333,10 @@ export interface NotificationWithDetails extends Notification {
     display_name: string;
     email: string;
   };
+  lineItem?: {
+    part_number: string;
+  };
+  quote?: {
+    quote_number: string;
+  };
 }

@@ -1506,10 +1506,47 @@ export const getNotifications = async (limit = 50): Promise<any[]> => {
         .eq('id', notification.created_by)
         .maybeSingle();
 
+      let lineItemDetails = null;
+      let quoteDetails = null;
+
+      if (message?.line_item_id) {
+        const { data: lineItem } = await supabase
+          .from('quote_line_items')
+          .select('part_number, quote_id')
+          .eq('id', message.line_item_id)
+          .maybeSingle();
+
+        if (lineItem) {
+          lineItemDetails = { part_number: lineItem.part_number };
+
+          const { data: quote } = await supabase
+            .from('quotes')
+            .select('quote_number')
+            .eq('id', lineItem.quote_id)
+            .maybeSingle();
+
+          if (quote) {
+            quoteDetails = { quote_number: quote.quote_number };
+          }
+        }
+      } else if (message?.quote_id) {
+        const { data: quote } = await supabase
+          .from('quotes')
+          .select('quote_number')
+          .eq('id', message.quote_id)
+          .maybeSingle();
+
+        if (quote) {
+          quoteDetails = { quote_number: quote.quote_number };
+        }
+      }
+
       return {
         ...notification,
         message: message || { message: '[Deleted message]', quote_id: null, line_item_id: null },
-        creator: creator || { display_name: 'Unknown', email: 'unknown@example.com' }
+        creator: creator || { display_name: 'Unknown', email: 'unknown@example.com' },
+        lineItem: lineItemDetails,
+        quote: quoteDetails
       };
     })
   );

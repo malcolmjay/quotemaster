@@ -157,9 +157,21 @@ export const NotificationDropdown: React.FC<NotificationDropdownProps> = ({
                     <p className="text-sm text-gray-700 dark:text-gray-300 line-clamp-2">
                       {notification.message.message}
                     </p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
-                      {new Date(notification.created_at).toLocaleString()}
-                    </p>
+                    <div className="flex items-center flex-wrap gap-x-3 gap-y-1 text-xs text-gray-500 dark:text-gray-400 mt-1">
+                      <span>{new Date(notification.created_at).toLocaleString()}</span>
+                      {notification.quote?.quote_number && (
+                        <span className="flex items-center space-x-1">
+                          <span>•</span>
+                          <span className="font-medium">Quote {notification.quote.quote_number}</span>
+                        </span>
+                      )}
+                      {notification.lineItem?.part_number && (
+                        <span className="flex items-center space-x-1">
+                          <span>•</span>
+                          <span className="font-medium">Part {notification.lineItem.part_number}</span>
+                        </span>
+                      )}
+                    </div>
                   </div>
                   {!notification.is_read && (
                     <div className="ml-2 flex-shrink-0">
