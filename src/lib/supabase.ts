@@ -1343,7 +1343,7 @@ export const subscribeToMessages = (
 };
 
 const extractMentions = (text: string): string[] => {
-  const mentionRegex = /@([a-zA-Z0-9._-]+(?:\s+[a-zA-Z0-9._-]+)*)/g;
+  const mentionRegex = /@([a-zA-Z0-9._-]+(?:\s+[a-zA-Z0-9._-]+)?)\b/g;
   const mentions: string[] = [];
   let match;
 
