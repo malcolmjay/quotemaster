@@ -1173,16 +1173,20 @@ export const getQuoteMessages = async (quoteId: string): Promise<Message[]> => {
 
   const messagesWithUserInfo = await Promise.all(
     (data || []).map(async (msg) => {
-      const { data: userRole } = await supabase
-        .from('user_roles')
-        .select('email')
+      const { data: userMetadata } = await supabase
+        .from('user_metadata')
+        .select('first_name, last_name, email')
         .eq('user_id', msg.created_by)
         .maybeSingle();
 
+      const firstName = userMetadata?.first_name || userMetadata?.email?.split('@')[0] || 'Unknown';
+      const lastName = userMetadata?.last_name || '';
+      const displayName = lastName ? `${firstName} ${lastName}` : firstName;
+
       return {
         ...msg,
-        user_email: userRole?.email || 'Unknown User',
-        user_name: userRole?.email?.split('@')[0] || 'Unknown'
+        user_email: userMetadata?.email || 'Unknown User',
+        user_name: displayName
       };
     })
   );
@@ -1215,16 +1219,20 @@ export const getLineItemMessages = async (lineItemId: string): Promise<Message[]
 
   const messagesWithUserInfo = await Promise.all(
     (data || []).map(async (msg) => {
-      const { data: userRole } = await supabase
-        .from('user_roles')
-        .select('email')
+      const { data: userMetadata } = await supabase
+        .from('user_metadata')
+        .select('first_name, last_name, email')
         .eq('user_id', msg.created_by)
         .maybeSingle();
 
+      const firstName = userMetadata?.first_name || userMetadata?.email?.split('@')[0] || 'Unknown';
+      const lastName = userMetadata?.last_name || '';
+      const displayName = lastName ? `${firstName} ${lastName}` : firstName;
+
       return {
         ...msg,
-        user_email: userRole?.email || 'Unknown User',
-        user_name: userRole?.email?.split('@')[0] || 'Unknown'
+        user_email: userMetadata?.email || 'Unknown User',
+        user_name: displayName
       };
     })
   );
@@ -1262,16 +1270,20 @@ export const createMessage = async (
     throw new Error('Failed to send message. Please try again.');
   }
 
-  const { data: userRole } = await supabase
-    .from('user_roles')
-    .select('email')
+  const { data: userMetadata } = await supabase
+    .from('user_metadata')
+    .select('first_name, last_name, email')
     .eq('user_id', user.id)
     .maybeSingle();
 
+  const firstName = userMetadata?.first_name || userMetadata?.email?.split('@')[0] || 'Unknown';
+  const lastName = userMetadata?.last_name || '';
+  const displayName = lastName ? `${firstName} ${lastName}` : firstName;
+
   return {
     ...data,
-    user_email: userRole?.email || 'Unknown User',
-    user_name: userRole?.email?.split('@')[0] || 'Unknown'
+    user_email: userMetadata?.email || 'Unknown User',
+    user_name: displayName
   };
 };
 

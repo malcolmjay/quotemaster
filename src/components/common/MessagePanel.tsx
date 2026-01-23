@@ -97,24 +97,27 @@ export const MessagePanel: React.FC<MessagePanelProps> = ({
   const formatTimestamp = (timestamp: string) => {
     const date = new Date(timestamp);
     const now = new Date();
-    const diffMs = now.getTime() - date.getTime();
-    const diffMins = Math.floor(diffMs / 60000);
-    const diffHours = Math.floor(diffMs / 3600000);
-    const diffDays = Math.floor(diffMs / 86400000);
+    const isToday = date.toDateString() === now.toDateString();
+    const isYesterday = new Date(now.getTime() - 86400000).toDateString() === date.toDateString();
 
-    if (diffMins < 1) return 'Just now';
-    if (diffMins < 60) return `${diffMins}m ago`;
-    if (diffHours < 24) return `${diffHours}h ago`;
-    if (diffDays < 7) return `${diffDays}d ago`;
-
-    return date.toLocaleDateString('en-US', {
-      month: 'short',
-      day: 'numeric',
-      year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined
-    }) + ' at ' + date.toLocaleTimeString('en-US', {
+    const timeStr = date.toLocaleTimeString('en-US', {
       hour: 'numeric',
-      minute: '2-digit'
+      minute: '2-digit',
+      hour12: true
     });
+
+    if (isToday) {
+      return `Today at ${timeStr}`;
+    } else if (isYesterday) {
+      return `Yesterday at ${timeStr}`;
+    } else {
+      const dateStr = date.toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: date.getFullYear() !== now.getFullYear() ? 'numeric' : undefined
+      });
+      return `${dateStr} at ${timeStr}`;
+    }
   };
 
   return (
@@ -159,13 +162,11 @@ export const MessagePanel: React.FC<MessagePanelProps> = ({
                 className={`flex ${isOwnMessage ? 'justify-end' : 'justify-start'} group`}
               >
                 <div className={`max-w-[80%] ${isOwnMessage ? 'text-right' : 'text-left'}`}>
-                  <div className="flex items-center gap-2 mb-1">
-                    {!isOwnMessage && (
-                      <span className="text-xs font-medium text-[#428bca] dark:text-blue-400">
-                        {message.user_name}
-                      </span>
-                    )}
-                    <span className="text-xs text-[#999] dark:text-slate-500">
+                  <div className={`flex items-center gap-2 mb-1 ${isOwnMessage ? 'justify-end' : 'justify-start'}`}>
+                    <span className={`text-xs font-semibold ${isOwnMessage ? 'text-[#428bca] dark:text-blue-400' : 'text-[#428bca] dark:text-blue-400'}`}>
+                      {message.user_name}
+                    </span>
+                    <span className="text-xs text-[#666] dark:text-slate-400">
                       {formatTimestamp(message.created_at)}
                       {message.is_edited && ' (edited)'}
                     </span>
