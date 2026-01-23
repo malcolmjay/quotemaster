@@ -405,6 +405,7 @@ export const searchCustomers = async (searchTerm: string, limit = 50) => {
       tier,
       currency,
       primary_warehouse,
+      customer_notes,
       contacts:customer_contacts (
         id,
         first_name,
