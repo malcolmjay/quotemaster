@@ -1237,7 +1237,7 @@ export const createMessage = async (
   quoteId?: string,
   lineItemId?: string
 ): Promise<Message> => {
-  logger.debug('Creating message', { quoteId, lineItemId });
+  logger.debug('Creating message', { quoteId, lineItemId, messageText: message });
 
   const user = await getCurrentUser();
   if (!user) throw new Error('User not authenticated');
@@ -1262,13 +1262,17 @@ export const createMessage = async (
     throw new Error('Failed to send message. Please try again.');
   }
 
+  logger.debug('Message created successfully', { messageId: data.id, quoteId, lineItemId });
+
   const { data: userProfile } = await supabase
     .from('user_display_info')
     .select('display_name, email')
     .eq('id', user.id)
     .maybeSingle();
 
+  logger.debug('About to create notifications for mentions', { messageId: data.id, messageText: message });
   await createNotificationsForMentions(message, data.id, user.id);
+  logger.debug('Finished creating notifications for mentions', { messageId: data.id });
 
   return {
     ...data,
@@ -1393,13 +1397,18 @@ const createNotificationsForMentions = async (
   messageId: string,
   createdBy: string
 ): Promise<void> => {
-  const mentions = extractMentions(messageText);
-  logger.debug('Extracted mentions', { mentions, messageText });
+  logger.debug('START createNotificationsForMentions', { messageText, messageId, createdBy });
 
-  if (mentions.length === 0) return;
+  const mentions = extractMentions(messageText);
+  logger.debug('Extracted mentions', { mentions, mentionsCount: mentions.length, messageText });
+
+  if (mentions.length === 0) {
+    logger.debug('No mentions found, skipping notification creation');
+    return;
+  }
 
   const mentionedUsers = await findUsersByNameOrEmail(mentions);
-  logger.debug('Found mentioned users', { mentionedUsers, mentions });
+  logger.debug('Found mentioned users', { mentionedUsers, mentionedUsersCount: mentionedUsers.length, mentions });
 
   if (mentionedUsers.length === 0) {
     logger.warn('No users found for mentions', { mentions });
@@ -1415,21 +1424,25 @@ const createNotificationsForMentions = async (
       type: 'mention' as const
     }));
 
-  logger.debug('Notifications to create', { notifications, createdBy });
+  logger.debug('Notifications to create', { notifications, notificationsCount: notifications.length, createdBy });
 
   if (notifications.length > 0) {
-    const { error } = await supabase
+    logger.debug('Inserting notifications into database', { count: notifications.length, messageId });
+    const { data, error } = await supabase
       .from('notifications')
-      .insert(notifications);
+      .insert(notifications)
+      .select();
 
     if (error) {
-      logger.error('Failed to create notifications', error);
+      logger.error('Failed to create notifications', error, { notifications, messageId });
     } else {
-      logger.debug('Notifications created successfully', { count: notifications.length });
+      logger.debug('Notifications created successfully', { count: notifications.length, data, messageId });
     }
   } else {
     logger.debug('No notifications to create after filtering out creator');
   }
+
+  logger.debug('END createNotificationsForMentions', { messageId });
 };
 
 export const getUnreadNotificationCount = async (): Promise<number> => {
