@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { MessageCircle, Send, X, Loader2, Trash2 } from 'lucide-react';
+import { MessageCircle, Send, X, Loader2, Trash2, AtSign } from 'lucide-react';
 import {
   getQuoteMessages,
   getLineItemMessages,
@@ -9,6 +9,13 @@ import {
   type Message
 } from '../../lib/supabase';
 import { useAuthContext } from '../auth/AuthProvider';
+import { supabase } from '../../lib/supabase';
+
+interface UserSuggestion {
+  id: string;
+  email: string;
+  display_name: string;
+}
 
 interface MessagePanelProps {
   quoteId?: string;
@@ -28,7 +35,14 @@ export const MessagePanel: React.FC<MessagePanelProps> = ({
   const [loading, setLoading] = useState(false);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [showMentions, setShowMentions] = useState(false);
+  const [mentionSearch, setMentionSearch] = useState('');
+  const [mentionSuggestions, setMentionSuggestions] = useState<UserSuggestion[]>([]);
+  const [selectedMentionIndex, setSelectedMentionIndex] = useState(0);
+  const [mentionStartPos, setMentionStartPos] = useState(0);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const mentionDropdownRef = useRef<HTMLDivElement>(null);
   const { user } = useAuthContext();
 
   const scrollToBottom = () => {
@@ -94,6 +108,110 @@ export const MessagePanel: React.FC<MessagePanelProps> = ({
     }
   };
 
+  const searchUsers = async (query: string) => {
+    if (!query) {
+      setMentionSuggestions([]);
+      return;
+    }
+
+    try {
+      const { data, error } = await supabase
+        .from('user_display_info')
+        .select('id, email, display_name')
+        .or(`display_name.ilike.%${query}%,email.ilike.%${query}%`)
+        .limit(5);
+
+      if (error) throw error;
+      setMentionSuggestions(data || []);
+      setSelectedMentionIndex(0);
+    } catch (err) {
+      console.error('Failed to search users:', err);
+      setMentionSuggestions([]);
+    }
+  };
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    const cursorPos = e.target.selectionStart || 0;
+
+    setNewMessage(value);
+
+    const textBeforeCursor = value.substring(0, cursorPos);
+    const lastAtSymbol = textBeforeCursor.lastIndexOf('@');
+
+    if (lastAtSymbol !== -1) {
+      const textAfterAt = textBeforeCursor.substring(lastAtSymbol + 1);
+      const hasSpaceAfterAt = textAfterAt.includes(' ');
+
+      if (!hasSpaceAfterAt) {
+        setShowMentions(true);
+        setMentionStartPos(lastAtSymbol);
+        setMentionSearch(textAfterAt);
+        searchUsers(textAfterAt);
+      } else {
+        setShowMentions(false);
+      }
+    } else {
+      setShowMentions(false);
+    }
+  };
+
+  const insertMention = (suggestion: UserSuggestion) => {
+    const beforeMention = newMessage.substring(0, mentionStartPos);
+    const afterCursor = newMessage.substring(inputRef.current?.selectionStart || newMessage.length);
+    const newText = `${beforeMention}@${suggestion.display_name} ${afterCursor}`;
+
+    setNewMessage(newText);
+    setShowMentions(false);
+    setMentionSearch('');
+    setMentionSuggestions([]);
+
+    setTimeout(() => {
+      if (inputRef.current) {
+        const newCursorPos = mentionStartPos + suggestion.display_name.length + 2;
+        inputRef.current.focus();
+        inputRef.current.setSelectionRange(newCursorPos, newCursorPos);
+      }
+    }, 0);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!showMentions || mentionSuggestions.length === 0) return;
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setSelectedMentionIndex((prev) =>
+        prev < mentionSuggestions.length - 1 ? prev + 1 : prev
+      );
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setSelectedMentionIndex((prev) => prev > 0 ? prev - 1 : 0);
+    } else if (e.key === 'Enter' && showMentions) {
+      e.preventDefault();
+      if (mentionSuggestions[selectedMentionIndex]) {
+        insertMention(mentionSuggestions[selectedMentionIndex]);
+      }
+    } else if (e.key === 'Escape') {
+      setShowMentions(false);
+    }
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        mentionDropdownRef.current &&
+        !mentionDropdownRef.current.contains(event.target as Node) &&
+        inputRef.current &&
+        !inputRef.current.contains(event.target as Node)
+      ) {
+        setShowMentions(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   const formatTimestamp = (timestamp: string) => {
     const date = new Date(timestamp);
     const now = new Date();
@@ -118,6 +236,40 @@ export const MessagePanel: React.FC<MessagePanelProps> = ({
       });
       return `${dateStr} at ${timeStr}`;
     }
+  };
+
+  const renderMessageWithMentions = (text: string, isOwnMessage: boolean) => {
+    const mentionRegex = /@([a-zA-Z0-9._-]+(?:\s+[a-zA-Z0-9._-]+)*)/g;
+    const parts = [];
+    let lastIndex = 0;
+    let match;
+
+    while ((match = mentionRegex.exec(text)) !== null) {
+      if (match.index > lastIndex) {
+        parts.push(text.substring(lastIndex, match.index));
+      }
+
+      parts.push(
+        <span
+          key={match.index}
+          className={`font-semibold ${
+            isOwnMessage
+              ? 'text-blue-100 bg-blue-600/30 px-1 rounded'
+              : 'text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/30 px-1 rounded'
+          }`}
+        >
+          @{match[1]}
+        </span>
+      );
+
+      lastIndex = match.index + match[0].length;
+    }
+
+    if (lastIndex < text.length) {
+      parts.push(text.substring(lastIndex));
+    }
+
+    return parts.length > 0 ? parts : text;
   };
 
   return (
@@ -187,7 +339,9 @@ export const MessagePanel: React.FC<MessagePanelProps> = ({
                         : 'bg-[#f0f0f0] dark:bg-slate-700 text-[#333] dark:text-white'
                     }`}
                   >
-                    <p className="text-sm whitespace-pre-wrap break-words">{message.message}</p>
+                    <p className="text-sm whitespace-pre-wrap break-words">
+                      {renderMessageWithMentions(message.message, isOwnMessage)}
+                    </p>
                   </div>
                 </div>
               </div>
@@ -204,26 +358,60 @@ export const MessagePanel: React.FC<MessagePanelProps> = ({
       )}
 
       <form onSubmit={handleSendMessage} className="p-4 border-t border-[#d4d4d4] dark:border-slate-700 bg-[#fafafa] dark:bg-slate-700/50">
-        <div className="flex gap-2">
-          <input
-            type="text"
-            value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
-            placeholder="Type a message..."
-            disabled={sending}
-            className="flex-1 px-3 py-2 bg-white dark:bg-slate-800 border border-[#d4d4d4] dark:border-slate-600 rounded text-sm text-[#333] dark:text-white placeholder-[#999] focus:ring-2 focus:ring-[#428bca] focus:border-[#428bca] transition-all disabled:opacity-50"
-          />
-          <button
-            type="submit"
-            disabled={!newMessage.trim() || sending}
-            className="px-4 py-2 bg-[#428bca] hover:bg-[#3276b1] text-white rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
-          >
-            {sending ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <Send className="w-4 h-4" />
-            )}
-          </button>
+        <div className="relative">
+          {showMentions && mentionSuggestions.length > 0 && (
+            <div
+              ref={mentionDropdownRef}
+              className="absolute bottom-full left-0 right-0 mb-2 bg-white dark:bg-slate-800 border border-[#d4d4d4] dark:border-slate-600 rounded-lg shadow-lg max-h-48 overflow-y-auto z-10"
+            >
+              {mentionSuggestions.map((suggestion, index) => (
+                <button
+                  key={suggestion.id}
+                  type="button"
+                  onClick={() => insertMention(suggestion)}
+                  className={`w-full px-4 py-2 text-left hover:bg-[#f0f0f0] dark:hover:bg-slate-700 transition-colors flex items-center gap-3 ${
+                    index === selectedMentionIndex ? 'bg-[#f0f0f0] dark:bg-slate-700' : ''
+                  }`}
+                >
+                  <div className="flex-shrink-0 w-8 h-8 rounded-full bg-[#428bca] text-white flex items-center justify-center font-semibold text-sm">
+                    {suggestion.display_name.charAt(0).toUpperCase()}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm font-medium text-[#333] dark:text-white truncate">
+                      {suggestion.display_name}
+                    </div>
+                    <div className="text-xs text-[#666] dark:text-slate-400 truncate">
+                      {suggestion.email}
+                    </div>
+                  </div>
+                  <AtSign className="w-4 h-4 text-[#666] dark:text-slate-400 flex-shrink-0" />
+                </button>
+              ))}
+            </div>
+          )}
+          <div className="flex gap-2">
+            <input
+              ref={inputRef}
+              type="text"
+              value={newMessage}
+              onChange={handleInputChange}
+              onKeyDown={handleKeyDown}
+              placeholder="Type a message... Use @ to mention someone"
+              disabled={sending}
+              className="flex-1 px-3 py-2 bg-white dark:bg-slate-800 border border-[#d4d4d4] dark:border-slate-600 rounded text-sm text-[#333] dark:text-white placeholder-[#999] focus:ring-2 focus:ring-[#428bca] focus:border-[#428bca] transition-all disabled:opacity-50"
+            />
+            <button
+              type="submit"
+              disabled={!newMessage.trim() || sending}
+              className="px-4 py-2 bg-[#428bca] hover:bg-[#3276b1] text-white rounded disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center gap-2"
+            >
+              {sending ? (
+                <Loader2 className="w-4 h-4 animate-spin" />
+              ) : (
+                <Send className="w-4 h-4" />
+              )}
+            </button>
+          </div>
         </div>
       </form>
     </div>
