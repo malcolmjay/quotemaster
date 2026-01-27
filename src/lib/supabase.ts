@@ -1675,17 +1675,7 @@ export const deleteTask = async (taskId: string): Promise<void> => {
 export const getTasksForQuote = async (quoteId: string): Promise<any[]> => {
   const { data, error } = await supabase
     .from('tasks')
-    .select(`
-      *,
-      assigned_to_user:assigned_to (
-        id,
-        email
-      ),
-      created_by_user:created_by (
-        id,
-        email
-      )
-    `)
+    .select('*')
     .eq('quote_id', quoteId)
     .order('created_at', { ascending: false });
 
@@ -1702,19 +1692,19 @@ export const getTasksForQuote = async (quoteId: string): Promise<any[]> => {
       if (task.assigned_to) {
         const { data: assignedUser } = await supabase
           .from('user_display_info')
-          .select('display_name')
+          .select('display_name, email')
           .eq('id', task.assigned_to)
           .maybeSingle();
-        assignedToName = assignedUser?.display_name || task.assigned_to_user?.email || 'Unknown';
+        assignedToName = assignedUser?.display_name || assignedUser?.email || 'Unknown';
       }
 
       if (task.created_by) {
         const { data: creatorUser } = await supabase
           .from('user_display_info')
-          .select('display_name')
+          .select('display_name, email')
           .eq('id', task.created_by)
           .maybeSingle();
-        createdByName = creatorUser?.display_name || task.created_by_user?.email || 'Unknown';
+        createdByName = creatorUser?.display_name || creatorUser?.email || 'Unknown';
       }
 
       return {
@@ -1742,10 +1732,6 @@ export const getMyTasks = async (): Promise<any[]> => {
         customer:customers (
           name
         )
-      ),
-      created_by_user:created_by (
-        id,
-        email
       )
     `)
     .eq('assigned_to', user.id)
