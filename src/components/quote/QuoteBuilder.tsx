@@ -8,9 +8,10 @@ import { MultiYearPricing } from './MultiYearPricing';
 import { useSupabaseQuote } from '../../context/SupabaseQuoteContext';
 import { useCustomer } from '../../context/CustomerContext';
 import { supabase } from '../../lib/supabase';
-import { Plus, ChevronDown, ChevronRight, Settings, MessageCircle } from 'lucide-react';
+import { Plus, ChevronDown, ChevronRight, Settings, MessageCircle, CheckSquare } from 'lucide-react';
 import { HelpTooltip } from '../common/HelpTooltip';
 import { MessagePanel } from '../common/MessagePanel';
+import { TaskManager } from './TaskManager';
 
 export const QuoteBuilder: React.FC = () => {
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -25,6 +26,7 @@ export const QuoteBuilder: React.FC = () => {
   const [showQuoteDetails, setShowQuoteDetails] = useState(false);
   const [showCustomerDetails, setShowCustomerDetails] = useState(true);
   const [showMessages, setShowMessages] = useState(false);
+  const [showTasks, setShowTasks] = useState(false);
 
   const { currentQuote, quotes, setCurrentQuote } = useSupabaseQuote();
   const { selectedCustomer, setSelectedCustomer } = useCustomer();
@@ -198,15 +200,26 @@ export const QuoteBuilder: React.FC = () => {
 
             <div className="flex items-center gap-2">
               {currentQuote && (
-                <HelpTooltip content="View and add messages to coordinate with team members on this quote. Messages are visible to all users who can access this quote.">
-                  <button
-                    onClick={() => setShowMessages(!showMessages)}
-                    className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-[#666] hover:text-[#333] hover:bg-[#f5f5f5] rounded border border-transparent hover:border-[#d4d4d4] transition-colors"
-                  >
-                    <MessageCircle className="w-4 h-4" />
-                    Messages
-                  </button>
-                </HelpTooltip>
+                <>
+                  <HelpTooltip content="View and manage tasks for this quote. Create, assign, and track tasks to ensure nothing falls through the cracks.">
+                    <button
+                      onClick={() => setShowTasks(!showTasks)}
+                      className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-[#666] hover:text-[#333] hover:bg-[#f5f5f5] rounded border border-transparent hover:border-[#d4d4d4] transition-colors"
+                    >
+                      <CheckSquare className="w-4 h-4" />
+                      Tasks
+                    </button>
+                  </HelpTooltip>
+                  <HelpTooltip content="View and add messages to coordinate with team members on this quote. Messages are visible to all users who can access this quote.">
+                    <button
+                      onClick={() => setShowMessages(!showMessages)}
+                      className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-[#666] hover:text-[#333] hover:bg-[#f5f5f5] rounded border border-transparent hover:border-[#d4d4d4] transition-colors"
+                    >
+                      <MessageCircle className="w-4 h-4" />
+                      Messages
+                    </button>
+                  </HelpTooltip>
+                </>
               )}
               <HelpTooltip content="Toggle quote options like quote number, PO number, terms, and expiration date. These details help manage and track your quotes effectively.">
                 <button
@@ -334,6 +347,28 @@ export const QuoteBuilder: React.FC = () => {
           onClose={() => setShowMultiYearPricing(false)}
           onSave={handleSaveMultiYearPricing}
         />
+      )}
+
+      {/* Task Manager Panel */}
+      {showTasks && currentQuote && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-6xl w-full max-h-[90vh] overflow-y-auto">
+            <div className="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex items-center justify-between">
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+                Tasks - Quote {currentQuote.quote_number}
+              </h2>
+              <button
+                onClick={() => setShowTasks(false)}
+                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+              >
+                <ChevronRight className="h-5 w-5" />
+              </button>
+            </div>
+            <div className="p-6">
+              <TaskManager quoteId={currentQuote.id} />
+            </div>
+          </div>
+        </div>
       )}
 
       {/* Message Panel */}

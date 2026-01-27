@@ -1058,6 +1058,17 @@ export const getPaginatedPriceRequests = async (params: PaginationParams): Promi
   };
 };
 
+export const getAllUsers = async (): Promise<any[]> => {
+  const { data, error } = await supabase.rpc('get_all_user_profiles');
+
+  if (error) {
+    logger.error('Failed to fetch all users', error);
+    return [];
+  }
+
+  return data || [];
+};
+
 export const getPaginatedUsers = async (params: PaginationParams): Promise<PaginatedResponse<any>> => {
   const { page, pageSize, searchTerm } = params;
   const from = (page - 1) * pageSize;
@@ -1595,4 +1606,180 @@ export const subscribeToNotifications = (callback?: (payload: any) => void) => {
       callback || (() => {})
     )
     .subscribe();
+};
+
+export const createTask = async (task: {
+  quote_id: string;
+  title: string;
+  description?: string;
+  assigned_to?: string;
+  status?: string;
+  priority?: string;
+  due_date?: string;
+}): Promise<any> => {
+  const user = await getCurrentUser();
+  if (!user) throw new Error('Not authenticated');
+
+  const { data, error } = await supabase
+    .from('tasks')
+    .insert({
+      ...task,
+      created_by: user.id
+    })
+    .select()
+    .single();
+
+  if (error) {
+    logger.error('Failed to create task', error);
+    throw error;
+  }
+
+  return data;
+};
+
+export const updateTask = async (taskId: string, updates: {
+  title?: string;
+  description?: string;
+  assigned_to?: string;
+  status?: string;
+  priority?: string;
+  due_date?: string;
+}): Promise<any> => {
+  const { data, error } = await supabase
+    .from('tasks')
+    .update(updates)
+    .eq('id', taskId)
+    .select()
+    .single();
+
+  if (error) {
+    logger.error('Failed to update task', error);
+    throw error;
+  }
+
+  return data;
+};
+
+export const deleteTask = async (taskId: string): Promise<void> => {
+  const { error } = await supabase
+    .from('tasks')
+    .delete()
+    .eq('id', taskId);
+
+  if (error) {
+    logger.error('Failed to delete task', error);
+    throw error;
+  }
+};
+
+export const getTasksForQuote = async (quoteId: string): Promise<any[]> => {
+  const { data, error } = await supabase
+    .from('tasks')
+    .select(`
+      *,
+      assigned_to_user:assigned_to (
+        id,
+        email
+      ),
+      created_by_user:created_by (
+        id,
+        email
+      )
+    `)
+    .eq('quote_id', quoteId)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    logger.error('Failed to fetch tasks for quote', error);
+    return [];
+  }
+
+  const enrichedTasks = await Promise.all(
+    (data || []).map(async (task) => {
+      let assignedToName = null;
+      let createdByName = null;
+
+      if (task.assigned_to) {
+        const { data: assignedUser } = await supabase
+          .from('user_display_info')
+          .select('display_name')
+          .eq('id', task.assigned_to)
+          .maybeSingle();
+        assignedToName = assignedUser?.display_name || task.assigned_to_user?.email || 'Unknown';
+      }
+
+      if (task.created_by) {
+        const { data: creatorUser } = await supabase
+          .from('user_display_info')
+          .select('display_name')
+          .eq('id', task.created_by)
+          .maybeSingle();
+        createdByName = creatorUser?.display_name || task.created_by_user?.email || 'Unknown';
+      }
+
+      return {
+        ...task,
+        assigned_to_name: assignedToName,
+        created_by_name: createdByName
+      };
+    })
+  );
+
+  return enrichedTasks;
+};
+
+export const getMyTasks = async (): Promise<any[]> => {
+  const user = await getCurrentUser();
+  if (!user) return [];
+
+  const { data, error } = await supabase
+    .from('tasks')
+    .select(`
+      *,
+      quote:quotes (
+        id,
+        quote_number,
+        customer:customers (
+          name
+        )
+      ),
+      created_by_user:created_by (
+        id,
+        email
+      )
+    `)
+    .eq('assigned_to', user.id)
+    .order('due_date', { ascending: true, nullsFirst: false })
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    logger.error('Failed to fetch my tasks', error);
+    return [];
+  }
+
+  return data || [];
+};
+
+export const getTaskStats = async (quoteId: string): Promise<{
+  total: number;
+  pending: number;
+  in_progress: number;
+  completed: number;
+  overdue: number;
+}> => {
+  const tasks = await getTasksForQuote(quoteId);
+  const now = new Date();
+
+  return {
+    total: tasks.length,
+    pending: tasks.filter(t => t.status === 'pending').length,
+    in_progress: tasks.filter(t => t.status === 'in_progress').length,
+    completed: tasks.filter(t => t.status === 'completed').length,
+    overdue: tasks.filter(t =>
+      t.due_date &&
+      new Date(t.due_date) < now &&
+      t.status !== 'completed' &&
+      t.status !== 'cancelled'
+    ).length
+  };
 };
