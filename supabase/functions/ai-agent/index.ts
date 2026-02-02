@@ -91,6 +91,14 @@ Deno.serve(async (req: Request) => {
       );
     }
 
+    const { data: claudeModelConfig } = await supabase
+      .from("app_configurations")
+      .select("config_value")
+      .eq("config_key", "claude_model")
+      .maybeSingle();
+
+    const claudeModel = claudeModelConfig?.config_value || "claude-3-5-sonnet-20241022";
+
     const body: QueryRequest = await req.json();
     const { query, conversation_history = [] } = body;
 
@@ -107,7 +115,7 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    const result = await processQuery(supabase, claudeApiKey, query, conversation_history, user.id);
+    const result = await processQuery(supabase, claudeApiKey, claudeModel, query, conversation_history, user.id);
 
     return new Response(JSON.stringify(result), {
       status: result.success ? 200 : 400,
@@ -132,6 +140,7 @@ Deno.serve(async (req: Request) => {
 async function processQuery(
   supabase: any,
   claudeApiKey: string,
+  claudeModel: string,
   query: string,
   conversationHistory: Array<{ role: string; content: string }>,
   userId: string
@@ -180,7 +189,7 @@ Provide your response as a JSON object with:
         "anthropic-version": "2023-06-01",
       },
       body: JSON.stringify({
-        model: "claude-3-5-sonnet-20241022",
+        model: claudeModel,
         max_tokens: 2048,
         system: systemPrompt,
         messages: messages,

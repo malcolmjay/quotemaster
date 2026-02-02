@@ -90,6 +90,8 @@ export const ConfigurationSettings: React.FC = () => {
   // Claude AI Agent Configuration
   const [claudeApiKey, setClaudeApiKey] = useState('');
   const [originalClaudeApiKey, setOriginalClaudeApiKey] = useState('');
+  const [claudeModel, setClaudeModel] = useState('claude-3-5-sonnet-20241022');
+  const [originalClaudeModel, setOriginalClaudeModel] = useState('claude-3-5-sonnet-20241022');
 
   // Warehouse Options Configuration
   const [warehouseOptions, setWarehouseOptions] = useState<string[]>(['MB', 'CA', 'ON', 'KY', 'NJ']);
@@ -194,6 +196,12 @@ export const ConfigurationSettings: React.FC = () => {
       setClaudeApiKey(apiKey);
       setOriginalClaudeApiKey(apiKey);
 
+      // Load Claude Model
+      const claudeModelConfig = await configService.getConfiguration('claude_model');
+      const model = claudeModelConfig?.config_value || 'claude-3-5-sonnet-20241022';
+      setClaudeModel(model);
+      setOriginalClaudeModel(model);
+
       logger.operation('loadConfiguration', 'success');
     } catch (error) {
       logger.error('Failed to load configuration', error);
@@ -250,6 +258,7 @@ export const ConfigurationSettings: React.FC = () => {
         { config_key: 'quote_export_api_password', config_value: quoteExportApiConfig.password },
         { config_key: 'quote_export_api_timeout', config_value: quoteExportApiConfig.timeout.toString() },
         { config_key: 'claude_api_key', config_value: claudeApiKey },
+        { config_key: 'claude_model', config_value: claudeModel },
         { config_key: 'warehouse_options', config_value: JSON.stringify(warehouseOptions) }
       ];
 
@@ -263,6 +272,7 @@ export const ConfigurationSettings: React.FC = () => {
         setOriginalCustomerImportConfig({ ...customerImportApiConfig });
         setOriginalQuoteExportApiConfig({ ...quoteExportApiConfig });
         setOriginalClaudeApiKey(claudeApiKey);
+        setOriginalClaudeModel(claudeModel);
         setOriginalWarehouseOptions([...warehouseOptions]);
 
         // Reinitialize ERP service with new config
@@ -340,7 +350,8 @@ export const ConfigurationSettings: React.FC = () => {
     JSON.stringify(warehouseOptions) !== JSON.stringify(originalWarehouseOptions) ||
     JSON.stringify(customerImportApiConfig) !== JSON.stringify(originalCustomerImportConfig) ||
     JSON.stringify(quoteExportApiConfig) !== JSON.stringify(originalQuoteExportApiConfig) ||
-    claudeApiKey !== originalClaudeApiKey;
+    claudeApiKey !== originalClaudeApiKey ||
+    claudeModel !== originalClaudeModel;
 
   if (loading) {
     return (
@@ -1285,6 +1296,27 @@ export const ConfigurationSettings: React.FC = () => {
             </div>
             <p className="text-xs text-[#666] mt-1">
               Get your API key from <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener noreferrer" className="text-[#428bca] hover:underline">Anthropic Console</a>
+            </p>
+          </div>
+
+          {/* Model Selection */}
+          <div>
+            <label className="block text-sm font-medium text-[#333] mb-2">
+              Claude Model
+            </label>
+            <select
+              value={claudeModel}
+              onChange={(e) => setClaudeModel(e.target.value)}
+              className="w-full px-3 py-2 border border-[#d4d4d4] rounded focus:ring-2 focus:ring-[#428bca] focus:border-[#428bca] bg-white text-[#333]"
+            >
+              <option value="claude-3-5-sonnet-20241022">Claude 3.5 Sonnet (Latest) - Recommended</option>
+              <option value="claude-3-5-haiku-20241022">Claude 3.5 Haiku - Fast & Cost-Effective</option>
+              <option value="claude-3-opus-20240229">Claude 3 Opus - Most Capable</option>
+              <option value="claude-3-sonnet-20240229">Claude 3 Sonnet</option>
+              <option value="claude-3-haiku-20240307">Claude 3 Haiku</option>
+            </select>
+            <p className="text-xs text-[#666] mt-1">
+              Choose the model based on your needs. Sonnet offers the best balance of speed and capability. Haiku is faster and cheaper. Opus is most capable but slower.
             </p>
           </div>
 
