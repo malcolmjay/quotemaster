@@ -15,6 +15,7 @@ import {
   Building,
   Search,
   Bell,
+  Bot,
   LucideIcon
 } from 'lucide-react';
 
@@ -34,6 +35,7 @@ const ItemRelationshipManagement = lazy(() => import('../components/management/I
 const UserManagement = lazy(() => import('../components/management/UserManagement').then(m => ({ default: m.UserManagement })));
 const CustomerManagement = lazy(() => import('../components/management/CustomerManagement').then(m => ({ default: m.CustomerManagement })));
 const ItemInquiry = lazy(() => import('../components/inquiry/ItemInquiry').then(m => ({ default: m.ItemInquiry })));
+const AIAgentChat = lazy(() => import('../components/agent/AIAgentChat').then(m => ({ default: m.AIAgentChat })));
 
 export interface TabConfig {
   id: string;
@@ -83,6 +85,14 @@ export const TAB_CONFIG: readonly TabConfig[] = [
     icon: Search,
     help: 'Search for products and check inventory levels, pricing, and availability.',
     component: ItemInquiry,
+    showInNav: true
+  },
+  {
+    id: 'ai-agent',
+    label: 'AI Agent',
+    icon: Bot,
+    help: 'Ask questions about your data using natural language and get instant insights.',
+    component: AIAgentChat,
     showInNav: true
   },
   {

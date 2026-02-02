@@ -87,6 +87,10 @@ export const ConfigurationSettings: React.FC = () => {
     timeout: 30000
   });
 
+  // Claude AI Agent Configuration
+  const [claudeApiKey, setClaudeApiKey] = useState('');
+  const [originalClaudeApiKey, setOriginalClaudeApiKey] = useState('');
+
   // Warehouse Options Configuration
   const [warehouseOptions, setWarehouseOptions] = useState<string[]>(['MB', 'CA', 'ON', 'KY', 'NJ']);
   const [newWarehouse, setNewWarehouse] = useState('');
@@ -184,6 +188,12 @@ export const ConfigurationSettings: React.FC = () => {
         setOriginalWarehouseOptions(options);
       }
 
+      // Load Claude API Key
+      const claudeApiKeyConfig = await configService.getConfiguration('claude_api_key');
+      const apiKey = claudeApiKeyConfig?.config_value || '';
+      setClaudeApiKey(apiKey);
+      setOriginalClaudeApiKey(apiKey);
+
       logger.operation('loadConfiguration', 'success');
     } catch (error) {
       logger.error('Failed to load configuration', error);
@@ -239,6 +249,7 @@ export const ConfigurationSettings: React.FC = () => {
         { config_key: 'quote_export_api_username', config_value: quoteExportApiConfig.username },
         { config_key: 'quote_export_api_password', config_value: quoteExportApiConfig.password },
         { config_key: 'quote_export_api_timeout', config_value: quoteExportApiConfig.timeout.toString() },
+        { config_key: 'claude_api_key', config_value: claudeApiKey },
         { config_key: 'warehouse_options', config_value: JSON.stringify(warehouseOptions) }
       ];
 
@@ -251,6 +262,7 @@ export const ConfigurationSettings: React.FC = () => {
         setOriginalCrossRefImportConfig({ ...crossRefImportApiConfig });
         setOriginalCustomerImportConfig({ ...customerImportApiConfig });
         setOriginalQuoteExportApiConfig({ ...quoteExportApiConfig });
+        setOriginalClaudeApiKey(claudeApiKey);
         setOriginalWarehouseOptions([...warehouseOptions]);
 
         // Reinitialize ERP service with new config
@@ -327,7 +339,8 @@ export const ConfigurationSettings: React.FC = () => {
     JSON.stringify(crossRefImportApiConfig) !== JSON.stringify(originalCrossRefImportConfig) ||
     JSON.stringify(warehouseOptions) !== JSON.stringify(originalWarehouseOptions) ||
     JSON.stringify(customerImportApiConfig) !== JSON.stringify(originalCustomerImportConfig) ||
-    JSON.stringify(quoteExportApiConfig) !== JSON.stringify(originalQuoteExportApiConfig);
+    JSON.stringify(quoteExportApiConfig) !== JSON.stringify(originalQuoteExportApiConfig) ||
+    claudeApiKey !== originalClaudeApiKey;
 
   if (loading) {
     return (
@@ -1214,6 +1227,81 @@ export const ConfigurationSettings: React.FC = () => {
               </pre>
             </div>
           )}
+        </div>
+      </div>
+
+      {/* Claude AI Agent Configuration */}
+      <div className="bg-white rounded border border-[#d4d4d4] p-6">
+        <div className="flex items-center justify-between mb-4">
+          <div>
+            <h2 className="text-lg font-medium text-[#333]">
+              Claude AI Agent
+            </h2>
+            <p className="text-sm text-[#666] mt-1">
+              {claudeApiKey ? (
+                <span className="text-[#3c763d]">
+                  API key is configured
+                </span>
+              ) : (
+                <span className="text-[#a94442]">
+                  API key is not configured
+                </span>
+              )}
+            </p>
+          </div>
+        </div>
+
+        <div className="bg-[#d9edf7] text-[#31708f] border border-[#bce8f1] rounded p-4 mb-6">
+          <div className="flex items-start space-x-2">
+            <AlertCircle className="h-5 w-5 mt-0.5" />
+            <div className="text-sm">
+              <p className="font-medium mb-1">AI-Powered Database Assistant</p>
+              <p>Enable the Claude AI agent to query and analyze your database using natural language. The agent can read data, generate reports, and answer questions about your quotes, customers, and inventory.</p>
+            </div>
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          {/* API Key */}
+          <div>
+            <label className="block text-sm font-medium text-[#333] mb-2">
+              Anthropic API Key *
+            </label>
+            <div className="relative">
+              <input
+                type={showApiKey ? 'text' : 'password'}
+                value={claudeApiKey}
+                onChange={(e) => setClaudeApiKey(e.target.value)}
+                placeholder={originalClaudeApiKey ? '••••••••••••••••••••••••••••••••' : 'Enter your Claude API key (sk-ant-...)'}
+                className="w-full px-3 py-2 pr-10 border border-[#d4d4d4] rounded focus:ring-2 focus:ring-[#428bca] focus:border-[#428bca] bg-white text-[#333]"
+              />
+              <button
+                type="button"
+                onClick={() => setShowApiKey(!showApiKey)}
+                className="absolute right-3 top-1/2 transform -translate-y-1/2 text-[#666] hover:text-[#333]"
+              >
+                {showApiKey ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+              </button>
+            </div>
+            <p className="text-xs text-[#666] mt-1">
+              Get your API key from <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noopener noreferrer" className="text-[#428bca] hover:underline">Anthropic Console</a>
+            </p>
+          </div>
+
+          {/* Features Info */}
+          <div className="pt-4 border-t border-[#d4d4d4]">
+            <p className="text-sm font-medium text-[#333] mb-2">
+              Agent Capabilities:
+            </p>
+            <ul className="text-sm text-[#666] space-y-1 ml-4">
+              <li>• Query quotes, customers, products, and line items</li>
+              <li>• Analyze pricing trends and margins</li>
+              <li>• Generate reports on sales data</li>
+              <li>• Answer questions about inventory levels</li>
+              <li>• Identify customers with pending approvals</li>
+              <li className="text-[#3c763d] font-medium mt-2">✓ Read-only access (no data modifications)</li>
+            </ul>
+          </div>
         </div>
       </div>
 
