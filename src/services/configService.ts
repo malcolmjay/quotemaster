@@ -77,6 +77,29 @@ class ConfigurationService {
   }
 
   /**
+   * Get a single configuration record by key (returns full config object)
+   */
+  async getConfiguration(key: string): Promise<AppConfiguration | null> {
+    try {
+      const { data, error } = await supabase
+        .from('app_configurations')
+        .select('*')
+        .eq('config_key', key)
+        .maybeSingle();
+
+      if (error) {
+        logger.error('Failed to get configuration', error, { key });
+        return null;
+      }
+
+      return data;
+    } catch (error) {
+      logger.error('Error getting configuration', error, { key });
+      return null;
+    }
+  }
+
+  /**
    * Get all configurations
    */
   async getAllConfigs(): Promise<AppConfiguration[]> {
@@ -135,6 +158,11 @@ class ConfigurationService {
 
       const configType = key.startsWith('import_api_') ? 'import_api' :
                          key.startsWith('erp_api_') ? 'erp_api' :
+                         key.startsWith('cross_ref_import_api_') ? 'cross_ref_import_api' :
+                         key.startsWith('customer_import_api_') ? 'customer_import_api' :
+                         key.startsWith('quote_export_api_') ? 'quote_export_api' :
+                         key.startsWith('claude_') ? 'ai_agent' :
+                         key === 'warehouse_options' ? 'warehouse' :
                          'general';
 
       const { error } = await supabase
@@ -175,13 +203,29 @@ class ConfigurationService {
       'import_api_username': 'Username for import API authentication',
       'import_api_password': 'Password for import API authentication',
       'import_api_rate_limit': 'Maximum requests per hour',
+      'cross_ref_import_api_enabled': 'Enable/Disable authentication for cross-reference import API',
+      'cross_ref_import_api_username': 'Username for cross-reference import API authentication',
+      'cross_ref_import_api_password': 'Password for cross-reference import API authentication',
+      'cross_ref_import_api_rate_limit': 'Maximum requests per hour for cross-reference import',
+      'customer_import_api_enabled': 'Enable/Disable authentication for customer import API',
+      'customer_import_api_username': 'Username for customer import API authentication',
+      'customer_import_api_password': 'Password for customer import API authentication',
+      'customer_import_api_rate_limit': 'Maximum requests per hour for customer import',
+      'quote_export_api_enabled': 'Enable/Disable quote export API integration',
+      'quote_export_api_url': 'Quote export API base URL',
+      'quote_export_api_username': 'Username for quote export API authentication',
+      'quote_export_api_password': 'Password for quote export API authentication',
+      'quote_export_api_timeout': 'Quote export API request timeout in milliseconds',
       'erp_api_url': 'ERP API base URL',
       'erp_api_key': 'ERP API authentication key',
       'erp_api_timeout': 'Request timeout in milliseconds',
       'erp_api_retry_attempts': 'Number of retry attempts for failed requests',
       'erp_api_cache_ttl': 'Cache time-to-live in minutes',
       'erp_api_enabled': 'Enable/Disable ERP API integration',
-      'default_warehouse': 'Default warehouse location'
+      'default_warehouse': 'Default warehouse location',
+      'warehouse_options': 'Available warehouse locations (JSON array)',
+      'claude_api_key': 'Anthropic Claude API key for AI agent',
+      'claude_model': 'Claude model version for AI agent'
     };
     return descriptions[key] || 'Configuration value';
   }

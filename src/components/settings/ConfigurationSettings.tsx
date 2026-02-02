@@ -192,12 +192,14 @@ export const ConfigurationSettings: React.FC = () => {
 
       // Load Claude API Key
       const claudeApiKeyConfig = await configService.getConfiguration('claude_api_key');
+      console.log('Loaded Claude API Key config:', claudeApiKeyConfig);
       const apiKey = claudeApiKeyConfig?.config_value || '';
       setClaudeApiKey(apiKey);
       setOriginalClaudeApiKey(apiKey);
 
       // Load Claude Model
       const claudeModelConfig = await configService.getConfiguration('claude_model');
+      console.log('Loaded Claude Model config:', claudeModelConfig);
       const model = claudeModelConfig?.config_value || 'claude-3-5-sonnet-20241022';
       setClaudeModel(model);
       setOriginalClaudeModel(model);
@@ -266,6 +268,10 @@ export const ConfigurationSettings: React.FC = () => {
 
       if (result.success) {
         setSaveMessage('Configuration saved successfully');
+
+        // Clear cache to ensure fresh data on next load
+        configService.clearCache();
+
         setOriginalConfig({ ...erpConfig });
         setOriginalImportConfig({ ...importApiConfig });
         setOriginalCrossRefImportConfig({ ...crossRefImportApiConfig });
