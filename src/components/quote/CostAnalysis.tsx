@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { X, Calculator, Target, TrendingUp } from 'lucide-react';
 
+const round2 = (num: number): number => Math.round(num * 100) / 100;
+
 interface CostAnalysisProps {
   product: any;
   onClose: () => void;
@@ -18,10 +20,10 @@ export const CostAnalysis: React.FC<CostAnalysisProps> = ({ product, onClose, on
   const baseCost = product?.cost || 3500;
   const laborCost = 0;
   const quantity = 1;
-  const overheadAmount = (baseCost * overheadRate) / 100;
-  const totalCost = baseCost + laborCost + overheadAmount;
-  const marginAmount = (totalCost * targetMargin) / (100 - targetMargin);
-  const suggestedPrice = totalCost + marginAmount;
+  const overheadAmount = round2((baseCost * overheadRate) / 100);
+  const totalCost = round2(baseCost + laborCost + overheadAmount);
+  const marginAmount = round2((totalCost * targetMargin) / (100 - targetMargin));
+  const suggestedPrice = round2(totalCost + marginAmount);
 
   React.useEffect(() => {
     setFinalPrice(suggestedPrice);

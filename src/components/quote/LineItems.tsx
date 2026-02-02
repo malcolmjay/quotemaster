@@ -16,6 +16,8 @@ import { supabase } from '../../lib/supabase';
 import { HelpTooltip } from '../common/HelpTooltip';
 import { MessagePanel } from '../common/MessagePanel';
 
+const round2 = (num: number): number => Math.round(num * 100) / 100;
+
 const PriceRequestInfo: React.FC<{ itemId: string }> = ({ itemId }) => {
   const [priceRequest, setPriceRequest] = React.useState<any>(null);
   const [loading, setLoading] = React.useState(true);
@@ -430,7 +432,7 @@ export const LineItems: React.FC<LineItemsProps> = ({
 
   const handlePriceEdit = (itemId: string, newPrice: number) => {
     setLineItems(prev => prev.map(item =>
-      item.id === itemId ? { ...item, price: newPrice, subtotal: newPrice * item.qty } : item
+      item.id === itemId ? { ...item, price: round2(newPrice), subtotal: round2(newPrice * item.qty) } : item
     ));
     setEditingPrice(null);
   };
@@ -472,7 +474,7 @@ export const LineItems: React.FC<LineItemsProps> = ({
 
   const handleProductSelect = (product: any) => {
     const optimalPriceBreak = getOptimalPriceBreak(product.sku, 1);
-    const unitCost = optimalPriceBreak ? optimalPriceBreak.unitCost : (product.unitCost || product.price * 0.7);
+    const unitCost = round2(optimalPriceBreak ? optimalPriceBreak.unitCost : (product.unitCost || product.price * 0.7));
     const inventoryItem = inventory.find(item => item.sku === product.sku);
 
     const newItem = {
@@ -520,7 +522,7 @@ export const LineItems: React.FC<LineItemsProps> = ({
         setLineItems(prev => prev.map(existingItem => {
           const matches = updateItem.id === existingItem.id || (updateItem.sku === existingItem.sku && !updateItem.id);
           if (matches) {
-            return { ...existingItem, ...updateItem, id: existingItem.id, subtotal: updateItem.price * updateItem.qty };
+            return { ...existingItem, ...updateItem, id: existingItem.id, subtotal: round2(updateItem.price * updateItem.qty) };
           }
           return existingItem;
         }));
@@ -590,21 +592,23 @@ export const LineItems: React.FC<LineItemsProps> = ({
   };
 
   const handlePriceBreakSelect = (itemId: string, priceBreak: any) => {
+    const newPrice = round2(priceBreak.unitCost * 1.25);
     setLineItems(prev => prev.map(item =>
       item.id === itemId ? {
-        ...item, cost: priceBreak.unitCost, price: Math.round(priceBreak.unitCost * 1.25),
-        subtotal: Math.round(priceBreak.unitCost * 1.25) * item.qty, selectedPriceBreak: priceBreak
+        ...item, cost: round2(priceBreak.unitCost), price: newPrice,
+        subtotal: round2(newPrice * item.qty), selectedPriceBreak: priceBreak
       } : item
     ));
     setShowPriceBreakModal(null);
   };
 
   const handleSupersessionSelect = (itemId: string, replacement: any) => {
+    const newPrice = round2(replacement.cost * 1.25);
     setLineItems(prev => prev.map(item =>
       item.id === itemId ? {
         ...item, originalCustomerSku: item.originalCustomerSku || item.sku, originalCustomerName: item.originalCustomerName || item.name,
-        sku: replacement.sku, name: replacement.name, supplier: replacement.supplier, cost: replacement.cost,
-        price: Math.round(replacement.cost * 1.25), subtotal: Math.round(replacement.cost * 1.25) * item.qty,
+        sku: replacement.sku, name: replacement.name, supplier: replacement.supplier, cost: round2(replacement.cost),
+        price: newPrice, subtotal: round2(newPrice * item.qty),
         stock: replacement.stock, leadTime: replacement.leadTime, isReplacement: true,
         replacementType: replacement.relationshipType, replacementReason: replacement.reason
       } : item
@@ -614,7 +618,7 @@ export const LineItems: React.FC<LineItemsProps> = ({
 
   const updateItemPrice = (itemId: string, newPrice: number) => {
     setLineItems(prev => prev.map(item =>
-      item.id === itemId ? { ...item, price: newPrice, subtotal: newPrice * item.qty } : item
+      item.id === itemId ? { ...item, price: round2(newPrice), subtotal: round2(newPrice * item.qty) } : item
     ));
   };
 
@@ -881,9 +885,9 @@ export const LineItems: React.FC<LineItemsProps> = ({
                       onChange={(e) => {
                         const newQty = parseInt(e.target.value) || 1;
                         const optimalPriceBreak = getOptimalPriceBreak(item.sku, newQty);
-                        const newCost = optimalPriceBreak ? optimalPriceBreak.unitCost : item.cost;
+                        const newCost = round2(optimalPriceBreak ? optimalPriceBreak.unitCost : item.cost);
                         setLineItems(prev => prev.map(li =>
-                          li.id === item.id ? { ...li, qty: newQty, cost: newCost, subtotal: li.price * newQty, available: getNextAvailableDate(li.sku, newQty), selectedPriceBreak: optimalPriceBreak } : li
+                          li.id === item.id ? { ...li, qty: newQty, cost: newCost, subtotal: round2(li.price * newQty), available: getNextAvailableDate(li.sku, newQty), selectedPriceBreak: optimalPriceBreak } : li
                         ));
                       }}
                       className="w-16 px-2 py-1.5 border border-[#d4d4d4] dark:border-slate-600 rounded text-center text-sm bg-white dark:bg-slate-700"

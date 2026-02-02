@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { Calendar, DollarSign, TrendingUp, TrendingDown, Calculator, Eye, ChevronLeft, ChevronRight, BarChart3, Target, AlertTriangle, CheckCircle } from 'lucide-react';
 
+const round2 = (num: number): number => Math.round(num * 100) / 100;
+
 interface MultiYearPricingProps {
   lineItem: any;
   supplyPeriodMonths: number;
@@ -48,8 +50,8 @@ export const MultiYearPricing: React.FC<MultiYearPricingProps> = ({
   useEffect(() => {
     const initialData: YearlyPricing[] = years.map(year => ({
       year,
-      unitPrice: basePrice * Math.pow(1 + defaultEscalation / 100, year - 1),
-      unitCost: baseCost * Math.pow(1 + defaultEscalation / 100, year - 1),
+      unitPrice: round2(basePrice * Math.pow(1 + defaultEscalation / 100, year - 1)),
+      unitCost: round2(baseCost * Math.pow(1 + defaultEscalation / 100, year - 1)),
       quantity: lineItem?.qty || 1,
       subtotal: 0,
       totalCost: 0,
@@ -60,9 +62,9 @@ export const MultiYearPricing: React.FC<MultiYearPricingProps> = ({
 
     // Calculate derived values
     initialData.forEach(yearData => {
-      yearData.subtotal = yearData.unitPrice * yearData.quantity;
-      yearData.totalCost = yearData.unitCost * yearData.quantity;
-      yearData.margin = yearData.subtotal > 0 ? ((yearData.subtotal - yearData.totalCost) / yearData.subtotal) * 100 : 0;
+      yearData.subtotal = round2(yearData.unitPrice * yearData.quantity);
+      yearData.totalCost = round2(yearData.unitCost * yearData.quantity);
+      yearData.margin = yearData.subtotal > 0 ? round2(((yearData.subtotal - yearData.totalCost) / yearData.subtotal) * 100) : 0;
     });
 
     setYearlyData(initialData);
@@ -72,17 +74,17 @@ export const MultiYearPricing: React.FC<MultiYearPricingProps> = ({
     setYearlyData(prev => prev.map(data => {
       if (data.year === year) {
         const updated = { ...data, [field]: value };
-        
+
         // Recalculate derived values
         if (field === 'unitPrice' || field === 'quantity') {
-          updated.subtotal = updated.unitPrice * updated.quantity;
-          updated.margin = updated.subtotal > 0 ? ((updated.subtotal - updated.totalCost) / updated.subtotal) * 100 : 0;
+          updated.subtotal = round2(updated.unitPrice * updated.quantity);
+          updated.margin = updated.subtotal > 0 ? round2(((updated.subtotal - updated.totalCost) / updated.subtotal) * 100) : 0;
         }
         if (field === 'unitCost' || field === 'quantity') {
-          updated.totalCost = updated.unitCost * updated.quantity;
-          updated.margin = updated.subtotal > 0 ? ((updated.subtotal - updated.totalCost) / updated.subtotal) * 100 : 0;
+          updated.totalCost = round2(updated.unitCost * updated.quantity);
+          updated.margin = updated.subtotal > 0 ? round2(((updated.subtotal - updated.totalCost) / updated.subtotal) * 100) : 0;
         }
-        
+
         return updated;
       }
       return data;
@@ -91,27 +93,27 @@ export const MultiYearPricing: React.FC<MultiYearPricingProps> = ({
 
   const applyEscalationToAll = () => {
     setYearlyData(prev => prev.map(data => {
-      const escalatedPrice = basePrice * Math.pow(1 + defaultEscalation / 100, data.year - 1);
-      const escalatedCost = baseCost * Math.pow(1 + defaultEscalation / 100, data.year - 1);
-      const subtotal = escalatedPrice * data.quantity;
-      const totalCost = escalatedCost * data.quantity;
-      
+      const escalatedPrice = round2(basePrice * Math.pow(1 + defaultEscalation / 100, data.year - 1));
+      const escalatedCost = round2(baseCost * Math.pow(1 + defaultEscalation / 100, data.year - 1));
+      const subtotal = round2(escalatedPrice * data.quantity);
+      const totalCost = round2(escalatedCost * data.quantity);
+
       return {
         ...data,
         unitPrice: escalatedPrice,
         unitCost: escalatedCost,
         subtotal,
         totalCost,
-        margin: subtotal > 0 ? ((subtotal - totalCost) / subtotal) * 100 : 0,
+        margin: subtotal > 0 ? round2(((subtotal - totalCost) / subtotal) * 100) : 0,
         escalationRate: defaultEscalation
       };
     }));
   };
 
   // Calculate summary metrics
-  const totalContractValue = yearlyData.reduce((sum, data) => sum + data.subtotal, 0);
-  const totalContractCost = yearlyData.reduce((sum, data) => sum + data.totalCost, 0);
-  const averageMargin = totalContractValue > 0 ? ((totalContractValue - totalContractCost) / totalContractValue) * 100 : 0;
+  const totalContractValue = round2(yearlyData.reduce((sum, data) => sum + data.subtotal, 0));
+  const totalContractCost = round2(yearlyData.reduce((sum, data) => sum + data.totalCost, 0));
+  const averageMargin = totalContractValue > 0 ? round2(((totalContractValue - totalContractCost) / totalContractValue) * 100) : 0;
   const profitabilityScore = averageMargin >= 25 ? 'excellent' : averageMargin >= 15 ? 'good' : averageMargin >= 8 ? 'fair' : 'poor';
 
   const currentYearData = yearlyData.find(data => data.year === activeYear);

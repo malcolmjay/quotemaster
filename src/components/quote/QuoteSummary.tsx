@@ -8,6 +8,8 @@ import { useApproval } from '../../hooks/useApproval';
 import { QuotePrintView } from './QuotePrintView';
 import { HelpTooltip } from '../common/HelpTooltip';
 
+const round2 = (num: number): number => Math.round(num * 100) / 100;
+
 interface QuoteSummaryProps {
   lineItems?: any[];
   onSaveSuccess?: () => void;
@@ -24,12 +26,12 @@ export const QuoteSummary: React.FC<QuoteSummaryProps> = ({ lineItems = [], onSa
   const { submitForApproval } = useApproval();
 
   const totalLineItems = lineItems.length;
-  const subtotal = lineItems.reduce((sum, item) => sum + item.subtotal, 0);
-  const totalCost = lineItems.reduce((sum, item) => sum + (item.cost * item.qty), 0);
-  const totalCarryingCost = totalCost * 0.0187;
-  const totalFreightOut = totalCost * 0.06;
-  const totalMargin = subtotal > 0 ? ((subtotal - totalCost) / subtotal) * 100 : 0;
-  const grossProfit = subtotal - totalCost;
+  const subtotal = round2(lineItems.reduce((sum, item) => sum + item.subtotal, 0));
+  const totalCost = round2(lineItems.reduce((sum, item) => sum + (item.cost * item.qty), 0));
+  const totalCarryingCost = round2(totalCost * 0.0187);
+  const totalFreightOut = round2(totalCost * 0.06);
+  const totalMargin = subtotal > 0 ? round2(((subtotal - totalCost) / subtotal) * 100) : 0;
+  const grossProfit = round2(subtotal - totalCost);
   const total = subtotal;
 
   const [approvalRefreshKey, setApprovalRefreshKey] = React.useState(0);
