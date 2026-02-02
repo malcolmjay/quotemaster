@@ -8,10 +8,11 @@ import { MultiYearPricing } from './MultiYearPricing';
 import { useSupabaseQuote } from '../../context/SupabaseQuoteContext';
 import { useCustomer } from '../../context/CustomerContext';
 import { supabase } from '../../lib/supabase';
-import { Plus, ChevronDown, ChevronRight, Settings, MessageCircle, CheckSquare } from 'lucide-react';
+import { Plus, ChevronDown, ChevronRight, Settings, MessageCircle, CheckSquare, Bot } from 'lucide-react';
 import { HelpTooltip } from '../common/HelpTooltip';
 import { MessagePanel } from '../common/MessagePanel';
 import { TaskManager } from './TaskManager';
+import { AIAgentPanel } from '../agent/AIAgentPanel';
 
 export const QuoteBuilder: React.FC = () => {
   const [selectedProduct, setSelectedProduct] = useState(null);
@@ -27,6 +28,7 @@ export const QuoteBuilder: React.FC = () => {
   const [showCustomerDetails, setShowCustomerDetails] = useState(true);
   const [showMessages, setShowMessages] = useState(false);
   const [showTasks, setShowTasks] = useState(false);
+  const [showAIAgent, setShowAIAgent] = useState(false);
 
   const { currentQuote, quotes, setCurrentQuote } = useSupabaseQuote();
   const { selectedCustomer, setSelectedCustomer } = useCustomer();
@@ -201,6 +203,15 @@ export const QuoteBuilder: React.FC = () => {
             <div className="flex items-center gap-2">
               {currentQuote && (
                 <>
+                  <HelpTooltip content="Ask the AI assistant questions about this quote, customer, line items, or anything else in the database. Get instant insights and analysis.">
+                    <button
+                      onClick={() => setShowAIAgent(!showAIAgent)}
+                      className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-[#666] hover:text-[#333] hover:bg-[#f5f5f5] rounded border border-transparent hover:border-[#d4d4d4] transition-colors"
+                    >
+                      <Bot className="w-4 h-4" />
+                      AI Assistant
+                    </button>
+                  </HelpTooltip>
                   <HelpTooltip content="View and manage tasks for this quote. Create, assign, and track tasks to ensure nothing falls through the cracks.">
                     <button
                       onClick={() => setShowTasks(!showTasks)}
@@ -377,6 +388,20 @@ export const QuoteBuilder: React.FC = () => {
           quoteId={currentQuote.id}
           title={`Quote ${currentQuote.quote_number} Messages`}
           onClose={() => setShowMessages(false)}
+        />
+      )}
+
+      {/* AI Agent Panel */}
+      {showAIAgent && currentQuote && (
+        <AIAgentPanel
+          onClose={() => setShowAIAgent(false)}
+          context={{
+            quoteId: currentQuote.id,
+            quoteNumber: currentQuote.quote_number,
+            customerId: selectedCustomer?.id,
+            customerName: selectedCustomer?.name,
+            lineItems: lineItems,
+          }}
         />
       )}
     </div>

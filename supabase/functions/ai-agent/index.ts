@@ -17,6 +17,13 @@ const ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages";
 interface QueryRequest {
   query: string;
   conversation_history?: Array<{ role: string; content: string }>;
+  context?: {
+    quoteId?: string;
+    quoteNumber?: string;
+    customerId?: string;
+    customerName?: string;
+    lineItems?: any[];
+  };
 }
 
 interface QueryResponse {
@@ -100,7 +107,7 @@ Deno.serve(async (req: Request) => {
     const claudeModel = claudeModelConfig?.config_value || "claude-3-5-sonnet-20241022";
 
     const body: QueryRequest = await req.json();
-    const { query, conversation_history = [] } = body;
+    const { query, conversation_history = [], context } = body;
 
     if (!query || typeof query !== "string") {
       return new Response(
@@ -115,7 +122,7 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    const result = await processQuery(supabase, claudeApiKey, claudeModel, query, conversation_history, user.id);
+    const result = await processQuery(supabase, claudeApiKey, claudeModel, query, conversation_history, user.id, context);
 
     return new Response(JSON.stringify(result), {
       status: result.success ? 200 : 400,
@@ -143,15 +150,39 @@ async function processQuery(
   claudeModel: string,
   query: string,
   conversationHistory: Array<{ role: string; content: string }>,
-  userId: string
+  userId: string,
+  context?: {
+    quoteId?: string;
+    quoteNumber?: string;
+    customerId?: string;
+    customerName?: string;
+    lineItems?: any[];
+  }
 ): Promise<QueryResponse> {
   try {
     const schema = await getDatabaseSchema(supabase);
+
+    let contextInfo = "";
+    if (context) {
+      contextInfo = "\n\nCurrent Context:";
+      if (context.quoteNumber) {
+        contextInfo += `\n- Working on Quote: ${context.quoteNumber} (ID: ${context.quoteId})`;
+      }
+      if (context.customerName) {
+        contextInfo += `\n- Customer: ${context.customerName} (ID: ${context.customerId})`;
+      }
+      if (context.lineItems && context.lineItems.length > 0) {
+        contextInfo += `\n- Number of line items in quote: ${context.lineItems.length}`;
+        contextInfo += `\n- Line items summary: ${context.lineItems.map(item => `${item.sku} (qty: ${item.qty})`).join(", ")}`;
+      }
+      contextInfo += "\n\nWhen the user asks about 'this quote' or 'this customer', they are referring to the context above.";
+    }
 
     const systemPrompt = `You are an AI assistant that helps users query their quote management database using natural language.
 
 Database Schema:
 ${schema}
+${contextInfo}
 
 Your job is to:
 1. Understand the user's natural language query
@@ -167,6 +198,8 @@ Rules:
 - Format numeric values appropriately (e.g., currency with 2 decimals)
 - When querying quotes, always include customer information by joining with customers table
 - Use RLS policies - the user can only see data they have access to
+- When context is provided and the user asks about "this quote", "this customer", or "these items", use the context IDs in your queries
+- For questions like "what's the total value" or "show me the items", use the context quote_id or customer_id
 
 Response format:
 Provide your response as a JSON object with:
