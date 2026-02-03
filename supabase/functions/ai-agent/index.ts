@@ -45,6 +45,7 @@ Deno.serve(async (req: Request) => {
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
     const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
     const authHeader = req.headers.get("Authorization");
@@ -149,8 +150,17 @@ Deno.serve(async (req: Request) => {
     const roles = userRoles?.map(r => r.role) || [];
     const isAdmin = roles.includes("Admin");
 
+    const userSupabase = createClient(supabaseUrl, supabaseAnonKey, {
+      global: {
+        headers: {
+          Authorization: authHeader,
+        },
+      },
+    });
+
     const result = await processQuery(
       supabase,
+      userSupabase,
       claudeApiKey,
       claudeModel,
       query,
@@ -184,6 +194,7 @@ Deno.serve(async (req: Request) => {
 
 async function processQuery(
   supabase: any,
+  userSupabase: any,
   claudeApiKey: string,
   claudeModel: string,
   query: string,
@@ -380,7 +391,7 @@ Provide your response as a JSON object with:
     }
 
     if (isWriteOperation) {
-      const { data: writeData, error: writeError } = await executeWriteOperation(supabase, sql, userId);
+      const { data: writeData, error: writeError } = await executeWriteOperation(userSupabase, sql, userId);
 
       if (writeError) {
         return {
