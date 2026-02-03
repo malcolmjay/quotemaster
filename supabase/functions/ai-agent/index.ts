@@ -104,7 +104,7 @@ Deno.serve(async (req: Request) => {
       .eq("config_key", "claude_model")
       .maybeSingle();
 
-    const claudeModel = claudeModelConfig?.config_value || "claude-3-5-sonnet-20241022";
+    const claudeModel = claudeModelConfig?.config_value || "claude-sonnet-4-5";
 
     const body: QueryRequest = await req.json();
     const { query, conversation_history = [], context } = body;
@@ -222,6 +222,7 @@ Provide your response as a JSON object with:
         "anthropic-version": "2023-06-01",
       },
       body: JSON.stringify({
+        model: claudeModel,
         max_tokens: 2048,
         system: systemPrompt,
         messages: messages,
