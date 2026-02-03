@@ -383,6 +383,39 @@ export const AIAgentChat: React.FC = () => {
     }
   };
 
+  const extractCSVFromMessage = (content: string): string | null => {
+    const csvPattern = /```csv\n([\s\S]*?)\n```/;
+    const match = content.match(csvPattern);
+    return match ? match[1] : null;
+  };
+
+  const extractCodeBlock = (content: string, language?: string): { content: string; language: string } | null => {
+    const pattern = language
+      ? new RegExp(`\`\`\`${language}\\n([\\s\\S]*?)\\n\`\`\``)
+      : /```(\w+)?\n([\s\S]*?)\n```/;
+    const match = content.match(pattern);
+
+    if (match) {
+      if (language) {
+        return { content: match[1], language };
+      }
+      return { content: match[2], language: match[1] || 'text' };
+    }
+    return null;
+  };
+
+  const downloadTextAsFile = (content: string, filename: string) => {
+    const blob = new Blob([content], { type: 'text/plain' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  };
+
   const formatData = (data: any, messageId: string) => {
     if (!data) return null;
 
@@ -666,6 +699,47 @@ export const AIAgentChat: React.FC = () => {
                   <div className="whitespace-pre-wrap text-sm">
                     {message.content}
                   </div>
+
+                  {message.role === 'assistant' && message.content && (() => {
+                    const csvContent = extractCSVFromMessage(message.content);
+                    const allCodeBlocks = message.content.match(/```(\w+)?\n([\s\S]*?)\n```/g);
+
+                    if (csvContent || allCodeBlocks) {
+                      return (
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          {csvContent && (
+                            <button
+                              onClick={() => downloadTextAsFile(csvContent, `template-${message.id}.csv`)}
+                              className="flex items-center space-x-1 px-3 py-1.5 text-xs bg-[#5cb85c] text-white rounded hover:bg-[#4cae4c] transition"
+                            >
+                              <Download className="h-3.5 w-3.5" />
+                              <span>Download CSV Template</span>
+                            </button>
+                          )}
+                          {allCodeBlocks && allCodeBlocks.map((block, idx) => {
+                            const match = block.match(/```(\w+)?\n([\s\S]*?)\n```/);
+                            if (!match) return null;
+                            const lang = match[1] || 'text';
+                            const content = match[2];
+                            if (lang === 'csv') return null;
+
+                            const extension = lang === 'json' ? 'json' : lang === 'sql' ? 'sql' : 'txt';
+                            return (
+                              <button
+                                key={idx}
+                                onClick={() => downloadTextAsFile(content, `output-${message.id}-${idx}.${extension}`)}
+                                className="flex items-center space-x-1 px-3 py-1.5 text-xs bg-[#428bca] text-white rounded hover:bg-[#3276b1] transition"
+                              >
+                                <Download className="h-3.5 w-3.5" />
+                                <span>Download {lang.toUpperCase()}</span>
+                              </button>
+                            );
+                          })}
+                        </div>
+                      );
+                    }
+                    return null;
+                  })()}
 
                   {message.files && message.files.length > 0 && (
                     <div className="mt-3 space-y-2">
