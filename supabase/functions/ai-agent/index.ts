@@ -158,19 +158,9 @@ Deno.serve(async (req: Request) => {
       .eq("is_active", true);
 
     const roles = userRoles?.map(r => r.role) || [];
-    const isAdmin = roles.includes("Admin");
-
-    const userSupabase = createClient(supabaseUrl, supabaseAnonKey, {
-      global: {
-        headers: {
-          Authorization: authHeader,
-        },
-      },
-    });
 
     const result = await processQuery(
       supabase,
-      userSupabase,
       claudeApiKey,
       claudeModel,
       query,
@@ -179,8 +169,7 @@ Deno.serve(async (req: Request) => {
       user.id,
       context,
       userPermissions || [],
-      roles,
-      isAdmin
+      roles
     );
 
     return new Response(JSON.stringify(result), {
@@ -205,7 +194,6 @@ Deno.serve(async (req: Request) => {
 
 async function processQuery(
   supabase: any,
-  userSupabase: any,
   claudeApiKey: string,
   claudeModel: string,
   query: string,
@@ -220,15 +208,12 @@ async function processQuery(
     lineItems?: any[];
   },
   userPermissions: Array<{ role: string; table_name: string; can_read: boolean; can_create: boolean; can_update: boolean; can_delete: boolean }> = [],
-  roles: string[] = [],
-  isAdmin: boolean = false
+  roles: string[] = []
 ): Promise<QueryResponse> {
   try {
-    const readableTables = isAdmin
-      ? null
-      : userPermissions.filter(p => p.can_read).map(p => p.table_name);
+    const readableTables = userPermissions.filter(p => p.can_read).map(p => p.table_name);
 
-    const schema = await getDatabaseSchema(supabase, readableTables);
+    const schema = await getDatabaseSchema(supabase, readableTables.length > 0 ? readableTables : null);
 
     let contextInfo = "";
     if (context) {
@@ -271,52 +256,32 @@ async function processQuery(
     }
 
     const roleInfo = `\n\nUser Role and Permissions:
-- Roles: ${roles.join(", ")}${isAdmin ? " (Administrator with full access)" : ""}
-- Can access tables: ${readableTables ? readableTables.join(", ") : "all tables"}
-${isAdmin ? "- Write Operations: ENABLED (you can INSERT, UPDATE, DELETE as an Administrator)" : "- Write Operations: DISABLED (read-only access)"}
+- Roles: ${roles.join(", ") || "User"}
+- Can access tables: ${readableTables.length > 0 ? readableTables.join(", ") : "all tables"}
+- Access Level: READ-ONLY (SELECT queries only)
 
-IMPORTANT: You can only query tables the user has read access to. ${isAdmin ? "As an Administrator, you can also perform INSERT, UPDATE, and DELETE operations." : "Do not attempt to query tables not listed above."}`;
+IMPORTANT: You can only query tables the user has read access to. Do not attempt to query tables not listed above.`;
 
-    const writeOperationsRules = isAdmin ? `
-
-ADMINISTRATOR WRITE OPERATIONS:
-As an Administrator, you can perform database modifications:
-- INSERT: Add new records to tables
-- UPDATE: Modify existing records
-- DELETE: Remove records (use with caution)
-- Always use WHERE clauses in UPDATE/DELETE to prevent accidental mass operations
-- When performing write operations, clearly explain what will be changed
-- For destructive operations (DELETE, UPDATE), ask for confirmation first unless the user is explicit
-- Return affected row counts for write operations
-
-Write Operation Safety Rules:
-- NEVER perform DELETE or UPDATE without a WHERE clause unless explicitly requested
-- NEVER drop tables, alter schema, or truncate tables
-- Be extra careful with customer data, quotes, and financial records
-- Always validate IDs exist before updating/deleting
-- Use transactions implicitly (single statement per operation)` : "";
-
-    const systemPrompt = `You are an AI assistant that helps users ${isAdmin ? "manage and query" : "query"} their quote management database using natural language.
+    const systemPrompt = `You are an AI assistant that helps users query their quote management database using natural language.
 
 Database Schema:
 ${schema}
 ${contextInfo}
 ${fileInfo}
 ${roleInfo}
-${writeOperationsRules}
 
 Your job is to:
 1. Understand the user's natural language query
-2. Generate appropriate PostgreSQL queries ${isAdmin ? "(SELECT, INSERT, UPDATE, DELETE)" : "(read-only SELECT)"}
+2. Generate appropriate PostgreSQL SELECT queries (read-only)
 3. Return results in a clear, formatted way
 4. Respect the user's role-based permissions
 
 Rules:
-${isAdmin ? "- You can generate SELECT, INSERT, UPDATE, and DELETE queries" : "- ONLY generate SELECT queries (no INSERT, UPDATE, DELETE, DROP, ALTER, etc.)"}
+- ONLY generate SELECT queries (no INSERT, UPDATE, DELETE, DROP, ALTER, etc.)
 - ONLY query tables the user has read access to (see permissions above)
 - If the user asks about data from tables they don't have access to, politely explain they don't have permission
 - Use proper JOIN clauses when querying related tables
-- For SELECT queries, always limit results to 100 rows maximum unless user specifies otherwise
+- Always limit results to 100 rows maximum unless user specifies otherwise
 - Return helpful, formatted responses
 - If the query is unclear, ask for clarification
 - Format numeric values appropriately (e.g., currency with 2 decimals)
@@ -330,8 +295,7 @@ Provide your response as a JSON object with:
 {
   "sql": "the SQL query to execute (or null if just having a conversation)",
   "explanation": "brief explanation of what the query does",
-  "needsClarification": false (or true if you need more info from the user),
-  "requiresConfirmation": false (or true if this is a destructive operation that needs user confirmation)
+  "needsClarification": false (or true if you need more info from the user)
 }`;
 
     const messages = [
@@ -392,21 +356,10 @@ Provide your response as a JSON object with:
     const sql = parsedResponse.sql.trim();
     const sqlUpper = sql.toUpperCase();
 
-    const allowedWriteOperations = ["INSERT", "UPDATE", "DELETE"];
-    const isWriteOperation = allowedWriteOperations.some(op => sqlUpper.startsWith(op));
-    const isSelectOperation = sqlUpper.startsWith("SELECT");
-
-    if (!isSelectOperation && !isWriteOperation) {
+    if (!sqlUpper.startsWith("SELECT")) {
       return {
         success: false,
-        error: "Only SELECT, INSERT, UPDATE, and DELETE queries are allowed. Schema modifications (DROP, ALTER, TRUNCATE, etc.) are not permitted.",
-      };
-    }
-
-    if (isWriteOperation && !isAdmin) {
-      return {
-        success: false,
-        error: "Write operations (INSERT, UPDATE, DELETE) are only allowed for Administrator users.",
+        error: "Only SELECT queries are allowed. Write operations (INSERT, UPDATE, DELETE) and schema modifications are not permitted.",
       };
     }
 
@@ -415,34 +368,16 @@ Provide your response as a JSON object with:
       /\bALTER\s+/i,
       /\bTRUNCATE\s+/i,
       /\bCREATE\s+/i,
-      /;\s*DELETE\s+/i,
-      /;\s*UPDATE\s+/i,
-      /;\s*DROP\s+/i,
+      /\bDELETE\s+/i,
+      /\bUPDATE\s+/i,
+      /\bINSERT\s+/i,
+      /;\s*\w+/i,
     ];
 
     if (dangerousPatterns.some(pattern => pattern.test(sql))) {
       return {
         success: false,
-        error: "Query contains potentially dangerous operations or multiple statements. Only single INSERT, UPDATE, DELETE, or SELECT statements are allowed.",
-      };
-    }
-
-    if (isWriteOperation) {
-      const { data: writeData, error: writeError } = await executeWriteOperation(userSupabase, sql, userId);
-
-      if (writeError) {
-        return {
-          success: false,
-          error: `Write operation failed: ${writeError.message}`,
-          sql: sql,
-        };
-      }
-
-      return {
-        success: true,
-        message: `${parsedResponse.explanation}\n\nOperation completed successfully. ${writeData?.affectedRows ? `Affected rows: ${writeData.affectedRows}` : ""}`,
-        data: writeData?.result,
-        sql: sql,
+        error: "Query contains unauthorized operations. Only single SELECT statements are allowed.",
       };
     }
 
@@ -512,45 +447,6 @@ async function executeRawSQL(supabase: any, sql: string): Promise<{ data: any; e
     return { data, error: null };
   } catch (err) {
     return { data: null, error: err };
-  }
-}
-
-async function executeWriteOperation(
-  supabase: any,
-  sql: string,
-  userId: string
-): Promise<{ data: any; error: any }> {
-  try {
-    const { data, error } = await supabase.rpc("execute_write_query", {
-      query_text: sql,
-    });
-
-    if (error) {
-      return {
-        data: null,
-        error: error,
-      };
-    }
-
-    if (data && !data.success) {
-      return {
-        data: null,
-        error: new Error(data.error || "Write operation failed"),
-      };
-    }
-
-    return {
-      data: {
-        result: data,
-        affectedRows: data?.affected_rows || 0,
-      },
-      error: null,
-    };
-  } catch (err) {
-    return {
-      data: null,
-      error: err instanceof Error ? err : new Error(String(err)),
-    };
   }
 }
 
