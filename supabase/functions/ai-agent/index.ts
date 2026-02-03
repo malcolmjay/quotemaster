@@ -473,37 +473,28 @@ async function executeWriteOperation(
   userId: string
 ): Promise<{ data: any; error: any }> {
   try {
-    const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-    const supabaseServiceKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-
-    const response = await fetch(`${supabaseUrl}/rest/v1/rpc/execute_readonly_query`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "apikey": supabaseServiceKey,
-        "Authorization": `Bearer ${supabaseServiceKey}`,
-      },
-      body: JSON.stringify({
-        query_text: sql,
-      }),
+    const { data, error } = await supabase.rpc("execute_write_query", {
+      query_text: sql,
     });
 
-    if (!response.ok) {
-      const errorText = await response.text();
+    if (error) {
       return {
         data: null,
-        error: new Error(`Write operation failed: ${errorText}`),
+        error: error,
       };
     }
 
-    const result = await response.json();
-
-    const affectedRows = Array.isArray(result) ? result.length : 1;
+    if (data && !data.success) {
+      return {
+        data: null,
+        error: new Error(data.error || "Write operation failed"),
+      };
+    }
 
     return {
       data: {
-        result: result,
-        affectedRows: affectedRows,
+        result: data,
+        affectedRows: data?.affected_rows || 0,
       },
       error: null,
     };
