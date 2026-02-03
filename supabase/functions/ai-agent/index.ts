@@ -122,7 +122,45 @@ Deno.serve(async (req: Request) => {
       );
     }
 
-    const result = await processQuery(supabase, claudeApiKey, claudeModel, query, conversation_history, user.id, context);
+    const { data: userPermissions, error: permError } = await supabase
+      .from("user_permissions")
+      .select("role, table_name, can_read, can_create, can_update, can_delete")
+      .eq("user_id", user.id);
+
+    if (permError) {
+      return new Response(
+        JSON.stringify({
+          success: false,
+          error: "Failed to fetch user permissions",
+        }),
+        {
+          status: 403,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        }
+      );
+    }
+
+    const { data: userRoles } = await supabase
+      .from("user_roles")
+      .select("role")
+      .eq("user_id", user.id)
+      .eq("is_active", true);
+
+    const roles = userRoles?.map(r => r.role) || [];
+    const isAdmin = roles.includes("Admin");
+
+    const result = await processQuery(
+      supabase,
+      claudeApiKey,
+      claudeModel,
+      query,
+      conversation_history,
+      user.id,
+      context,
+      userPermissions || [],
+      roles,
+      isAdmin
+    );
 
     return new Response(JSON.stringify(result), {
       status: result.success ? 200 : 400,
@@ -157,10 +195,17 @@ async function processQuery(
     customerId?: string;
     customerName?: string;
     lineItems?: any[];
-  }
+  },
+  userPermissions: Array<{ role: string; table_name: string; can_read: boolean; can_create: boolean; can_update: boolean; can_delete: boolean }> = [],
+  roles: string[] = [],
+  isAdmin: boolean = false
 ): Promise<QueryResponse> {
   try {
-    const schema = await getDatabaseSchema(supabase);
+    const readableTables = isAdmin
+      ? null
+      : userPermissions.filter(p => p.can_read).map(p => p.table_name);
+
+    const schema = await getDatabaseSchema(supabase, readableTables);
 
     let contextInfo = "";
     if (context) {
@@ -178,26 +223,36 @@ async function processQuery(
       contextInfo += "\n\nWhen the user asks about 'this quote' or 'this customer', they are referring to the context above.";
     }
 
+    const roleInfo = `\n\nUser Role and Permissions:
+- Roles: ${roles.join(", ")}${isAdmin ? " (Administrator with full access)" : ""}
+- Can access tables: ${readableTables ? readableTables.join(", ") : "all tables"}
+
+IMPORTANT: You can only query tables the user has read access to. Do not attempt to query tables not listed above.`;
+
     const systemPrompt = `You are an AI assistant that helps users query their quote management database using natural language.
 
 Database Schema:
 ${schema}
 ${contextInfo}
+${roleInfo}
 
 Your job is to:
 1. Understand the user's natural language query
 2. Generate appropriate PostgreSQL SELECT queries (read-only)
 3. Return results in a clear, formatted way
+4. Respect the user's role-based permissions
 
 Rules:
 - ONLY generate SELECT queries (no INSERT, UPDATE, DELETE, DROP, ALTER, etc.)
+- ONLY query tables the user has read access to (see permissions above)
+- If the user asks about data from tables they don't have access to, politely explain they don't have permission
 - Use proper JOIN clauses when querying related tables
 - Always limit results to 100 rows maximum unless user specifies otherwise
 - Return helpful, formatted responses
 - If the query is unclear, ask for clarification
 - Format numeric values appropriately (e.g., currency with 2 decimals)
 - When querying quotes, always include customer information by joining with customers table
-- Use RLS policies - the user can only see data they have access to
+- Use RLS policies - the user can only see data they have access to based on their role
 - When context is provided and the user asks about "this quote", "this customer", or "these items", use the context IDs in your queries
 - For questions like "what's the total value" or "show me the items", use the context quote_id or customer_id
 
@@ -342,8 +397,8 @@ async function executeRawSQL(supabase: any, sql: string): Promise<{ data: any; e
   }
 }
 
-async function getDatabaseSchema(supabase: any): Promise<string> {
-  const tables = [
+async function getDatabaseSchema(supabase: any, readableTables: string[] | null = null): Promise<string> {
+  const allTables = [
     "quotes",
     "quote_line_items",
     "customers",
@@ -355,7 +410,12 @@ async function getDatabaseSchema(supabase: any): Promise<string> {
     "price_requests",
     "approval_actions",
     "user_roles",
+    "tasks",
+    "messages",
+    "notifications",
   ];
+
+  const tables = readableTables ? allTables.filter(t => readableTables.includes(t)) : allTables;
 
   let schema = "Available tables and their main columns:\n\n";
 
@@ -402,6 +462,15 @@ async function getDatabaseSchema(supabase: any): Promise<string> {
             break;
           case "user_roles":
             schema += "  - id, user_id, role, email, assigned_by, assigned_at, is_active\n";
+            break;
+          case "tasks":
+            schema += "  - id, quote_id, line_item_id, title, description, assigned_to, status, priority, due_date, created_by, created_at, completed_at\n";
+            break;
+          case "messages":
+            schema += "  - id, quote_id, line_item_id, user_id, message, created_at\n";
+            break;
+          case "notifications":
+            schema += "  - id, user_id, type, title, message, link, is_read, created_at\n";
             break;
         }
         schema += "\n";
