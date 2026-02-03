@@ -168,12 +168,13 @@ export const AIAgentChat: React.FC = () => {
     }
   };
 
-  const saveMessage = async (message: Message) => {
-    if (!currentConversationId) return;
+  const saveMessage = async (message: Message, conversationId?: string) => {
+    const convId = conversationId || currentConversationId;
+    if (!convId) return;
 
     try {
       await supabase.from('ai_messages').insert({
-        conversation_id: currentConversationId,
+        conversation_id: convId,
         role: message.role,
         content: message.content,
         data: message.data || null,
@@ -224,7 +225,7 @@ export const AIAgentChat: React.FC = () => {
     };
 
     setMessages((prev) => [...prev, userMessage]);
-    await saveMessage(userMessage);
+    await saveMessage(userMessage, conversationId);
     setInput('');
     setIsLoading(true);
 
@@ -274,7 +275,7 @@ export const AIAgentChat: React.FC = () => {
       };
 
       setMessages((prev) => [...prev, assistantMessage]);
-      await saveMessage(assistantMessage);
+      await saveMessage(assistantMessage, conversationId);
     } catch (error) {
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
@@ -283,7 +284,7 @@ export const AIAgentChat: React.FC = () => {
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, errorMessage]);
-      await saveMessage(errorMessage);
+      await saveMessage(errorMessage, conversationId);
     } finally {
       setIsLoading(false);
     }
