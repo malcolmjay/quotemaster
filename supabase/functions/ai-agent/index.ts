@@ -222,7 +222,6 @@ Provide your response as a JSON object with:
         "anthropic-version": "2023-06-01",
       },
       body: JSON.stringify({
-        model: claudeModel,
         max_tokens: 2048,
         system: systemPrompt,
         messages: messages,
