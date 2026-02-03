@@ -6,6 +6,7 @@ import { AddressManagement } from './AddressManagement';
 import { ContactManagement } from './ContactManagement';
 import { Pagination } from '../common/Pagination';
 import { HelpTooltip } from '../common/HelpTooltip';
+import { PermissionGuard, PermissionBadge } from '../common/PermissionGuard';
 
 export const CustomerManagement: React.FC = () => {
   const [customers, setCustomers] = useState<any[]>([]);
@@ -139,18 +140,23 @@ export const CustomerManagement: React.FC = () => {
               <div className="text-xs text-[#999] mb-1">
                 Management / Customers
               </div>
-              <h1 className="text-2xl font-bold text-[#333]">Customer Management</h1>
+              <div className="flex items-center space-x-3">
+                <h1 className="text-2xl font-bold text-[#333]">Customer Management</h1>
+                <PermissionBadge table="customers" />
+              </div>
             </div>
           </div>
-          <HelpTooltip content="Create a new customer record with contact information, addresses, and account details.">
-            <button
-              onClick={handleCreateNew}
-              className="flex items-center space-x-2 px-4 py-2 bg-[#428bca] text-white rounded hover:bg-[#3276b1] transition-colors"
-            >
-              <Plus className="h-4 w-4" />
-              <span>New Customer</span>
-            </button>
-          </HelpTooltip>
+          <PermissionGuard table="customers" action="create" hideIfNoPermission={true}>
+            <HelpTooltip content="Create a new customer record with contact information, addresses, and account details.">
+              <button
+                onClick={handleCreateNew}
+                className="flex items-center space-x-2 px-4 py-2 bg-[#428bca] text-white rounded hover:bg-[#3276b1] transition-colors"
+              >
+                <Plus className="h-4 w-4" />
+                <span>New Customer</span>
+              </button>
+            </HelpTooltip>
+          </PermissionGuard>
         </div>
       </div>
 
@@ -275,33 +281,39 @@ export const CustomerManagement: React.FC = () => {
                     </td>
                     <td className="px-6 py-4">
                       <div className="flex items-center space-x-2">
-                        <HelpTooltip content="Modify customer information including name, tier, sales assignments, and payment terms.">
-                          <button
-                            onClick={() => handleEdit(customer)}
-                            className="p-2 text-[#666] hover:text-[#333] hover:bg-[#f5f5f5] rounded border border-transparent hover:border-[#d4d4d4] transition-colors"
-                            title="Edit Customer"
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </button>
-                        </HelpTooltip>
-                        <HelpTooltip content="Add, edit, or remove shipping and billing addresses for this customer.">
-                          <button
-                            onClick={() => handleManageAddresses(customer)}
-                            className="p-2 text-[#666] hover:text-[#333] hover:bg-[#f5f5f5] rounded border border-transparent hover:border-[#d4d4d4] transition-colors"
-                            title="Manage Addresses"
-                          >
-                            <MapPin className="h-4 w-4" />
-                          </button>
-                        </HelpTooltip>
-                        <HelpTooltip content="Maintain the list of contact persons, including email addresses, phone numbers, and roles.">
-                          <button
-                            onClick={() => handleManageContacts(customer)}
-                            className="p-2 text-[#666] hover:text-[#333] hover:bg-[#f5f5f5] rounded border border-transparent hover:border-[#d4d4d4] transition-colors"
-                            title="Manage Contacts"
-                          >
-                            <Users className="h-4 w-4" />
-                          </button>
-                        </HelpTooltip>
+                        <PermissionGuard table="customers" action="update" hideIfNoPermission={true}>
+                          <HelpTooltip content="Modify customer information including name, tier, sales assignments, and payment terms.">
+                            <button
+                              onClick={() => handleEdit(customer)}
+                              className="p-2 text-[#666] hover:text-[#333] hover:bg-[#f5f5f5] rounded border border-transparent hover:border-[#d4d4d4] transition-colors"
+                              title="Edit Customer"
+                            >
+                              <Pencil className="h-4 w-4" />
+                            </button>
+                          </HelpTooltip>
+                        </PermissionGuard>
+                        <PermissionGuard table="customer_addresses" action="update" hideIfNoPermission={true}>
+                          <HelpTooltip content="Add, edit, or remove shipping and billing addresses for this customer.">
+                            <button
+                              onClick={() => handleManageAddresses(customer)}
+                              className="p-2 text-[#666] hover:text-[#333] hover:bg-[#f5f5f5] rounded border border-transparent hover:border-[#d4d4d4] transition-colors"
+                              title="Manage Addresses"
+                            >
+                              <MapPin className="h-4 w-4" />
+                            </button>
+                          </HelpTooltip>
+                        </PermissionGuard>
+                        <PermissionGuard table="customer_contacts" action="update" hideIfNoPermission={true}>
+                          <HelpTooltip content="Maintain the list of contact persons, including email addresses, phone numbers, and roles.">
+                            <button
+                              onClick={() => handleManageContacts(customer)}
+                              className="p-2 text-[#666] hover:text-[#333] hover:bg-[#f5f5f5] rounded border border-transparent hover:border-[#d4d4d4] transition-colors"
+                              title="Manage Contacts"
+                            >
+                              <Users className="h-4 w-4" />
+                            </button>
+                          </HelpTooltip>
+                        </PermissionGuard>
                       </div>
                     </td>
                   </tr>

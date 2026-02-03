@@ -4,6 +4,7 @@ import { supabase, getAllProducts } from '../../lib/supabase';
 import { Database } from '../../lib/database.types';
 import ProductEditModal from './ProductEditModal';
 import { HelpTooltip } from '../common/HelpTooltip';
+import { PermissionGuard, PermissionBadge } from '../common/PermissionGuard';
 
 type Product = Database['public']['Tables']['products']['Row'];
 
@@ -184,7 +185,10 @@ export default function ProductManagement() {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-2xl font-bold text-[#333]">Product Management</h2>
+          <div className="flex items-center space-x-3">
+            <h2 className="text-2xl font-bold text-[#333]">Product Management</h2>
+            <PermissionBadge table="products" />
+          </div>
           <p className="text-[#666] mt-1">
             {filteredProducts.length} of {products.length} products
           </p>
@@ -208,15 +212,17 @@ export default function ProductManagement() {
               Refresh
             </button>
           </HelpTooltip>
-          <HelpTooltip content="Create a new product record with SKU, pricing, supplier details, and inventory information.">
-            <button
-              onClick={handleCreate}
-              className="flex items-center gap-2 px-4 py-2 bg-[#428bca] hover:bg-[#3276b1] text-white rounded"
-            >
-              <Plus className="w-4 h-4" />
-              Add Product
-            </button>
-          </HelpTooltip>
+          <PermissionGuard table="products" action="create" hideIfNoPermission={true}>
+            <HelpTooltip content="Create a new product record with SKU, pricing, supplier details, and inventory information.">
+              <button
+                onClick={handleCreate}
+                className="flex items-center gap-2 px-4 py-2 bg-[#428bca] hover:bg-[#3276b1] text-white rounded"
+              >
+                <Plus className="w-4 h-4" />
+                Add Product
+              </button>
+            </HelpTooltip>
+          </PermissionGuard>
         </div>
       </div>
 
@@ -407,15 +413,17 @@ export default function ProductManagement() {
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
-                    <HelpTooltip content="Update product details including pricing, descriptions, lead times, and supplier information.">
-                      <button
-                        onClick={() => handleEdit(product)}
-                        className="text-[#428bca] hover:text-[#3276b1] inline-flex items-center gap-1"
-                      >
-                        <Edit2 className="w-4 h-4" />
-                        Edit
-                      </button>
-                    </HelpTooltip>
+                    <PermissionGuard table="products" action="update" hideIfNoPermission={true}>
+                      <HelpTooltip content="Update product details including pricing, descriptions, lead times, and supplier information.">
+                        <button
+                          onClick={() => handleEdit(product)}
+                          className="text-[#428bca] hover:text-[#3276b1] inline-flex items-center gap-1"
+                        >
+                          <Edit2 className="w-4 h-4" />
+                          Edit
+                        </button>
+                      </HelpTooltip>
+                    </PermissionGuard>
                   </td>
                 </tr>
               ))}

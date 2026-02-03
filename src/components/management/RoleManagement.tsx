@@ -3,6 +3,8 @@ import { Shield, Plus, Edit2, Trash2, Save, X, AlertCircle, Check, Lock } from '
 import { supabase } from '../../lib/supabase';
 import { TABLE_METADATA, getCategoryColor, getCategoryName, type TableMetadata } from '../../config/tableMetadata';
 import { DeleteConfirmationModal } from '../common/DeleteConfirmationModal';
+import { PermissionGuard, PermissionBadge } from '../common/PermissionGuard';
+import { usePermissions } from '../../hooks/usePermissions';
 
 interface Role {
   id: string;
@@ -24,6 +26,7 @@ interface RolePermission {
 }
 
 const RoleManagement: React.FC = () => {
+  const { hasPermission } = usePermissions();
   const [roles, setRoles] = useState<Role[]>([]);
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
   const [permissions, setPermissions] = useState<RolePermission[]>([]);
@@ -291,21 +294,26 @@ const RoleManagement: React.FC = () => {
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-3">
             <Shield className="w-6 h-6 text-blue-600" />
-            <div>
-              <h1 className="text-2xl font-bold text-gray-900">Role Management</h1>
-              <p className="text-sm text-gray-600">
+            <div className="flex-1">
+              <div className="flex items-center space-x-3">
+                <h1 className="text-2xl font-bold text-gray-900">Role Management</h1>
+                <PermissionBadge table="roles" />
+              </div>
+              <p className="text-sm text-gray-600 mt-1">
                 Configure roles and their permissions for system access control
               </p>
             </div>
           </div>
-          <button
-            onClick={startCreating}
-            disabled={isCreating || isEditing}
-            className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
-          >
-            <Plus className="w-4 h-4" />
-            <span>Create Role</span>
-          </button>
+          <PermissionGuard table="roles" action="create" hideIfNoPermission={true}>
+            <button
+              onClick={startCreating}
+              disabled={isCreating || isEditing}
+              className="flex items-center space-x-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            >
+              <Plus className="w-4 h-4" />
+              <span>Create Role</span>
+            </button>
+          </PermissionGuard>
         </div>
 
         {error && (
@@ -461,21 +469,25 @@ const RoleManagement: React.FC = () => {
                     )}
                   </div>
                   <div className="flex space-x-2">
-                    <button
-                      onClick={startEditing}
-                      className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                      title="Edit role"
-                    >
-                      <Edit2 className="w-5 h-5" />
-                    </button>
-                    {!selectedRole.is_system_role && (
+                    <PermissionGuard table="roles" action="update" hideIfNoPermission={true}>
                       <button
-                        onClick={() => setDeleteModal({ isOpen: true, role: selectedRole })}
-                        className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
-                        title="Delete role"
+                        onClick={startEditing}
+                        className="p-2 text-gray-600 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                        title="Edit role"
                       >
-                        <Trash2 className="w-5 h-5" />
+                        <Edit2 className="w-5 h-5" />
                       </button>
+                    </PermissionGuard>
+                    {!selectedRole.is_system_role && (
+                      <PermissionGuard table="roles" action="delete" hideIfNoPermission={true}>
+                        <button
+                          onClick={() => setDeleteModal({ isOpen: true, role: selectedRole })}
+                          className="p-2 text-gray-600 hover:text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                          title="Delete role"
+                        >
+                          <Trash2 className="w-5 h-5" />
+                        </button>
+                      </PermissionGuard>
                     )}
                   </div>
                 </div>
