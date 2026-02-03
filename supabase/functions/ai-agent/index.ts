@@ -371,37 +371,37 @@ async function getDatabaseSchema(supabase: any): Promise<string> {
 
         switch (table) {
           case "quotes":
-            schema += "  - id, quote_number, customer_id, quote_date, expiry_date, status, total_value, total_cost, total_margin, created_by\n";
+            schema += "  - id, quote_number, customer_id, customer_user_id, quote_type, status, valid_until, ship_until, customer_bid_number, purchase_order_number, total_value, total_cost, total_margin, line_item_count, created_by, created_at, updated_at\n";
             break;
           case "quote_line_items":
-            schema += "  - id, quote_id, product_id, sku, product_name, quantity, unit_price, unit_cost, subtotal, margin_percent\n";
+            schema += "  - id, quote_id, product_id, sku, product_name, supplier, category, quantity, unit_price, unit_cost, subtotal, total_cost, margin_percent, lead_time, quoted_lead_time, status, customer_part_number, warehouse\n";
             break;
           case "customers":
-            schema += "  - id, customer_number, name, type, segment, industry, account_owner, created_at\n";
+            schema += "  - id, customer_number, name, type, segment, contract_number, payment_terms, currency, tier, sales_manager, sales_rep, primary_warehouse, customer_notes, created_at, updated_at\n";
             break;
           case "customer_addresses":
-            schema += "  - id, customer_id, address_line_1, city, state_province, postal_code, country, is_primary\n";
+            schema += "  - id, customer_number, site_use_id, address_line_1, address_line_2, city, postal_code, state, country, is_shipping, is_billing, is_primary, is_credit_hold, primary_warehouse\n";
             break;
           case "customer_contacts":
-            schema += "  - id, customer_id, first_name, last_name, email, phone, title, is_primary\n";
+            schema += "  - id, customer_number, first_name, last_name, email, phone, title, department, is_primary, notes\n";
             break;
           case "products":
-            schema += "  - id, sku, name, description, category, supplier, unit_cost, list_price, status\n";
+            schema += "  - id, sku, name, description, category, supplier, unit_cost, list_price, lead_time_days, lead_time_text, warehouse, status, buyer, unit_of_measure, moq, supplier_email\n";
             break;
           case "cross_references":
-            schema += "  - id, customer_part_number, internal_part_number, customer_id, description\n";
+            schema += "  - id, customer_id, product_id, customer_part_number, supplier_part_number, internal_part_number, description, supplier, type, ordered_item_id\n";
             break;
           case "item_relationships":
-            schema += "  - id, parent_sku, child_sku, relationship_type, quantity\n";
+            schema += "  - id, from_item_id, to_item_id, type, reciprocal, effective_from, effective_to\n";
             break;
           case "price_requests":
-            schema += "  - id, sku, requested_by, status, response_date, supplier_quote_cost\n";
+            schema += "  - id, quote_id, quote_line_item_id, product_number, description, supplier_name, buyer_name, customer_name, quote_number, quote_type, item_quantity, supplier_pricing, status, requested_at, completed_at\n";
             break;
           case "approval_actions":
-            schema += "  - id, quote_id, approver_id, action, notes, created_at\n";
+            schema += "  - id, quote_approval_id, quote_id, approver_id, approver_role, action, comments, approved_at, created_at\n";
             break;
           case "user_roles":
-            schema += "  - id, user_id, role, email, full_name\n";
+            schema += "  - id, user_id, role, email, assigned_by, assigned_at, is_active\n";
             break;
         }
         schema += "\n";
