@@ -14,9 +14,19 @@ const corsHeaders = {
 
 const ANTHROPIC_API_URL = "https://api.anthropic.com/v1/messages";
 
+interface UploadedFile {
+  id: string;
+  name: string;
+  size: number;
+  type: string;
+  url: string;
+  path: string;
+}
+
 interface QueryRequest {
   query: string;
   conversation_history?: Array<{ role: string; content: string }>;
+  files?: UploadedFile[];
   context?: {
     quoteId?: string;
     quoteNumber?: string;
@@ -108,7 +118,7 @@ Deno.serve(async (req: Request) => {
     const claudeModel = claudeModelConfig?.config_value || "claude-sonnet-4-5";
 
     const body: QueryRequest = await req.json();
-    const { query, conversation_history = [], context } = body;
+    const { query, conversation_history = [], files = [], context } = body;
 
     if (!query || typeof query !== "string") {
       return new Response(
@@ -165,6 +175,7 @@ Deno.serve(async (req: Request) => {
       claudeModel,
       query,
       conversation_history,
+      files,
       user.id,
       context,
       userPermissions || [],
@@ -199,6 +210,7 @@ async function processQuery(
   claudeModel: string,
   query: string,
   conversationHistory: Array<{ role: string; content: string }>,
+  files: UploadedFile[],
   userId: string,
   context?: {
     quoteId?: string;
@@ -234,6 +246,30 @@ async function processQuery(
       contextInfo += "\n\nWhen the user asks about 'this quote' or 'this customer', they are referring to the context above.";
     }
 
+    let fileInfo = "";
+    if (files && files.length > 0) {
+      fileInfo = "\n\nAttached Files:";
+      for (const file of files) {
+        fileInfo += `\n- ${file.name} (${file.type}, ${Math.round(file.size / 1024)}KB)`;
+
+        if (file.type.startsWith('text/') || file.type === 'application/json' || file.type === 'text/csv') {
+          try {
+            const response = await fetch(file.url);
+            const content = await response.text();
+            const preview = content.length > 2000 ? content.substring(0, 2000) + "..." : content;
+            fileInfo += `\n  Content preview:\n${preview}\n`;
+          } catch (error) {
+            fileInfo += `\n  (Unable to read file content)`;
+          }
+        } else if (file.type.startsWith('image/')) {
+          fileInfo += `\n  (Image file - visual analysis not available in this context)`;
+        } else {
+          fileInfo += `\n  (Binary file - content not displayable)`;
+        }
+      }
+      fileInfo += "\n\nThe user has provided these files for context. Consider the file contents when answering their query.";
+    }
+
     const roleInfo = `\n\nUser Role and Permissions:
 - Roles: ${roles.join(", ")}${isAdmin ? " (Administrator with full access)" : ""}
 - Can access tables: ${readableTables ? readableTables.join(", ") : "all tables"}
@@ -265,6 +301,7 @@ Write Operation Safety Rules:
 Database Schema:
 ${schema}
 ${contextInfo}
+${fileInfo}
 ${roleInfo}
 ${writeOperationsRules}
 

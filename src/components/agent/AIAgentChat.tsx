@@ -1,8 +1,17 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User, AlertCircle, Loader, Settings as SettingsIcon, Database, CheckCircle, MessageSquare, Plus, Edit2, Trash2, Download, Save, X } from 'lucide-react';
+import { Send, Bot, User, AlertCircle, Loader, Settings as SettingsIcon, Database, CheckCircle, MessageSquare, Plus, Edit2, Trash2, Download, Save, X, Paperclip, File } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../hooks/useAuth';
 import { exportToCSV, exportToJSON } from '../../utils/exportUtils';
+
+interface UploadedFile {
+  id: string;
+  name: string;
+  size: number;
+  type: string;
+  url: string;
+  path: string;
+}
 
 interface Message {
   id: string;
@@ -10,6 +19,7 @@ interface Message {
   content: string;
   data?: any;
   sql?: string;
+  files?: UploadedFile[];
   timestamp: Date;
 }
 
@@ -31,8 +41,11 @@ export const AIAgentChat: React.FC = () => {
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [editingConversationId, setEditingConversationId] = useState<string | null>(null);
   const [editingTitle, setEditingTitle] = useState('');
+  const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
+  const [isUploading, setIsUploading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     checkApiKeyConfiguration();
@@ -189,6 +202,63 @@ export const AIAgentChat: React.FC = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
 
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setIsUploading(true);
+
+    try {
+      const uploadPromises = Array.from(files).map(async (file) => {
+        const fileExt = file.name.split('.').pop();
+        const fileName = `${Date.now()}-${Math.random().toString(36).substring(7)}.${fileExt}`;
+        const filePath = `${user?.id}/${fileName}`;
+
+        const { error: uploadError } = await supabase.storage
+          .from('ai-agent-files')
+          .upload(filePath, file);
+
+        if (uploadError) throw uploadError;
+
+        const { data: urlData } = supabase.storage
+          .from('ai-agent-files')
+          .getPublicUrl(filePath);
+
+        return {
+          id: fileName,
+          name: file.name,
+          size: file.size,
+          type: file.type,
+          url: urlData.publicUrl,
+          path: filePath,
+        };
+      });
+
+      const newFiles = await Promise.all(uploadPromises);
+      setUploadedFiles((prev) => [...prev, ...newFiles]);
+    } catch (error) {
+      console.error('Error uploading files:', error);
+      alert('Failed to upload files. Please try again.');
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    }
+  };
+
+  const removeFile = (fileId: string) => {
+    setUploadedFiles((prev) => prev.filter((f) => f.id !== fileId));
+  };
+
+  const formatFileSize = (bytes: number): string => {
+    if (bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const sizes = ['Bytes', 'KB', 'MB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() || isLoading) return;
@@ -217,16 +287,38 @@ export const AIAgentChat: React.FC = () => {
       }
     }
 
+    const currentFiles = [...uploadedFiles];
+
     const userMessage: Message = {
       id: Date.now().toString(),
       role: 'user',
       content: input.trim(),
+      files: currentFiles.length > 0 ? currentFiles : undefined,
       timestamp: new Date(),
     };
 
     setMessages((prev) => [...prev, userMessage]);
     await saveMessage(userMessage, conversationId);
+
+    if (currentFiles.length > 0) {
+      try {
+        await supabase.from('ai_conversation_files').insert(
+          currentFiles.map((file) => ({
+            conversation_id: conversationId,
+            user_id: user?.id,
+            file_name: file.name,
+            file_path: file.path,
+            file_size: file.size,
+            mime_type: file.type,
+          }))
+        );
+      } catch (error) {
+        console.error('Error saving file records:', error);
+      }
+    }
+
     setInput('');
+    setUploadedFiles([]);
     setIsLoading(true);
 
     try {
@@ -255,6 +347,7 @@ export const AIAgentChat: React.FC = () => {
           body: JSON.stringify({
             query: input.trim(),
             conversation_history: conversationHistory,
+            files: currentFiles.length > 0 ? currentFiles : undefined,
           }),
         }
       );
@@ -574,6 +667,37 @@ export const AIAgentChat: React.FC = () => {
                     {message.content}
                   </div>
 
+                  {message.files && message.files.length > 0 && (
+                    <div className="mt-3 space-y-2">
+                      {message.files.map((file) => (
+                        <div
+                          key={file.id}
+                          className={`flex items-center space-x-2 px-3 py-2 rounded ${
+                            message.role === 'user'
+                              ? 'bg-[#3276b1]'
+                              : 'bg-[#f5f5f5]'
+                          }`}
+                        >
+                          <File className="h-4 w-4" />
+                          <div className="flex-1 min-w-0">
+                            <div className="text-xs truncate">{file.name}</div>
+                            <div className="text-xs opacity-70">{formatFileSize(file.size)}</div>
+                          </div>
+                          <a
+                            href={file.url}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={`text-xs hover:underline ${
+                              message.role === 'user' ? 'text-white' : 'text-[#428bca]'
+                            }`}
+                          >
+                            View
+                          </a>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
                   {message.sql && (
                     <details className="mt-3">
                       <summary className="text-xs cursor-pointer flex items-center space-x-1 text-[#428bca] hover:text-[#3276b1]">
@@ -618,7 +742,51 @@ export const AIAgentChat: React.FC = () => {
 
       <div className="bg-white border-t border-[#d4d4d4] p-5">
         <form onSubmit={handleSubmit} className="max-w-4xl mx-auto">
+          {uploadedFiles.length > 0 && (
+            <div className="mb-3 space-y-2">
+              {uploadedFiles.map((file) => (
+                <div
+                  key={file.id}
+                  className="flex items-center space-x-2 px-3 py-2 bg-[#f5f5f5] rounded border border-[#d4d4d4]"
+                >
+                  <File className="h-4 w-4 text-[#666]" />
+                  <div className="flex-1 min-w-0">
+                    <div className="text-sm text-[#333] truncate">{file.name}</div>
+                    <div className="text-xs text-[#666]">{formatFileSize(file.size)}</div>
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => removeFile(file.id)}
+                    className="text-[#d9534f] hover:text-[#c9302c] transition"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          )}
           <div className="flex space-x-3">
+            <input
+              ref={fileInputRef}
+              type="file"
+              onChange={handleFileSelect}
+              multiple
+              accept="image/*,.pdf,.txt,.csv,.json,.xls,.xlsx"
+              className="hidden"
+            />
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              disabled={isLoading || isUploading}
+              className="px-4 py-3 border border-[#d4d4d4] text-[#666] rounded hover:bg-[#f5f5f5] disabled:opacity-50 disabled:cursor-not-allowed transition flex items-center space-x-2"
+              title="Upload files"
+            >
+              {isUploading ? (
+                <Loader className="h-4 w-4 animate-spin" />
+              ) : (
+                <Paperclip className="h-4 w-4" />
+              )}
+            </button>
             <textarea
               ref={inputRef}
               value={input}
@@ -644,7 +812,7 @@ export const AIAgentChat: React.FC = () => {
             </button>
           </div>
           <div className="text-xs text-[#666] mt-2">
-            Press Enter to send, Shift+Enter for new line
+            Press Enter to send, Shift+Enter for new line • Click the paperclip to attach files
           </div>
         </form>
       </div>
