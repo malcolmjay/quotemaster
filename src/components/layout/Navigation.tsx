@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Menu, X } from 'lucide-react';
 import { ActiveTab } from '../../App';
 import { HelpTooltip } from '../common/HelpTooltip';
 import { NAV_ITEMS } from '../../config/tabs';
-import { supabase } from '../../lib/supabase';
+import { usePermissions } from '../../hooks/usePermissions';
 
 interface NavigationProps {
   activeTab: ActiveTab;
@@ -12,33 +12,22 @@ interface NavigationProps {
 
 export const Navigation: React.FC<NavigationProps> = ({ activeTab, onTabChange }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [isAdmin, setIsAdmin] = useState(false);
-
-  useEffect(() => {
-    const checkAdminRole = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-
-      const { data } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', user.id)
-        .eq('role', 'Admin')
-        .eq('is_active', true)
-        .maybeSingle();
-
-      setIsAdmin(!!data);
-    };
-
-    checkAdminRole();
-  }, []);
+  const { isVisibleInNavigation, isAdmin, loading } = usePermissions();
 
   const handleTabChange = (tabId: ActiveTab) => {
     onTabChange(tabId);
-    setIsOpen(false); // Close menu on mobile after selection
+    setIsOpen(false);
   };
 
-  const visibleNavItems = NAV_ITEMS.filter(item => !item.adminOnly || isAdmin);
+  const visibleNavItems = NAV_ITEMS.filter(item => {
+    if (item.adminOnly && !isAdmin) return false;
+    if (!item.table) return true;
+    return isVisibleInNavigation(item.table);
+  });
+
+  if (loading) {
+    return null;
+  }
 
   return (
     <>

@@ -47,6 +47,7 @@ export interface TabConfig {
   component: ComponentType<any>;
   showInNav?: boolean;
   adminOnly?: boolean;
+  table?: string;
 }
 
 export const TAB_CONFIG: readonly TabConfig[] = [
@@ -56,7 +57,8 @@ export const TAB_CONFIG: readonly TabConfig[] = [
     icon: FileText,
     help: 'Create and build new quotes with line items, pricing, and customer details.',
     component: QuoteBuilder,
-    showInNav: true
+    showInNav: true,
+    table: 'quotes'
   },
   {
     id: 'pending-approvals',
@@ -64,7 +66,8 @@ export const TAB_CONFIG: readonly TabConfig[] = [
     icon: Shield,
     help: 'Review and approve quotes that require management authorization.',
     component: PendingApprovals,
-    showInNav: true
+    showInNav: true,
+    table: 'approval_actions'
   },
   {
     id: 'notifications',
@@ -72,7 +75,8 @@ export const TAB_CONFIG: readonly TabConfig[] = [
     icon: Bell,
     help: 'View all your notifications and mentions from team members.',
     component: NotificationsPage,
-    showInNav: true
+    showInNav: true,
+    table: 'notifications'
   },
   {
     id: 'price-requests',
@@ -80,7 +84,8 @@ export const TAB_CONFIG: readonly TabConfig[] = [
     icon: DollarSign,
     help: 'Manage incoming price requests from customers and create quotes from them.',
     component: PriceRequests,
-    showInNav: true
+    showInNav: true,
+    table: 'price_requests'
   },
   {
     id: 'item-inquiry',
@@ -88,7 +93,8 @@ export const TAB_CONFIG: readonly TabConfig[] = [
     icon: Search,
     help: 'Search for products and check inventory levels, pricing, and availability.',
     component: ItemInquiry,
-    showInNav: true
+    showInNav: true,
+    table: 'products'
   },
   {
     id: 'ai-agent',
@@ -104,7 +110,8 @@ export const TAB_CONFIG: readonly TabConfig[] = [
     icon: BarChart3,
     help: 'View detailed customer information including purchase history and analytics.',
     component: CustomerProfile,
-    showInNav: true
+    showInNav: true,
+    table: 'customers'
   },
   {
     id: 'customer-management',
@@ -112,7 +119,8 @@ export const TAB_CONFIG: readonly TabConfig[] = [
     icon: Building,
     help: 'Add, edit, and manage customer records, addresses, and contacts.',
     component: CustomerManagement,
-    showInNav: true
+    showInNav: true,
+    table: 'customers'
   },
   {
     id: 'quote-management',
@@ -120,7 +128,8 @@ export const TAB_CONFIG: readonly TabConfig[] = [
     icon: FolderOpen,
     help: 'View, search, and manage all quotes in the system.',
     component: QuoteManagement,
-    showInNav: true
+    showInNav: true,
+    table: 'quotes'
   },
   {
     id: 'product-management',
@@ -128,7 +137,8 @@ export const TAB_CONFIG: readonly TabConfig[] = [
     icon: Edit3,
     help: 'Add, edit, and manage product catalog including SKUs, descriptions, and pricing.',
     component: ProductManagement,
-    showInNav: true
+    showInNav: true,
+    table: 'products'
   },
   {
     id: 'cross-reference-management',
@@ -136,7 +146,8 @@ export const TAB_CONFIG: readonly TabConfig[] = [
     icon: Link2,
     help: 'Manage product cross-references between customer part numbers and internal SKUs.',
     component: CrossReferenceManagement,
-    showInNav: true
+    showInNav: true,
+    table: 'cross_references'
   },
   {
     id: 'item-relationships',
@@ -144,7 +155,8 @@ export const TAB_CONFIG: readonly TabConfig[] = [
     icon: GitBranch,
     help: 'Define relationships between products such as supersessions and alternatives.',
     component: ItemRelationshipManagement,
-    showInNav: true
+    showInNav: true,
+    table: 'item_relationships'
   },
   {
     id: 'product-import',
@@ -152,7 +164,8 @@ export const TAB_CONFIG: readonly TabConfig[] = [
     icon: Database,
     help: 'Bulk import products and cross-references from CSV files or external systems.',
     component: ProductImport,
-    showInNav: true
+    showInNav: true,
+    table: 'products'
   },
   {
     id: 'user-management',
@@ -160,7 +173,8 @@ export const TAB_CONFIG: readonly TabConfig[] = [
     icon: Users,
     help: 'Manage user accounts, roles, and permissions for system access.',
     component: UserManagement,
-    showInNav: true
+    showInNav: true,
+    table: 'user_roles'
   },
   {
     id: 'role-management',
@@ -169,7 +183,8 @@ export const TAB_CONFIG: readonly TabConfig[] = [
     help: 'Create and configure roles with granular permissions for system access control.',
     component: RoleManagement,
     showInNav: true,
-    adminOnly: true
+    adminOnly: true,
+    table: 'roles'
   },
   {
     id: 'training-guide',
@@ -185,7 +200,8 @@ export const TAB_CONFIG: readonly TabConfig[] = [
     icon: Settings,
     help: 'Configure system settings including ERP integration, approval limits, and preferences.',
     component: ConfigurationSettings,
-    showInNav: true
+    showInNav: true,
+    table: 'app_configurations'
   },
   {
     id: 'product-catalog',
@@ -193,7 +209,8 @@ export const TAB_CONFIG: readonly TabConfig[] = [
     icon: Database,
     help: 'Browse the complete product catalog with search and filtering.',
     component: ProductCatalog,
-    showInNav: false
+    showInNav: false,
+    table: 'products'
   }
 ] as const;
 

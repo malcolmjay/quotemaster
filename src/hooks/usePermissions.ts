@@ -7,11 +7,13 @@ export interface UserPermission {
   can_read: boolean;
   can_update: boolean;
   can_delete: boolean;
+  show_in_navigation: boolean;
 }
 
 export interface PermissionCheck {
   hasPermission: (tableName: string, action: 'create' | 'read' | 'update' | 'delete') => boolean;
   getTablePermissions: (tableName: string) => UserPermission | undefined;
+  isVisibleInNavigation: (tableName: string) => boolean;
   permissions: UserPermission[];
   loading: boolean;
   isAdmin: boolean;
@@ -58,6 +60,7 @@ export const usePermissions = (): PermissionCheck => {
               can_read: existing.can_read || perm.can_read,
               can_update: existing.can_update || perm.can_update,
               can_delete: existing.can_delete || perm.can_delete,
+              show_in_navigation: existing.show_in_navigation || perm.show_in_navigation,
             });
           } else {
             permissionMap.set(perm.table_name, perm);
@@ -111,14 +114,22 @@ export const usePermissions = (): PermissionCheck => {
         can_read: true,
         can_update: true,
         can_delete: true,
+        show_in_navigation: true,
       };
     }
     return permissions.find(p => p.table_name === tableName);
   };
 
+  const isVisibleInNavigation = (tableName: string): boolean => {
+    if (isAdmin) return true;
+    const tablePermissions = permissions.find(p => p.table_name === tableName);
+    return tablePermissions?.show_in_navigation ?? false;
+  };
+
   return {
     hasPermission,
     getTablePermissions,
+    isVisibleInNavigation,
     permissions,
     loading,
     isAdmin,

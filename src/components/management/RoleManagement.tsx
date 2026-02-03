@@ -23,6 +23,7 @@ interface RolePermission {
   can_read: boolean;
   can_update: boolean;
   can_delete: boolean;
+  show_in_navigation: boolean;
 }
 
 const RoleManagement: React.FC = () => {
@@ -199,7 +200,7 @@ const RoleManagement: React.FC = () => {
 
   const updatePermission = (
     tableName: string,
-    field: 'can_create' | 'can_read' | 'can_update' | 'can_delete',
+    field: 'can_create' | 'can_read' | 'can_update' | 'can_delete' | 'show_in_navigation',
     value: boolean
   ) => {
     const existing = permissions.find((p) => p.table_name === tableName);
@@ -210,6 +211,7 @@ const RoleManagement: React.FC = () => {
       can_read: false,
       can_update: false,
       can_delete: false,
+      show_in_navigation: true,
     };
 
     const updated = { ...current, [field]: value };
@@ -243,6 +245,7 @@ const RoleManagement: React.FC = () => {
             can_read: (changes as RolePermission).can_read,
             can_update: (changes as RolePermission).can_update,
             can_delete: (changes as RolePermission).can_delete,
+            show_in_navigation: (changes as RolePermission).show_in_navigation ?? true,
           });
 
           if (error) throw error;
@@ -259,7 +262,7 @@ const RoleManagement: React.FC = () => {
 
   const getPermissionValue = (
     tableName: string,
-    field: 'can_create' | 'can_read' | 'can_update' | 'can_delete'
+    field: 'can_create' | 'can_read' | 'can_update' | 'can_delete' | 'show_in_navigation'
   ): boolean => {
     const changes = permissionChanges.get(tableName);
     if (changes && field in changes) {
@@ -267,6 +270,9 @@ const RoleManagement: React.FC = () => {
     }
 
     const existing = permissions.find((p) => p.table_name === tableName);
+    if (field === 'show_in_navigation') {
+      return existing?.[field] ?? true;
+    }
     return existing?.[field] || false;
   };
 
@@ -546,34 +552,55 @@ const RoleManagement: React.FC = () => {
                               </div>
                             </div>
 
-                            <div className="grid grid-cols-4 gap-3">
-                              {['can_create', 'can_read', 'can_update', 'can_delete'].map(
-                                (perm) => (
-                                  <label
-                                    key={perm}
-                                    className="flex items-center space-x-2 cursor-pointer"
-                                  >
-                                    <input
-                                      type="checkbox"
-                                      checked={getPermissionValue(
-                                        table.name,
-                                        perm as 'can_create' | 'can_read' | 'can_update' | 'can_delete'
-                                      )}
-                                      onChange={(e) =>
-                                        updatePermission(
+                            <div className="space-y-3">
+                              <div className="grid grid-cols-4 gap-3">
+                                {['can_create', 'can_read', 'can_update', 'can_delete'].map(
+                                  (perm) => (
+                                    <label
+                                      key={perm}
+                                      className="flex items-center space-x-2 cursor-pointer"
+                                    >
+                                      <input
+                                        type="checkbox"
+                                        checked={getPermissionValue(
                                           table.name,
-                                          perm as 'can_create' | 'can_read' | 'can_update' | 'can_delete',
-                                          e.target.checked
-                                        )
-                                      }
-                                      className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
-                                    />
-                                    <span className="text-sm text-gray-700 capitalize">
-                                      {perm.replace('can_', '')}
-                                    </span>
-                                  </label>
-                                )
-                              )}
+                                          perm as 'can_create' | 'can_read' | 'can_update' | 'can_delete'
+                                        )}
+                                        onChange={(e) =>
+                                          updatePermission(
+                                            table.name,
+                                            perm as 'can_create' | 'can_read' | 'can_update' | 'can_delete',
+                                            e.target.checked
+                                          )
+                                        }
+                                        className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                                      />
+                                      <span className="text-sm text-gray-700 capitalize">
+                                        {perm.replace('can_', '')}
+                                      </span>
+                                    </label>
+                                  )
+                                )}
+                              </div>
+                              <div className="pt-2 border-t border-gray-200">
+                                <label className="flex items-center space-x-2 cursor-pointer">
+                                  <input
+                                    type="checkbox"
+                                    checked={getPermissionValue(table.name, 'show_in_navigation' as any)}
+                                    onChange={(e) =>
+                                      updatePermission(
+                                        table.name,
+                                        'show_in_navigation' as any,
+                                        e.target.checked
+                                      )
+                                    }
+                                    className="h-4 w-4 text-green-600 focus:ring-green-500 border-gray-300 rounded"
+                                  />
+                                  <span className="text-sm text-gray-700 font-medium">
+                                    Show in Navigation
+                                  </span>
+                                </label>
+                              </div>
                             </div>
                           </div>
                         ))}
