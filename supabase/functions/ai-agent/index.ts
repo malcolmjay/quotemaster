@@ -554,7 +554,8 @@ async function getDatabaseSchema(supabase: any, readableTables: string[] | null 
             schema += "  - id, quote_number, customer_id, customer_user_id, quote_type, status, valid_until, ship_until, customer_bid_number, purchase_order_number, total_value, total_cost, total_margin, line_item_count, created_by, created_at, updated_at\n";
             break;
           case "quote_line_items":
-            schema += "  - id, quote_id, product_id, sku, product_name, supplier, category, quantity, unit_price, unit_cost, subtotal, total_cost, margin_percent, lead_time, quoted_lead_time, status, customer_part_number, warehouse\n";
+            schema += "  - id, quote_id, product_id, sku, product_name, supplier, category, quantity, unit_price, unit_cost, subtotal (GENERATED - DO NOT INSERT/UPDATE), total_cost (GENERATED - DO NOT INSERT/UPDATE), margin_percent (GENERATED - DO NOT INSERT/UPDATE), lead_time, quoted_lead_time, status, customer_part_number, warehouse\n";
+            schema += "  - IMPORTANT: subtotal, total_cost, and margin_percent are GENERATED columns. NEVER include them in INSERT or UPDATE statements. They are automatically calculated from quantity, unit_price, and unit_cost.\n";
             break;
           case "customers":
             schema += "  - id, customer_number, name, type, segment, contract_number, payment_terms, currency, tier, sales_manager, sales_rep, primary_warehouse, customer_notes, created_at, updated_at\n";
