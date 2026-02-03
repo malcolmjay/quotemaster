@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User, AlertCircle, Loader, Settings as SettingsIcon, Database, X } from 'lucide-react';
+import { Send, Bot, User, AlertCircle, Loader, Settings as SettingsIcon, Database, X, Download } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../hooks/useAuth';
+import { exportToCSV, exportToJSON } from '../../utils/exportUtils';
 
 interface Message {
   id: string;
@@ -150,7 +151,7 @@ export const AIAgentPanel: React.FC<AIAgentPanelProps> = ({ onClose, context }) 
     }
   };
 
-  const formatData = (data: any) => {
+  const formatData = (data: any, messageId: string) => {
     if (!data) return null;
 
     if (Array.isArray(data)) {
@@ -159,53 +160,84 @@ export const AIAgentPanel: React.FC<AIAgentPanelProps> = ({ onClose, context }) 
       }
 
       return (
-        <div className="mt-3 overflow-x-auto">
-          <table className="min-w-full border border-[#d4d4d4] rounded">
-            <thead className="bg-[#f5f5f5]">
-              <tr>
-                {Object.keys(data[0]).map((key) => (
-                  <th
-                    key={key}
-                    className="px-3 py-2 text-left text-xs font-medium text-[#333] border-b border-[#d4d4d4]"
-                  >
-                    {key}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {data.map((row: any, idx: number) => (
-                <tr
-                  key={idx}
-                  className={idx % 2 === 0 ? 'bg-white' : 'bg-[#f9f9f9]'}
-                >
-                  {Object.values(row).map((value: any, cellIdx: number) => (
-                    <td
-                      key={cellIdx}
-                      className="px-3 py-2 text-sm text-[#333] border-b border-[#e4e4e4]"
+        <div className="mt-3">
+          <div className="flex items-center justify-between mb-2">
+            <div className="text-xs text-[#666]">
+              {data.length} row{data.length !== 1 ? 's' : ''} returned
+            </div>
+            <div className="flex space-x-2">
+              <button
+                onClick={() => exportToCSV(data, `export-${messageId}.csv`)}
+                className="flex items-center space-x-1 px-2 py-1 text-xs bg-[#5cb85c] text-white rounded hover:bg-[#4cae4c] transition"
+              >
+                <Download className="h-3 w-3" />
+                <span>CSV</span>
+              </button>
+              <button
+                onClick={() => exportToJSON(data, `export-${messageId}.json`)}
+                className="flex items-center space-x-1 px-2 py-1 text-xs bg-[#428bca] text-white rounded hover:bg-[#3276b1] transition"
+              >
+                <Download className="h-3 w-3" />
+                <span>JSON</span>
+              </button>
+            </div>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="min-w-full border border-[#d4d4d4] rounded">
+              <thead className="bg-[#f5f5f5]">
+                <tr>
+                  {Object.keys(data[0]).map((key) => (
+                    <th
+                      key={key}
+                      className="px-3 py-2 text-left text-xs font-medium text-[#333] border-b border-[#d4d4d4]"
                     >
-                      {value === null || value === undefined
-                        ? '-'
-                        : typeof value === 'object'
-                        ? JSON.stringify(value)
-                        : String(value)}
-                    </td>
+                      {key}
+                    </th>
                   ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
-          <div className="text-xs text-[#666] mt-2">
-            {data.length} row{data.length !== 1 ? 's' : ''} returned
+              </thead>
+              <tbody>
+                {data.map((row: any, idx: number) => (
+                  <tr
+                    key={idx}
+                    className={idx % 2 === 0 ? 'bg-white' : 'bg-[#f9f9f9]'}
+                  >
+                    {Object.values(row).map((value: any, cellIdx: number) => (
+                      <td
+                        key={cellIdx}
+                        className="px-3 py-2 text-sm text-[#333] border-b border-[#e4e4e4]"
+                      >
+                        {value === null || value === undefined
+                          ? '-'
+                          : typeof value === 'object'
+                          ? JSON.stringify(value)
+                          : String(value)}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       );
     }
 
     return (
-      <pre className="mt-3 bg-[#f5f5f5] p-3 rounded text-sm overflow-x-auto">
-        {JSON.stringify(data, null, 2)}
-      </pre>
+      <div className="mt-3">
+        <div className="flex items-center justify-end mb-2">
+          <button
+            onClick={() => exportToJSON(data, `export-${messageId}.json`)}
+            className="flex items-center space-x-1 px-2 py-1 text-xs bg-[#428bca] text-white rounded hover:bg-[#3276b1] transition"
+          >
+            <Download className="h-3 w-3" />
+            <span>JSON</span>
+          </button>
+        </div>
+        <pre className="bg-[#f5f5f5] p-3 rounded text-sm overflow-x-auto">
+          {JSON.stringify(data, null, 2)}
+        </pre>
+      </div>
     );
   };
 
@@ -325,7 +357,7 @@ export const AIAgentPanel: React.FC<AIAgentPanelProps> = ({ onClose, context }) 
                       </details>
                     )}
 
-                    {message.data && formatData(message.data)}
+                    {message.data && formatData(message.data, message.id)}
 
                     <div className={`text-xs mt-2 ${message.role === 'user' ? 'text-white opacity-70' : 'text-[#666]'}`}>
                       {message.timestamp.toLocaleTimeString()}

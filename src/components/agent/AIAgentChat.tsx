@@ -1,7 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Send, Bot, User, AlertCircle, Loader, Settings as SettingsIcon, Database, CheckCircle } from 'lucide-react';
+import { Send, Bot, User, AlertCircle, Loader, Settings as SettingsIcon, Database, CheckCircle, MessageSquare, Plus, Edit2, Trash2, Download, Save, X } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { useAuth } from '../../hooks/useAuth';
+import { exportToCSV, exportToJSON } from '../../utils/exportUtils';
 
 interface Message {
   id: string;
@@ -12,29 +13,50 @@ interface Message {
   timestamp: Date;
 }
 
+interface Conversation {
+  id: string;
+  title: string;
+  created_at: string;
+  updated_at: string;
+}
+
 export const AIAgentChat: React.FC = () => {
   const { user } = useAuth();
-  const [messages, setMessages] = useState<Message[]>([
-    {
-      id: '1',
-      role: 'assistant',
-      content: 'Hello! I\'m your AI assistant. I can help you query and analyze your database. Try asking me questions like:\n\n• "Show me all quotes from last month"\n• "Which customers have pending approvals?"\n• "What are the top 5 products by revenue?"\n• "Show me quotes with margin below 20%"',
-      timestamp: new Date(),
-    },
-  ]);
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [currentConversationId, setCurrentConversationId] = useState<string | null>(null);
+  const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [apiKeyConfigured, setApiKeyConfigured] = useState<boolean | null>(null);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [editingConversationId, setEditingConversationId] = useState<string | null>(null);
+  const [editingTitle, setEditingTitle] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
     checkApiKeyConfiguration();
+    loadConversations();
   }, []);
+
+  useEffect(() => {
+    if (currentConversationId) {
+      loadMessages(currentConversationId);
+    } else {
+      setMessages([getWelcomeMessage()]);
+    }
+  }, [currentConversationId]);
 
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  const getWelcomeMessage = (): Message => ({
+    id: 'welcome',
+    role: 'assistant',
+    content: 'Hello! I\'m your AI assistant. I can help you query and analyze your database. Try asking me questions like:\n\n• "Show me all quotes from last month"\n• "Which customers have pending approvals?"\n• "What are the top 5 products by revenue?"\n• "Show me quotes with margin below 20%"',
+    timestamp: new Date(),
+  });
 
   const checkApiKeyConfiguration = async () => {
     try {
@@ -51,6 +73,117 @@ export const AIAgentChat: React.FC = () => {
     }
   };
 
+  const loadConversations = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('ai_conversations')
+        .select('id, title, created_at, updated_at')
+        .order('updated_at', { ascending: false });
+
+      if (error) throw error;
+      setConversations(data || []);
+    } catch (error) {
+      console.error('Error loading conversations:', error);
+    }
+  };
+
+  const loadMessages = async (conversationId: string) => {
+    try {
+      const { data, error } = await supabase
+        .from('ai_messages')
+        .select('id, role, content, data, sql, created_at')
+        .eq('conversation_id', conversationId)
+        .order('created_at', { ascending: true });
+
+      if (error) throw error;
+
+      const loadedMessages: Message[] = data.map(msg => ({
+        id: msg.id,
+        role: msg.role as 'user' | 'assistant',
+        content: msg.content,
+        data: msg.data,
+        sql: msg.sql || undefined,
+        timestamp: new Date(msg.created_at),
+      }));
+
+      setMessages(loadedMessages.length > 0 ? loadedMessages : [getWelcomeMessage()]);
+    } catch (error) {
+      console.error('Error loading messages:', error);
+      setMessages([getWelcomeMessage()]);
+    }
+  };
+
+  const createNewConversation = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('ai_conversations')
+        .insert({
+          title: 'New Conversation',
+          user_id: user?.id,
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+
+      setConversations(prev => [data, ...prev]);
+      setCurrentConversationId(data.id);
+    } catch (error) {
+      console.error('Error creating conversation:', error);
+    }
+  };
+
+  const updateConversationTitle = async (id: string, title: string) => {
+    try {
+      const { error } = await supabase
+        .from('ai_conversations')
+        .update({ title })
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setConversations(prev =>
+        prev.map(conv => (conv.id === id ? { ...conv, title } : conv))
+      );
+    } catch (error) {
+      console.error('Error updating conversation title:', error);
+    }
+  };
+
+  const deleteConversation = async (id: string) => {
+    try {
+      const { error } = await supabase
+        .from('ai_conversations')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+
+      setConversations(prev => prev.filter(conv => conv.id !== id));
+      if (currentConversationId === id) {
+        setCurrentConversationId(null);
+      }
+    } catch (error) {
+      console.error('Error deleting conversation:', error);
+    }
+  };
+
+  const saveMessage = async (message: Message) => {
+    if (!currentConversationId) return;
+
+    try {
+      await supabase.from('ai_messages').insert({
+        conversation_id: currentConversationId,
+        role: message.role,
+        content: message.content,
+        data: message.data || null,
+        sql: message.sql || null,
+      });
+    } catch (error) {
+      console.error('Error saving message:', error);
+    }
+  };
+
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   };
@@ -58,6 +191,30 @@ export const AIAgentChat: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!input.trim() || isLoading) return;
+
+    let conversationId = currentConversationId;
+
+    if (!conversationId) {
+      try {
+        const { data, error } = await supabase
+          .from('ai_conversations')
+          .insert({
+            title: input.trim().slice(0, 50),
+            user_id: user?.id,
+          })
+          .select()
+          .single();
+
+        if (error) throw error;
+
+        conversationId = data.id;
+        setCurrentConversationId(conversationId);
+        setConversations(prev => [data, ...prev]);
+      } catch (error) {
+        console.error('Error creating conversation:', error);
+        return;
+      }
+    }
 
     const userMessage: Message = {
       id: Date.now().toString(),
@@ -67,14 +224,17 @@ export const AIAgentChat: React.FC = () => {
     };
 
     setMessages((prev) => [...prev, userMessage]);
+    await saveMessage(userMessage);
     setInput('');
     setIsLoading(true);
 
     try {
-      const conversationHistory = messages.map((msg) => ({
-        role: msg.role,
-        content: msg.content,
-      }));
+      const conversationHistory = messages
+        .filter(msg => msg.id !== 'welcome')
+        .map((msg) => ({
+          role: msg.role,
+          content: msg.content,
+        }));
 
       const session = await supabase.auth.getSession();
       const token = session.data.session?.access_token;
@@ -114,6 +274,7 @@ export const AIAgentChat: React.FC = () => {
       };
 
       setMessages((prev) => [...prev, assistantMessage]);
+      await saveMessage(assistantMessage);
     } catch (error) {
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
@@ -122,12 +283,13 @@ export const AIAgentChat: React.FC = () => {
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, errorMessage]);
+      await saveMessage(errorMessage);
     } finally {
       setIsLoading(false);
     }
   };
 
-  const formatData = (data: any) => {
+  const formatData = (data: any, messageId: string) => {
     if (!data) return null;
 
     if (Array.isArray(data)) {
@@ -136,53 +298,84 @@ export const AIAgentChat: React.FC = () => {
       }
 
       return (
-        <div className="mt-3 overflow-x-auto">
-          <table className="min-w-full border border-[#d4d4d4] rounded">
-            <thead className="bg-[#f5f5f5]">
-              <tr>
-                {Object.keys(data[0]).map((key) => (
-                  <th
-                    key={key}
-                    className="px-3 py-2 text-left text-xs font-medium text-[#333] border-b border-[#d4d4d4]"
-                  >
-                    {key}
-                  </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody>
-              {data.map((row: any, idx: number) => (
-                <tr
-                  key={idx}
-                  className={idx % 2 === 0 ? 'bg-white' : 'bg-[#f9f9f9]'}
-                >
-                  {Object.values(row).map((value: any, cellIdx: number) => (
-                    <td
-                      key={cellIdx}
-                      className="px-3 py-2 text-sm text-[#333] border-b border-[#e4e4e4]"
+        <div className="mt-3">
+          <div className="flex items-center justify-between mb-2">
+            <div className="text-xs text-[#666]">
+              {data.length} row{data.length !== 1 ? 's' : ''} returned
+            </div>
+            <div className="flex space-x-2">
+              <button
+                onClick={() => exportToCSV(data, `export-${messageId}.csv`)}
+                className="flex items-center space-x-1 px-2 py-1 text-xs bg-[#5cb85c] text-white rounded hover:bg-[#4cae4c] transition"
+              >
+                <Download className="h-3 w-3" />
+                <span>CSV</span>
+              </button>
+              <button
+                onClick={() => exportToJSON(data, `export-${messageId}.json`)}
+                className="flex items-center space-x-1 px-2 py-1 text-xs bg-[#428bca] text-white rounded hover:bg-[#3276b1] transition"
+              >
+                <Download className="h-3 w-3" />
+                <span>JSON</span>
+              </button>
+            </div>
+          </div>
+          <div className="overflow-x-auto">
+            <table className="min-w-full border border-[#d4d4d4] rounded">
+              <thead className="bg-[#f5f5f5]">
+                <tr>
+                  {Object.keys(data[0]).map((key) => (
+                    <th
+                      key={key}
+                      className="px-3 py-2 text-left text-xs font-medium text-[#333] border-b border-[#d4d4d4]"
                     >
-                      {value === null || value === undefined
-                        ? '-'
-                        : typeof value === 'object'
-                        ? JSON.stringify(value)
-                        : String(value)}
-                    </td>
+                      {key}
+                    </th>
                   ))}
                 </tr>
-              ))}
-            </tbody>
-          </table>
-          <div className="text-xs text-[#666] mt-2">
-            {data.length} row{data.length !== 1 ? 's' : ''} returned
+              </thead>
+              <tbody>
+                {data.map((row: any, idx: number) => (
+                  <tr
+                    key={idx}
+                    className={idx % 2 === 0 ? 'bg-white' : 'bg-[#f9f9f9]'}
+                  >
+                    {Object.values(row).map((value: any, cellIdx: number) => (
+                      <td
+                        key={cellIdx}
+                        className="px-3 py-2 text-sm text-[#333] border-b border-[#e4e4e4]"
+                      >
+                        {value === null || value === undefined
+                          ? '-'
+                          : typeof value === 'object'
+                          ? JSON.stringify(value)
+                          : String(value)}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </div>
       );
     }
 
     return (
-      <pre className="mt-3 bg-[#f5f5f5] p-3 rounded text-sm overflow-x-auto">
-        {JSON.stringify(data, null, 2)}
-      </pre>
+      <div className="mt-3">
+        <div className="flex items-center justify-end mb-2">
+          <button
+            onClick={() => exportToJSON(data, `export-${messageId}.json`)}
+            className="flex items-center space-x-1 px-2 py-1 text-xs bg-[#428bca] text-white rounded hover:bg-[#3276b1] transition"
+          >
+            <Download className="h-3 w-3" />
+            <span>JSON</span>
+          </button>
+        </div>
+        <pre className="bg-[#f5f5f5] p-3 rounded text-sm overflow-x-auto">
+          {JSON.stringify(data, null, 2)}
+        </pre>
+      </div>
     );
   };
 
@@ -210,21 +403,136 @@ export const AIAgentChat: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-[#f0f0f0] flex flex-col">
-      <div className="bg-white border-b border-[#d4d4d4] sticky top-0 z-40">
-        <div className="px-5 py-3">
-          <div className="text-xs text-[#999] mb-2">AI Assistant</div>
-          <div className="flex items-center space-x-3">
-            <Bot className="h-6 w-6 text-[#428bca]" />
-            <div>
-              <h1 className="text-xl font-normal text-[#333]">Database Agent</h1>
-              <p className="text-xs text-[#666] mt-1">
-                Ask questions about your quotes, customers, and inventory
-              </p>
+    <div className="min-h-screen bg-[#f0f0f0] flex">
+      {sidebarOpen && (
+        <div className="w-64 bg-white border-r border-[#d4d4d4] flex flex-col">
+          <div className="p-4 border-b border-[#d4d4d4]">
+            <button
+              onClick={createNewConversation}
+              className="w-full flex items-center justify-center space-x-2 px-4 py-2 bg-[#428bca] text-white rounded hover:bg-[#3276b1] transition"
+            >
+              <Plus className="h-4 w-4" />
+              <span>New Chat</span>
+            </button>
+          </div>
+
+          <div className="flex-1 overflow-y-auto">
+            {conversations.length === 0 ? (
+              <div className="p-4 text-center text-[#999] text-sm">
+                No conversations yet
+              </div>
+            ) : (
+              <div className="space-y-1 p-2">
+                {conversations.map((conv) => (
+                  <div
+                    key={conv.id}
+                    className={`group relative rounded p-3 cursor-pointer transition ${
+                      currentConversationId === conv.id
+                        ? 'bg-[#f0f0f0]'
+                        : 'hover:bg-[#f9f9f9]'
+                    }`}
+                  >
+                    {editingConversationId === conv.id ? (
+                      <div className="flex items-center space-x-2">
+                        <input
+                          type="text"
+                          value={editingTitle}
+                          onChange={(e) => setEditingTitle(e.target.value)}
+                          onKeyDown={(e) => {
+                            if (e.key === 'Enter') {
+                              updateConversationTitle(conv.id, editingTitle);
+                              setEditingConversationId(null);
+                            } else if (e.key === 'Escape') {
+                              setEditingConversationId(null);
+                            }
+                          }}
+                          className="flex-1 px-2 py-1 text-sm border border-[#d4d4d4] rounded"
+                          autoFocus
+                        />
+                        <button
+                          onClick={() => {
+                            updateConversationTitle(conv.id, editingTitle);
+                            setEditingConversationId(null);
+                          }}
+                          className="text-[#5cb85c] hover:text-[#4cae4c]"
+                        >
+                          <Save className="h-4 w-4" />
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <div
+                          onClick={() => setCurrentConversationId(conv.id)}
+                          className="flex items-start space-x-2"
+                        >
+                          <MessageSquare className="h-4 w-4 text-[#666] flex-shrink-0 mt-0.5" />
+                          <div className="flex-1 min-w-0">
+                            <div className="text-sm text-[#333] truncate">
+                              {conv.title}
+                            </div>
+                            <div className="text-xs text-[#999] mt-1">
+                              {new Date(conv.updated_at).toLocaleDateString()}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="absolute right-2 top-2 opacity-0 group-hover:opacity-100 flex space-x-1">
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setEditingConversationId(conv.id);
+                              setEditingTitle(conv.title);
+                            }}
+                            className="p-1 text-[#428bca] hover:bg-[#e7f3ff] rounded"
+                          >
+                            <Edit2 className="h-3 w-3" />
+                          </button>
+                          <button
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (confirm('Delete this conversation?')) {
+                                deleteConversation(conv.id);
+                              }
+                            }}
+                            className="p-1 text-[#d9534f] hover:bg-[#fdf2f2] rounded"
+                          >
+                            <Trash2 className="h-3 w-3" />
+                          </button>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      <div className="flex-1 flex flex-col">
+        <div className="bg-white border-b border-[#d4d4d4] sticky top-0 z-40">
+          <div className="px-5 py-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center space-x-3">
+                <button
+                  onClick={() => setSidebarOpen(!sidebarOpen)}
+                  className="text-[#666] hover:text-[#333] transition"
+                >
+                  <MessageSquare className="h-5 w-5" />
+                </button>
+                <div>
+                  <div className="text-xs text-[#999]">AI Assistant</div>
+                  <h1 className="text-xl font-normal text-[#333] flex items-center space-x-2">
+                    <Bot className="h-6 w-6 text-[#428bca]" />
+                    <span>Database Agent</span>
+                  </h1>
+                  <p className="text-xs text-[#666] mt-1">
+                    Ask questions about your quotes, customers, and inventory
+                  </p>
+                </div>
+              </div>
             </div>
           </div>
         </div>
-      </div>
 
       <div className="flex-1 overflow-y-auto p-5">
         <div className="max-w-4xl mx-auto space-y-4">
@@ -277,7 +585,7 @@ export const AIAgentChat: React.FC = () => {
                     </details>
                   )}
 
-                  {message.data && formatData(message.data)}
+                  {message.data && formatData(message.data, message.id)}
 
                   <div className="text-xs opacity-70 mt-2">
                     {message.timestamp.toLocaleTimeString()}
@@ -338,6 +646,7 @@ export const AIAgentChat: React.FC = () => {
             Press Enter to send, Shift+Enter for new line
           </div>
         </form>
+      </div>
       </div>
     </div>
   );
