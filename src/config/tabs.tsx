@@ -16,6 +16,7 @@ import {
   Search,
   Bell,
   Bot,
+  ShieldCheck,
   LucideIcon
 } from 'lucide-react';
 
@@ -33,6 +34,7 @@ const ProductManagement = lazy(() => import('../components/management/ProductMan
 const CrossReferenceManagement = lazy(() => import('../components/management/CrossReferenceManagement'));
 const ItemRelationshipManagement = lazy(() => import('../components/management/ItemRelationshipManagement'));
 const UserManagement = lazy(() => import('../components/management/UserManagement').then(m => ({ default: m.UserManagement })));
+const RoleManagement = lazy(() => import('../components/management/RoleManagement'));
 const CustomerManagement = lazy(() => import('../components/management/CustomerManagement').then(m => ({ default: m.CustomerManagement })));
 const ItemInquiry = lazy(() => import('../components/inquiry/ItemInquiry').then(m => ({ default: m.ItemInquiry })));
 const AIAgentChat = lazy(() => import('../components/agent/AIAgentChat').then(m => ({ default: m.AIAgentChat })));
@@ -44,6 +46,7 @@ export interface TabConfig {
   help: string;
   component: ComponentType<any>;
   showInNav?: boolean;
+  adminOnly?: boolean;
 }
 
 export const TAB_CONFIG: readonly TabConfig[] = [
@@ -158,6 +161,15 @@ export const TAB_CONFIG: readonly TabConfig[] = [
     help: 'Manage user accounts, roles, and permissions for system access.',
     component: UserManagement,
     showInNav: true
+  },
+  {
+    id: 'role-management',
+    label: 'Role Management',
+    icon: ShieldCheck,
+    help: 'Create and configure roles with granular permissions for system access control.',
+    component: RoleManagement,
+    showInNav: true,
+    adminOnly: true
   },
   {
     id: 'training-guide',

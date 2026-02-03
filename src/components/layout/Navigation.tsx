@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Menu, X } from 'lucide-react';
 import { ActiveTab } from '../../App';
 import { HelpTooltip } from '../common/HelpTooltip';
 import { NAV_ITEMS } from '../../config/tabs';
+import { supabase } from '../../lib/supabase';
 
 interface NavigationProps {
   activeTab: ActiveTab;
@@ -11,11 +12,33 @@ interface NavigationProps {
 
 export const Navigation: React.FC<NavigationProps> = ({ activeTab, onTabChange }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+
+  useEffect(() => {
+    const checkAdminRole = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .eq('role', 'Admin')
+        .eq('is_active', true)
+        .maybeSingle();
+
+      setIsAdmin(!!data);
+    };
+
+    checkAdminRole();
+  }, []);
 
   const handleTabChange = (tabId: ActiveTab) => {
     onTabChange(tabId);
     setIsOpen(false); // Close menu on mobile after selection
   };
+
+  const visibleNavItems = NAV_ITEMS.filter(item => !item.adminOnly || isAdmin);
 
   return (
     <>
@@ -43,7 +66,7 @@ export const Navigation: React.FC<NavigationProps> = ({ activeTab, onTabChange }
       `}>
         <div className="p-3 pt-16">
           <ul className="space-y-1">
-            {NAV_ITEMS.map((item) => {
+            {visibleNavItems.map((item) => {
               const Icon = item.icon;
               const isActive = activeTab === item.id;
 
