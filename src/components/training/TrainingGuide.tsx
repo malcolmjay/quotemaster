@@ -32,7 +32,16 @@ import {
   Edit3,
   GitBranch,
   Database,
-  Settings
+  Settings,
+  Bot,
+  ListTodo,
+  MessageSquare,
+  Bell,
+  Cog,
+  Users,
+  MapPin,
+  Mail,
+  Warehouse
 } from 'lucide-react';
 
 interface TrainingSection {
@@ -1936,6 +1945,559 @@ export const TrainingGuide: React.FC = () => {
                 </ul>
               </div>
             </div>
+          </div>
+        </div>
+      )
+    },
+    {
+      id: 'ai-agent',
+      title: 'AI Database Agent',
+      icon: Bot,
+      description: 'Learn how to use the AI assistant to query and analyze data',
+      content: (
+        <div className="space-y-6">
+          <div className="bg-[#d9edf7] text-[#31708f] border border-[#bce8f1] p-6 rounded">
+            <h3 className="text-lg font-semibold text-[#31708f] mb-3">AI Database Agent</h3>
+            <p className="text-[#31708f] mb-4">
+              The AI Database Agent is an intelligent assistant that can query your database using natural language.
+              Ask questions about quotes, customers, inventory, and more without writing SQL.
+            </p>
+          </div>
+
+          <div className="bg-white p-6 rounded border border-[#d4d4d4]">
+            <h3 className="text-lg font-semibold text-[#333] mb-4">Getting Started</h3>
+            <div className="space-y-4">
+              <div>
+                <h4 className="font-medium text-[#333] mb-2">Accessing the AI Agent</h4>
+                <p className="text-sm text-[#666] mb-2">
+                  Click on the "AI Agent" tab in the main navigation to open the chat interface.
+                  The AI agent requires a Claude API key to be configured in the system settings.
+                </p>
+              </div>
+              <div>
+                <h4 className="font-medium text-[#333] mb-2">Example Questions</h4>
+                <ul className="text-sm text-[#666] space-y-2">
+                  <li>• "Show me all quotes from last month"</li>
+                  <li>• "Which customers have pending approvals?"</li>
+                  <li>• "What are the top 5 products by revenue?"</li>
+                  <li>• "Show me quotes with margin below 20%"</li>
+                  <li>• "Analyze the top quoted parts for customer ABC Corp"</li>
+                  <li>• "Create a CSV template for importing line items"</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white p-6 rounded border border-[#d4d4d4]">
+            <h3 className="text-lg font-semibold text-[#333] mb-4">Key Features</h3>
+            <div className="space-y-4">
+              <div className="bg-[#f5f5f5] p-4 rounded">
+                <h4 className="font-medium text-[#333] mb-2">Conversation History</h4>
+                <p className="text-sm text-[#666] mb-2">
+                  All conversations are saved automatically. Create new conversations or switch between existing ones
+                  using the sidebar. You can rename or delete conversations as needed.
+                </p>
+              </div>
+              <div className="bg-[#f5f5f5] p-4 rounded">
+                <h4 className="font-medium text-[#333] mb-2">File Attachments</h4>
+                <p className="text-sm text-[#666] mb-2">
+                  Upload files (images, PDFs, CSVs, etc.) to provide context to the AI. Click the paperclip icon
+                  to attach files to your message.
+                </p>
+              </div>
+              <div className="bg-[#f5f5f5] p-4 rounded">
+                <h4 className="font-medium text-[#333] mb-2">Download Results</h4>
+                <p className="text-sm text-[#666] mb-2">
+                  When the AI generates data tables, you can download the results as CSV or JSON files.
+                  If the AI creates templates (like CSV import templates), download buttons will appear automatically.
+                </p>
+              </div>
+              <div className="bg-[#f5f5f5] p-4 rounded">
+                <h4 className="font-medium text-[#333] mb-2">SQL Query Inspection</h4>
+                <p className="text-sm text-[#666] mb-2">
+                  View the SQL queries the AI generates by clicking "View SQL Query" below assistant responses.
+                  This helps you understand how the data is being retrieved.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-[#fcf8e3] text-[#8a6d3b] border border-[#faebcc] p-6 rounded">
+            <h3 className="text-lg font-semibold text-[#8a6d3b] mb-3">Tips for Best Results</h3>
+            <ul className="text-sm text-[#8a6d3b] space-y-2">
+              <li>• Be specific with your questions and include relevant details</li>
+              <li>• Reference specific date ranges, customers, or products when needed</li>
+              <li>• Ask follow-up questions to refine results</li>
+              <li>• Use the conversation history to build on previous queries</li>
+              <li>• Download data for further analysis in Excel or other tools</li>
+            </ul>
+          </div>
+        </div>
+      )
+    },
+    {
+      id: 'tasks-manager',
+      title: 'Tasks & Task Manager',
+      icon: ListTodo,
+      description: 'Learn how to create and manage tasks for quotes and line items',
+      content: (
+        <div className="space-y-6">
+          <div className="bg-[#d9edf7] text-[#31708f] border border-[#bce8f1] p-6 rounded">
+            <h3 className="text-lg font-semibold text-[#31708f] mb-3">Task Management System</h3>
+            <p className="text-[#31708f] mb-4">
+              The task management system helps you track action items, follow-ups, and to-dos for quotes and line items.
+              Tasks can be assigned to users with due dates and priorities.
+            </p>
+          </div>
+
+          <div className="bg-white p-6 rounded border border-[#d4d4d4]">
+            <h3 className="text-lg font-semibold text-[#333] mb-4">Creating Tasks</h3>
+            <div className="space-y-4">
+              <div>
+                <h4 className="font-medium text-[#333] mb-2">From Quote Builder</h4>
+                <p className="text-sm text-[#666] mb-2">
+                  In the Quote Builder, click the "Tasks" button in the header to open the task manager.
+                  Tasks are automatically linked to the current quote.
+                </p>
+              </div>
+              <div>
+                <h4 className="font-medium text-[#333] mb-2">Task Fields</h4>
+                <ul className="text-sm text-[#666] space-y-1">
+                  <li>• <strong>Title:</strong> Brief description of the task</li>
+                  <li>• <strong>Description:</strong> Detailed information about what needs to be done</li>
+                  <li>• <strong>Assigned To:</strong> Select a user to be responsible for the task</li>
+                  <li>• <strong>Due Date:</strong> Set a deadline for task completion</li>
+                  <li>• <strong>Priority:</strong> Choose from Low, Medium, High, or Urgent</li>
+                  <li>• <strong>Line Item:</strong> Optionally link the task to a specific line item</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white p-6 rounded border border-[#d4d4d4]">
+            <h3 className="text-lg font-semibold text-[#333] mb-4">Managing Tasks</h3>
+            <div className="space-y-4">
+              <div className="bg-[#f5f5f5] p-4 rounded">
+                <h4 className="font-medium text-[#333] mb-2">Task Status</h4>
+                <p className="text-sm text-[#666] mb-2">Tasks have three states:</p>
+                <ul className="text-sm text-[#666] space-y-1">
+                  <li>• <strong>Pending:</strong> Task is not yet started</li>
+                  <li>• <strong>In Progress:</strong> Task is actively being worked on</li>
+                  <li>• <strong>Completed:</strong> Task is finished</li>
+                </ul>
+              </div>
+              <div className="bg-[#f5f5f5] p-4 rounded">
+                <h4 className="font-medium text-[#333] mb-2">Filtering Tasks</h4>
+                <p className="text-sm text-[#666] mb-2">
+                  Use the filter dropdown to view:
+                </p>
+                <ul className="text-sm text-[#666] space-y-1">
+                  <li>• All tasks</li>
+                  <li>• Only pending tasks</li>
+                  <li>• Only completed tasks</li>
+                  <li>• Tasks assigned to you</li>
+                </ul>
+              </div>
+              <div className="bg-[#f5f5f5] p-4 rounded">
+                <h4 className="font-medium text-[#333] mb-2">Task Actions</h4>
+                <p className="text-sm text-[#666] mb-2">
+                  Click on a task to view details, edit, or mark as complete. Use the trash icon to delete tasks
+                  that are no longer needed.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-[#dff0d8] text-[#3c763d] border border-[#d6e9c6] p-6 rounded">
+            <h3 className="text-lg font-semibold text-[#3c763d] mb-3">Task Best Practices</h3>
+            <ul className="text-sm text-[#3c763d] space-y-2">
+              <li>• Create tasks for follow-ups on pending quotes</li>
+              <li>• Assign tasks to appropriate team members</li>
+              <li>• Set realistic due dates to ensure timely completion</li>
+              <li>• Use High/Urgent priority for time-sensitive items</li>
+              <li>• Link tasks to specific line items when applicable</li>
+              <li>• Update task status regularly to track progress</li>
+            </ul>
+          </div>
+        </div>
+      )
+    },
+    {
+      id: 'messages-notifications',
+      title: 'Messages & Notifications',
+      icon: Bell,
+      description: 'Learn about the messaging and notification system',
+      content: (
+        <div className="space-y-6">
+          <div className="bg-[#d9edf7] text-[#31708f] border border-[#bce8f1] p-6 rounded">
+            <h3 className="text-lg font-semibold text-[#31708f] mb-3">Communication System</h3>
+            <p className="text-[#31708f] mb-4">
+              QuoteMaster Pro includes a built-in messaging and notification system to facilitate communication
+              between team members about quotes, line items, and approvals.
+            </p>
+          </div>
+
+          <div className="bg-white p-6 rounded border border-[#d4d4d4]">
+            <h3 className="text-lg font-semibold text-[#333] mb-4">Messages</h3>
+            <div className="space-y-4">
+              <div>
+                <h4 className="font-medium text-[#333] mb-2">Sending Messages</h4>
+                <p className="text-sm text-[#666] mb-2">
+                  In the Quote Builder, click the "Messages" button to open the message panel. Messages can be
+                  associated with:
+                </p>
+                <ul className="text-sm text-[#666] space-y-1">
+                  <li>• The entire quote</li>
+                  <li>• Specific line items</li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="font-medium text-[#333] mb-2">Message Features</h4>
+                <ul className="text-sm text-[#666] space-y-1">
+                  <li>• Real-time message display</li>
+                  <li>• Automatic user attribution</li>
+                  <li>• Timestamp tracking</li>
+                  <li>• Context-aware messaging (quote or line item level)</li>
+                </ul>
+              </div>
+              <div>
+                <h4 className="font-medium text-[#333] mb-2">Viewing Messages</h4>
+                <p className="text-sm text-[#666] mb-2">
+                  Messages appear in chronological order with the newest at the bottom. The message panel
+                  shows all messages for the current context (quote or selected line item).
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white p-6 rounded border border-[#d4d4d4]">
+            <h3 className="text-lg font-semibold text-[#333] mb-4">Notifications</h3>
+            <div className="space-y-4">
+              <div>
+                <h4 className="font-medium text-[#333] mb-2">Notification Bell</h4>
+                <p className="text-sm text-[#666] mb-2">
+                  The bell icon in the top navigation shows your unread notification count. Click it to view
+                  recent notifications.
+                </p>
+              </div>
+              <div>
+                <h4 className="font-medium text-[#333] mb-2">Notification Types</h4>
+                <ul className="text-sm text-[#666] space-y-1">
+                  <li>• Quote approval requests</li>
+                  <li>• Approval actions (approved/rejected)</li>
+                  <li>• Price request updates</li>
+                  <li>• Task assignments</li>
+                  <li>• System alerts</li>
+                </ul>
+              </div>
+              <div className="bg-[#f5f5f5] p-4 rounded">
+                <h4 className="font-medium text-[#333] mb-2">Managing Notifications</h4>
+                <p className="text-sm text-[#666] mb-2">
+                  Click "View All Notifications" to open the full notification page where you can:
+                </p>
+                <ul className="text-sm text-[#666] space-y-1">
+                  <li>• Mark individual notifications as read</li>
+                  <li>• Mark all notifications as read</li>
+                  <li>• Filter by notification type</li>
+                  <li>• View notification history</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-[#fcf8e3] text-[#8a6d3b] border border-[#faebcc] p-6 rounded">
+            <h3 className="text-lg font-semibold text-[#8a6d3b] mb-3">Communication Tips</h3>
+            <ul className="text-sm text-[#8a6d3b] space-y-2">
+              <li>• Use messages to document important decisions</li>
+              <li>• Tag line items in messages for specific part discussions</li>
+              <li>• Check notifications regularly to stay updated</li>
+              <li>• Mark notifications as read to keep your inbox clean</li>
+              <li>• Use messages instead of email for quote-related communication</li>
+            </ul>
+          </div>
+        </div>
+      )
+    },
+    {
+      id: 'master-data-config',
+      title: 'Master Data & Configuration',
+      icon: Cog,
+      description: 'Learn about system setup and master data management',
+      content: (
+        <div className="space-y-6">
+          <div className="bg-[#d9edf7] text-[#31708f] border border-[#bce8f1] p-6 rounded">
+            <h3 className="text-lg font-semibold text-[#31708f] mb-3">System Setup & Master Data</h3>
+            <p className="text-[#31708f] mb-4">
+              Before using QuoteMaster Pro effectively, it's essential to set up master data and configure
+              system settings. This section covers all configuration screens and data management tools.
+            </p>
+          </div>
+
+          <div className="bg-white p-6 rounded border border-[#d4d4d4]">
+            <h3 className="text-lg font-semibold text-[#333] mb-4">Customer Management</h3>
+            <div className="space-y-4">
+              <div>
+                <h4 className="font-medium text-[#333] mb-2 flex items-center space-x-2">
+                  <Users className="h-4 w-4 text-[#428bca]" />
+                  <span>Customer Records</span>
+                </h4>
+                <p className="text-sm text-[#666] mb-2">
+                  Access via Management → Customer Management. Create and maintain customer master records including:
+                </p>
+                <ul className="text-sm text-[#666] space-y-1">
+                  <li>• <strong>Basic Information:</strong> Customer number, name, account status</li>
+                  <li>• <strong>Sales Data:</strong> Payment terms, credit limit, sales representative</li>
+                  <li>• <strong>Primary Warehouse:</strong> Default warehouse for orders</li>
+                  <li>• <strong>Customer Notes:</strong> Internal notes about the customer</li>
+                  <li>• <strong>ERP Integration:</strong> OroCommerce customer ID and account ID</li>
+                </ul>
+              </div>
+              <div className="bg-[#f5f5f5] p-4 rounded">
+                <h4 className="font-medium text-[#333] mb-2 flex items-center space-x-2">
+                  <MapPin className="h-4 w-4 text-[#5cb85c]" />
+                  <span>Customer Addresses</span>
+                </h4>
+                <p className="text-sm text-[#666] mb-2">
+                  Each customer can have multiple addresses for shipping and billing:
+                </p>
+                <ul className="text-sm text-[#666] space-y-1">
+                  <li>• Address type (Ship-To or Bill-To)</li>
+                  <li>• Complete address details</li>
+                  <li>• Warehouse assignment for ship-to addresses</li>
+                  <li>• Primary address designation</li>
+                  <li>• ERP location and site IDs</li>
+                </ul>
+              </div>
+              <div className="bg-[#f5f5f5] p-4 rounded">
+                <h4 className="font-medium text-[#333] mb-2 flex items-center space-x-2">
+                  <Mail className="h-4 w-4 text-[#f0ad4e]" />
+                  <span>Customer Contacts</span>
+                </h4>
+                <p className="text-sm text-[#666] mb-2">
+                  Manage contact persons for each customer:
+                </p>
+                <ul className="text-sm text-[#666] space-y-1">
+                  <li>• First and last name</li>
+                  <li>• Title and role</li>
+                  <li>• Email and phone number</li>
+                  <li>• Primary contact designation</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white p-6 rounded border border-[#d4d4d4]">
+            <h3 className="text-lg font-semibold text-[#333] mb-4">Product Management</h3>
+            <div className="space-y-4">
+              <div>
+                <h4 className="font-medium text-[#333] mb-2 flex items-center space-x-2">
+                  <Package className="h-4 w-4 text-[#428bca]" />
+                  <span>Product Master</span>
+                </h4>
+                <p className="text-sm text-[#666] mb-2">
+                  Access via Management → Product Management. Maintain product master data:
+                </p>
+                <ul className="text-sm text-[#666] space-y-1">
+                  <li>• <strong>SKU:</strong> Unique product identifier (internal part number)</li>
+                  <li>• <strong>Product Name:</strong> Description</li>
+                  <li>• <strong>Supplier Name:</strong> Primary supplier</li>
+                  <li>• <strong>Supplier Email:</strong> For price requests</li>
+                  <li>• <strong>Category:</strong> Product classification</li>
+                  <li>• <strong>Pricing:</strong> Unit cost, unit price</li>
+                  <li>• <strong>Stock:</strong> Quantity on hand</li>
+                  <li>• <strong>Lead Time:</strong> Estimated delivery time</li>
+                  <li>• <strong>Status:</strong> Active or inactive</li>
+                  <li>• <strong>ERP IDs:</strong> Inventory item ID for integration</li>
+                </ul>
+              </div>
+              <div className="bg-[#f5f5f5] p-4 rounded">
+                <h4 className="font-medium text-[#333] mb-2">Bulk Import</h4>
+                <p className="text-sm text-[#666] mb-2">
+                  Use Management → Product Import to bulk import products via CSV. Download the template
+                  to see required fields and format.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white p-6 rounded border border-[#d4d4d4]">
+            <h3 className="text-lg font-semibold text-[#333] mb-4">Cross Reference Management</h3>
+            <div className="space-y-4">
+              <div>
+                <h4 className="font-medium text-[#333] mb-2 flex items-center space-x-2">
+                  <GitBranch className="h-4 w-4 text-[#428bca]" />
+                  <span>Part Number Cross References</span>
+                </h4>
+                <p className="text-sm text-[#666] mb-2">
+                  Access via Management → Cross Reference Management. Map customer part numbers to internal SKUs:
+                </p>
+                <ul className="text-sm text-[#666] space-y-1">
+                  <li>• <strong>Customer:</strong> Which customer uses this part number</li>
+                  <li>• <strong>Customer Part Number:</strong> Customer's identifier</li>
+                  <li>• <strong>Internal SKU:</strong> Your product SKU</li>
+                  <li>• <strong>Description:</strong> Optional notes</li>
+                  <li>• <strong>ERP IDs:</strong> Ordered item ID for integration</li>
+                </ul>
+              </div>
+              <div className="bg-[#f5f5f5] p-4 rounded">
+                <h4 className="font-medium text-[#333] mb-2">Usage</h4>
+                <p className="text-sm text-[#666] mb-2">
+                  When creating quotes, use the cross-reference lookup to quickly find products using
+                  customer part numbers. This is essential for customers who reference their own numbering system.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white p-6 rounded border border-[#d4d4d4]">
+            <h3 className="text-lg font-semibold text-[#333] mb-4">Item Relationships</h3>
+            <div className="space-y-4">
+              <div>
+                <h4 className="font-medium text-[#333] mb-2">Supersession Management</h4>
+                <p className="text-sm text-[#666] mb-2">
+                  Access via Management → Item Relationships. Define product supersessions and relationships:
+                </p>
+                <ul className="text-sm text-[#666] space-y-1">
+                  <li>• <strong>Original SKU:</strong> The old or superseded product</li>
+                  <li>• <strong>Replacement SKU:</strong> The new or superseding product</li>
+                  <li>• <strong>Relationship Type:</strong> Superseded by, replaces, equivalent to</li>
+                  <li>• <strong>Effective Date:</strong> When the relationship became active</li>
+                  <li>• <strong>Notes:</strong> Additional information about the relationship</li>
+                </ul>
+              </div>
+              <div className="bg-[#f5f5f5] p-4 rounded">
+                <h4 className="font-medium text-[#333] mb-2">Usage in Quotes</h4>
+                <p className="text-sm text-[#666] mb-2">
+                  When a product is superseded, the system will suggest the replacement when adding line items.
+                  This ensures quotes use current product numbers.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white p-6 rounded border border-[#d4d4d4]">
+            <h3 className="text-lg font-semibold text-[#333] mb-4">User Management & Roles</h3>
+            <div className="space-y-4">
+              <div>
+                <h4 className="font-medium text-[#333] mb-2 flex items-center space-x-2">
+                  <Users className="h-4 w-4 text-[#428bca]" />
+                  <span>User Accounts</span>
+                </h4>
+                <p className="text-sm text-[#666] mb-2">
+                  Access via Management → User Management. Create and manage user accounts:
+                </p>
+                <ul className="text-sm text-[#666] space-y-1">
+                  <li>• Email address (used for login)</li>
+                  <li>• Full name</li>
+                  <li>• Phone number</li>
+                  <li>• User role assignment</li>
+                  <li>• Account status (active/inactive)</li>
+                </ul>
+              </div>
+              <div className="bg-[#f5f5f5] p-4 rounded">
+                <h4 className="font-medium text-[#333] mb-2 flex items-center space-x-2">
+                  <Shield className="h-4 w-4 text-[#5cb85c]" />
+                  <span>Role Management</span>
+                </h4>
+                <p className="text-sm text-[#666] mb-2">
+                  Access via Management → Role Management. Configure roles and permissions:
+                </p>
+                <ul className="text-sm text-[#666] space-y-1">
+                  <li>• <strong>Sales Rep:</strong> Basic quote creation and management</li>
+                  <li>• <strong>Sales Manager:</strong> Approval authority and team oversight</li>
+                  <li>• <strong>Admin:</strong> Full system access including configuration</li>
+                  <li>• <strong>Purchasing:</strong> Price request and inventory management</li>
+                  <li>• <strong>Custom Roles:</strong> Define custom permission sets</li>
+                </ul>
+              </div>
+              <div className="bg-[#f5f5f5] p-4 rounded">
+                <h4 className="font-medium text-[#333] mb-2">Approval Limits</h4>
+                <p className="text-sm text-[#666] mb-2">
+                  Set role-based approval limits in Settings → Approval Limits:
+                </p>
+                <ul className="text-sm text-[#666] space-y-1">
+                  <li>• Minimum approval amount (0 = no approval needed below this)</li>
+                  <li>• Maximum approval amount (above this, needs higher authority)</li>
+                  <li>• Minimum margin percentage required</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-white p-6 rounded border border-[#d4d4d4]">
+            <h3 className="text-lg font-semibold text-[#333] mb-4">System Configuration</h3>
+            <div className="space-y-4">
+              <div>
+                <h4 className="font-medium text-[#333] mb-2 flex items-center space-x-2">
+                  <Settings className="h-4 w-4 text-[#428bca]" />
+                  <span>Configuration Settings</span>
+                </h4>
+                <p className="text-sm text-[#666] mb-2">
+                  Access via Settings. Configure system-wide settings and integrations:
+                </p>
+              </div>
+              <div className="bg-[#f5f5f5] p-4 rounded">
+                <h4 className="font-medium text-[#333] mb-2">ERP Integration</h4>
+                <ul className="text-sm text-[#666] space-y-1">
+                  <li>• <strong>Base URL:</strong> Your OroCommerce instance URL</li>
+                  <li>• <strong>API Username:</strong> API user credentials</li>
+                  <li>• <strong>API Password:</strong> API authentication</li>
+                  <li>• <strong>Organization ID:</strong> Your Oro organization</li>
+                  <li>• <strong>Warehouse ID:</strong> Primary warehouse identifier</li>
+                  <li>• Test connection to verify settings</li>
+                </ul>
+              </div>
+              <div className="bg-[#f5f5f5] p-4 rounded">
+                <h4 className="font-medium text-[#333] mb-2">Import APIs</h4>
+                <p className="text-sm text-[#666] mb-2">
+                  Configure external API endpoints for bulk data import:
+                </p>
+                <ul className="text-sm text-[#666] space-y-1">
+                  <li>• <strong>Product Import API:</strong> Bulk product updates from ERP</li>
+                  <li>• <strong>Customer Import API:</strong> Customer master data sync</li>
+                  <li>• <strong>Cross Reference Import API:</strong> Part number mapping sync</li>
+                  <li>• Authentication (Basic Auth or API Key)</li>
+                  <li>• Test each API endpoint configuration</li>
+                </ul>
+              </div>
+              <div className="bg-[#f5f5f5] p-4 rounded">
+                <h4 className="font-medium text-[#333] mb-2">Quote Export API</h4>
+                <p className="text-sm text-[#666] mb-2">
+                  Configure where approved quotes should be exported:
+                </p>
+                <ul className="text-sm text-[#666] space-y-1">
+                  <li>• API endpoint URL for quote submission</li>
+                  <li>• Authentication credentials</li>
+                  <li>• Automatic export on approval (optional)</li>
+                </ul>
+              </div>
+              <div className="bg-[#f5f5f5] p-4 rounded">
+                <h4 className="font-medium text-[#333] mb-2">AI Agent Configuration</h4>
+                <ul className="text-sm text-[#666] space-y-1">
+                  <li>• <strong>Claude API Key:</strong> Required for AI assistant functionality</li>
+                  <li>• Obtain from Anthropic's console</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div className="bg-[#dff0d8] text-[#3c763d] border border-[#d6e9c6] p-6 rounded">
+            <h3 className="text-lg font-semibold text-[#3c763d] mb-3">Setup Checklist</h3>
+            <p className="text-sm text-[#3c763d] mb-3">
+              Complete these steps to prepare the system for use:
+            </p>
+            <ol className="text-sm text-[#3c763d] space-y-2 list-decimal list-inside">
+              <li>Configure ERP integration settings and test connection</li>
+              <li>Import or create customer master data with addresses and contacts</li>
+              <li>Import or create product catalog with pricing and lead times</li>
+              <li>Set up cross-references for customers who use their own part numbers</li>
+              <li>Define item relationships for superseded parts</li>
+              <li>Create user accounts and assign appropriate roles</li>
+              <li>Configure approval limits for each role</li>
+              <li>Set up import/export API endpoints if using automated data sync</li>
+              <li>Configure Claude API key if using AI assistant</li>
+              <li>Train users on the system using this guide</li>
+            </ol>
           </div>
         </div>
       )
