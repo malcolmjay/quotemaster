@@ -75,14 +75,14 @@ export const TrainingGuide: React.FC = () => {
           <div className="bg-[#d9edf7] text-[#31708f] border border-[#bce8f1] p-6 rounded">
             <h3 className="text-lg font-semibold text-[#31708f] mb-3">Welcome to QuoteMaster Pro</h3>
             <p className="text-[#31708f] mb-4">
-              QuoteMaster Pro is a comprehensive quote management system designed to integrate seamlessly with OroCommerce.
+              QuoteMaster Pro is a comprehensive quote management system designed to integrate seamlessly with your ERP system.
               It provides advanced quoting capabilities with real-time inventory management, cost analysis, and customer analytics.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="bg-white p-4 rounded border border-[#d4d4d4]">
                 <h4 className="font-medium text-[#333] mb-2">Key Benefits</h4>
                 <ul className="text-sm text-[#666] space-y-1">
-                  <li>• Non-invasive OroCommerce integration</li>
+                  <li>• Seamless ERP integration</li>
                   <li>• Real-time inventory management</li>
                   <li>• Advanced cost analysis and margin calculation</li>
                   <li>• Professional PDF quote generation</li>
@@ -1207,7 +1207,7 @@ export const TrainingGuide: React.FC = () => {
             <div className="bg-white p-4 rounded border border-[#d4d4d4]">
               <h4 className="font-medium text-[#333] mb-2">Import Methods</h4>
               <ul className="text-sm text-[#666] space-y-1">
-                <li>• ERP API integration (OroCommerce, Oracle EBS)</li>
+                <li>• ERP API integration</li>
                 <li>• CSV file upload</li>
                 <li>• Manual entry for small volumes</li>
                 <li>• Automated nightly synchronization</li>
@@ -1459,7 +1459,7 @@ export const TrainingGuide: React.FC = () => {
           <div className="bg-[#fcf8e3] text-[#8a6d3b] border border-[#faebcc] p-6 rounded">
             <h3 className="text-lg font-semibold text-[#8a6d3b] mb-3">ERP API Integration</h3>
             <p className="text-[#8a6d3b] mb-4">
-              For automated imports, configure API integration with your ERP system (OroCommerce, Oracle EBS, etc.).
+              For automated imports, configure API integration with your ERP system.
             </p>
             <div className="bg-white p-4 rounded border border-[#d4d4d4]">
               <h4 className="font-medium text-[#333] mb-2">API Import Benefits</h4>
@@ -1528,8 +1528,8 @@ export const TrainingGuide: React.FC = () => {
               <div className="bg-white p-4 rounded border border-[#d4d4d4]">
                 <h4 className="font-medium text-[#333] mb-2">Integration Settings</h4>
                 <ul className="text-sm text-[#666] space-y-1">
-                  <li>• OroCommerce API configuration</li>
-                  <li>• Oracle EBS connections</li>
+                  <li>• ERP API configuration</li>
+                  <li>• External system connections</li>
                   <li>• Import API authentication</li>
                   <li>• Sync schedules</li>
                   <li>• Webhook configurations</li>
@@ -1575,23 +1575,16 @@ export const TrainingGuide: React.FC = () => {
             </p>
             <div className="space-y-3">
               <div className="bg-white p-4 rounded border border-[#d4d4d4]">
-                <h4 className="font-medium text-[#333] mb-2">OroCommerce Settings</h4>
+                <h4 className="font-medium text-[#333] mb-2">ERP Connection Settings</h4>
                 <ul className="text-sm text-[#666] space-y-1">
                   <li>• API base URL</li>
                   <li>• API key and credentials</li>
                   <li>• Organization ID</li>
                   <li>• Sync frequency (hourly, daily)</li>
                   <li>• Data mapping configuration</li>
-                </ul>
-              </div>
-              <div className="bg-white p-4 rounded border border-[#d4d4d4]">
-                <h4 className="font-medium text-[#333] mb-2">Oracle EBS Settings</h4>
-                <ul className="text-sm text-[#666] space-y-1">
-                  <li>• Database connection string</li>
                   <li>• Authentication credentials</li>
                   <li>• Operating unit selection</li>
                   <li>• Inventory organization</li>
-                  <li>• Query parameters</li>
                 </ul>
               </div>
             </div>
@@ -2249,7 +2242,7 @@ export const TrainingGuide: React.FC = () => {
                   <li>• <strong>Sales Data:</strong> Payment terms, credit limit, sales representative</li>
                   <li>• <strong>Primary Warehouse:</strong> Default warehouse for orders</li>
                   <li>• <strong>Customer Notes:</strong> Internal notes about the customer</li>
-                  <li>• <strong>ERP Integration:</strong> OroCommerce customer ID and account ID</li>
+                  <li>• <strong>ERP Integration:</strong> Customer ID and account ID</li>
                 </ul>
               </div>
               <div className="bg-[#f5f5f5] p-4 rounded">
@@ -2439,10 +2432,10 @@ export const TrainingGuide: React.FC = () => {
               <div className="bg-[#f5f5f5] p-4 rounded">
                 <h4 className="font-medium text-[#333] mb-2">ERP Integration</h4>
                 <ul className="text-sm text-[#666] space-y-1">
-                  <li>• <strong>Base URL:</strong> Your OroCommerce instance URL</li>
+                  <li>• <strong>Base URL:</strong> Your ERP system URL</li>
                   <li>• <strong>API Username:</strong> API user credentials</li>
                   <li>• <strong>API Password:</strong> API authentication</li>
-                  <li>• <strong>Organization ID:</strong> Your Oro organization</li>
+                  <li>• <strong>Organization ID:</strong> Your organization ID</li>
                   <li>• <strong>Warehouse ID:</strong> Primary warehouse identifier</li>
                   <li>• Test connection to verify settings</li>
                 </ul>
