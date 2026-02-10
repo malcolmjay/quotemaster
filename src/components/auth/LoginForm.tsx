@@ -75,6 +75,16 @@ export const LoginForm: React.FC = () => {
           </p>
         </div>
 
+        <div className="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+          <p className="text-sm text-blue-900 dark:text-blue-100 font-medium mb-2">
+            Welcome to the Quote and Bid Management Test Environment
+          </p>
+          <p className="text-xs text-blue-800 dark:text-blue-200">
+            Please ensure that you only enter in test data on fictional parts and customers.
+            Do not enter in any personal or proprietary information into this test environment.
+          </p>
+        </div>
+
         <form onSubmit={handleSubmit} className="space-y-6">
           {isSignUp && (
             <div>
