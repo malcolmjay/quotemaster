@@ -62,7 +62,7 @@ Deno.serve(async (req: Request) => {
       .eq('user_id', requestingUser.id)
       .eq('is_active', true);
 
-    const hasAdminRole = userRoles?.some(r => r.role === 'ADMIN' || r.role === 'MANAGER');
+    const hasAdminRole = userRoles?.some(r => r.role === 'Admin' || r.role === 'Manager');
 
     if (!hasAdminRole) {
       return new Response(
