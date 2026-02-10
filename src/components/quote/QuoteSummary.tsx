@@ -28,8 +28,20 @@ export const QuoteSummary: React.FC<QuoteSummaryProps> = ({ lineItems = [], onSa
   const totalLineItems = lineItems.length;
   const subtotal = round2(lineItems.reduce((sum, item) => sum + item.subtotal, 0));
   const totalCost = round2(lineItems.reduce((sum, item) => sum + (item.cost * item.qty), 0));
-  const totalCarryingCost = round2(totalCost * 0.0187);
-  const totalFreightOut = round2(totalCost * 0.06);
+
+  const carryingCostPercent = currentQuote?.carrying_cost_percent || 0;
+  const freightOverheadPercent = currentQuote?.freight_overhead_percent || 0;
+
+  const totalCarryingCost = round2(lineItems.reduce((sum, item) => {
+    const itemCost = item.cost * item.qty;
+    return sum + (itemCost * carryingCostPercent / 100);
+  }, 0));
+
+  const totalFreightOut = round2(lineItems.reduce((sum, item) => {
+    const itemCost = item.cost * item.qty;
+    return sum + (itemCost * freightOverheadPercent / 100);
+  }, 0));
+
   const totalMargin = subtotal > 0 ? round2(((subtotal - totalCost) / subtotal) * 100) : 0;
   const grossProfit = round2(subtotal - totalCost);
   const total = subtotal;
@@ -304,7 +316,9 @@ export const QuoteSummary: React.FC<QuoteSummaryProps> = ({ lineItems = [], onSa
           <div className="bg-amber-50 rounded-lg p-4 text-center border border-amber-100">
             <div className="flex items-center justify-center gap-1.5 mb-2">
               <PiggyBank className="w-3.5 h-3.5 text-amber-600" />
-              <span className="text-[11px] font-semibold text-amber-600 uppercase tracking-wider">Carrying</span>
+              <span className="text-[11px] font-semibold text-amber-600 uppercase tracking-wider">
+                Carrying {carryingCostPercent > 0 && `(${carryingCostPercent.toFixed(2)}%)`}
+              </span>
             </div>
             <div className="text-lg font-bold text-amber-800 tabular-nums">
               ${totalCarryingCost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
@@ -314,7 +328,9 @@ export const QuoteSummary: React.FC<QuoteSummaryProps> = ({ lineItems = [], onSa
           <div className="bg-sky-50 rounded-lg p-4 text-center border border-sky-100">
             <div className="flex items-center justify-center gap-1.5 mb-2">
               <Truck className="w-3.5 h-3.5 text-sky-600" />
-              <span className="text-[11px] font-semibold text-sky-600 uppercase tracking-wider">Freight</span>
+              <span className="text-[11px] font-semibold text-sky-600 uppercase tracking-wider">
+                Freight {freightOverheadPercent > 0 && `(${freightOverheadPercent.toFixed(2)}%)`}
+              </span>
             </div>
             <div className="text-lg font-bold text-sky-800 tabular-nums">
               ${totalFreightOut.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
