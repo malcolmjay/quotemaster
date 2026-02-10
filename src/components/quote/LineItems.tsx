@@ -207,7 +207,7 @@ export const LineItems: React.FC<LineItemsProps> = ({
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.shiftKey && e.key === 'S' && !e.ctrlKey && !e.metaKey && !e.altKey) {
+      if (e.shiftKey && e.key === '+' && !e.ctrlKey && !e.metaKey && !e.altKey) {
         e.preventDefault();
         searchInputRef.current?.focus();
         searchInputRef.current?.select();
@@ -646,13 +646,13 @@ export const LineItems: React.FC<LineItemsProps> = ({
           </div>
 
           <div className="flex items-center gap-2">
-            <HelpTooltip content="Search for products by SKU, name, or description to add them to your quote. Use Shift+S keyboard shortcut to quickly focus this field.">
+            <HelpTooltip content="Search for products by SKU, name, or description to add them to your quote. Use Shift++ keyboard shortcut to quickly focus this field.">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#8c939d]" />
                 <input
                   ref={searchInputRef}
                   type="text"
-                  placeholder="Add product (Shift+S)"
+                  placeholder="Add product (Shift++)"
                   value={newItemSku}
                   onChange={(e) => handleSkuSearch(e.target.value)}
                   className="w-56 pl-9 pr-3 py-2 bg-white border border-[#dce0e6] rounded-md text-sm focus:ring-2 focus:ring-[#1a6fb5] focus:border-[#1a6fb5] transition-all"
