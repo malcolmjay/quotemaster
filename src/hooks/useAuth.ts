@@ -43,17 +43,17 @@ export const useAuth = () => {
 
   useEffect(() => {
     let mounted = true;
+    let hadSessionOnLoad = false;
 
-    // Get initial session
     supabase.auth.getSession().then(({ data: { session } }) => {
       if (mounted) {
+        hadSessionOnLoad = !!session
         setSession(session)
         setUser(session?.user ?? null)
         setLoading(false)
       }
     })
 
-    // Listen for auth changes
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((event, session) => {
@@ -62,8 +62,7 @@ export const useAuth = () => {
         setUser(session?.user ?? null)
         setLoading(false)
 
-        // Set flag for fresh login (not page refresh)
-        if (event === 'SIGNED_IN') {
+        if (event === 'SIGNED_IN' && !hadSessionOnLoad) {
           sessionStorage.setItem('show_welcome_modal', 'true')
         }
       }
