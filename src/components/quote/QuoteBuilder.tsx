@@ -350,6 +350,8 @@ export const QuoteBuilder: React.FC = () => {
           product={selectedProduct}
           onClose={() => setShowCostAnalysis(false)}
           onApplyPricing={updatePriceCallback?.callback}
+          carryingCostPercent={currentQuote?.carrying_cost_percent || 0}
+          freightOverheadPercent={currentQuote?.freight_overhead_percent || 0}
         />
       )}
 

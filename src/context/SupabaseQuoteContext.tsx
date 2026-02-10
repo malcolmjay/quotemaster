@@ -29,6 +29,8 @@ interface Quote {
   loss_reason?: string
   loss_notes?: string
   quote_status: 'draft' | 'pending_approval' | 'approved'
+  carrying_cost_percent?: number
+  freight_overhead_percent?: number
   quote_line_items?: QuoteLineItem[]
   customers?: any
 }
