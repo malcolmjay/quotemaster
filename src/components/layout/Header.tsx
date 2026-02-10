@@ -1,9 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { Building2, User, Bell, Sun, Moon, LogOut, HelpCircle } from 'lucide-react';
+import { Building2, User, Bell, LogOut, HelpCircle } from 'lucide-react';
 import { useAuthContext } from '../auth/AuthProvider';
 import { useCustomer } from '../../context/CustomerContext';
 import { useSupabaseQuote } from '../../context/SupabaseQuoteContext';
-import { useTheme } from '../../context/ThemeContext';
 import { useHelp } from '../../context/HelpContext';
 import { useToast } from '../../context/ToastContext';
 import { HelpTooltip } from '../common/HelpTooltip';
@@ -14,7 +13,6 @@ export const Header: React.FC = () => {
   const { user, signOut } = useAuthContext();
   const { selectedCustomer } = useCustomer();
   const { quotes } = useSupabaseQuote();
-  const { theme, toggleTheme } = useTheme();
   const { helpMode, toggleHelpMode } = useHelp();
   const { showToast } = useToast();
   const [loggingOut, setLoggingOut] = useState(false);
@@ -74,16 +72,6 @@ export const Header: React.FC = () => {
 
         <div className="flex items-center space-x-3 lg:space-x-6">
           <div className="flex items-center space-x-2 lg:space-x-4">
-            <HelpTooltip content={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode. Dark mode is easier on the eyes in low-light environments.`}>
-              <button
-                onClick={toggleTheme}
-                className="p-2 text-[#666] hover:text-[#333] hover:bg-[#f5f5f5] rounded transition-colors"
-                title={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
-              >
-                {theme === 'light' ? <Moon className="h-4 w-4" /> : <Sun className="h-4 w-4" />}
-              </button>
-            </HelpTooltip>
-
             <button
               onClick={toggleHelpMode}
               className={`p-2 rounded transition-colors ${
