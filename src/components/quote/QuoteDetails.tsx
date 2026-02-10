@@ -16,8 +16,7 @@ export const QuoteDetails: React.FC<QuoteDetailsProps> = ({ quoteStatus = 'draft
   const [bidBondRequired, setBidBondRequired] = React.useState('N');
   const [performanceBondRequired, setPerformanceBondRequired] = React.useState('N');
   const [insuranceRequired, setInsuranceRequired] = React.useState('N');
-  
-  // Additional bid requirement fields
+
   const [customerDeliveryReq, setCustomerDeliveryReq] = React.useState('N');
   const [stockRequirement, setStockRequirement] = React.useState('N');
   const [inventoryImpact, setInventoryImpact] = React.useState('N');
@@ -34,12 +33,11 @@ export const QuoteDetails: React.FC<QuoteDetailsProps> = ({ quoteStatus = 'draft
   const [oemBrandSpecific, setOemBrandSpecific] = React.useState('N');
   const [kinetik, setKinetik] = React.useState('N');
   const [priceNegotiable, setPriceNegotiable] = React.useState('N');
-  
-  // Date and numeric fields
+
   const [questionPeriod, setQuestionPeriod] = React.useState('');
   const [acceptancePeriod, setAcceptancePeriod] = React.useState('');
   const [estimatedAwardDate, setEstimatedAwardDate] = React.useState('');
-  
+
   React.useEffect(() => {
     setShowLossData(quoteStatus === 'lost');
   }, [quoteStatus]);
@@ -51,559 +49,299 @@ export const QuoteDetails: React.FC<QuoteDetailsProps> = ({ quoteStatus = 'draft
       onSupplyPeriodChange(months);
     }
   };
+
+  const selectClasses = "appearance-none w-full px-3 py-2 border border-[#dce0e6] rounded-md text-sm bg-white text-[#1a1f36] focus:ring-2 focus:ring-[#1a6fb5] focus:border-[#1a6fb5] transition-all";
+  const inputClasses = "w-full px-3 py-2 border border-[#dce0e6] rounded-md text-sm bg-white text-[#1a1f36] focus:ring-2 focus:ring-[#1a6fb5] focus:border-[#1a6fb5] transition-all";
+  const labelClasses = "block text-xs font-medium text-[#5f6672] mb-1.5";
+
   return (
-    <div className="space-y-6">
-      <div className="flex items-center space-x-2 text-gray-700 mb-4">
-        <FileText className="h-3 w-3" />
-        <span className="text-xs font-medium">Request for Quote Details</span>
+    <div className="space-y-5">
+      <div className="flex items-center gap-2 text-[#5f6672]">
+        <FileText className="h-4 w-4" />
+        <span className="text-xs font-semibold uppercase tracking-wide">Request for Quote Details</span>
       </div>
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
         <div>
-          <label className="block text-xs font-medium text-gray-700 mb-1">
+          <label className={labelClasses}>
             Quote Type <span className="text-red-500">*</span>
           </label>
           <div className="relative">
-            <HelpTooltip content="Select the quote type. Choose 'Daily Quote' for standard quotes or 'Bid' for formal bids with special requirements. Bid types include additional compliance fields.">
+            <HelpTooltip content="Select the quote type. Choose 'Daily Quote' for standard quotes or 'Bid' for formal bids with special requirements.">
               <select
                 value={quoteType}
                 onChange={(e) => setQuoteType(e.target.value)}
-                className="appearance-none w-full px-2 py-1 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 text-xs"
+                className={selectClasses}
               >
                 <option>Daily Quote</option>
                 <option>Bid</option>
               </select>
             </HelpTooltip>
-            <ChevronDown className="absolute right-1 top-1.5 h-2 w-2 text-gray-400" />
+            <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[#8c939d] pointer-events-none" />
           </div>
         </div>
-        
+
         <div>
-          <label className="block text-xs font-medium text-gray-700 mb-1">
-            Customer Bid Number
-          </label>
+          <label className={labelClasses}>Customer Bid Number</label>
           <input
             type="text"
-            placeholder="Customer's bid reference number"
-            className="w-full px-2 py-1 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-xs bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+            placeholder="Bid reference..."
+            className={inputClasses}
           />
         </div>
-        
+
         <div>
-          <label className="block text-xs font-medium text-gray-700 mb-1">
-            Purchase Order Number
-          </label>
+          <label className={labelClasses}>Purchase Order Number</label>
           <input
             type="text"
-            placeholder="Optional PO reference"
-            className="w-full px-2 py-1 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-xs bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+            placeholder="PO reference..."
+            className={inputClasses}
           />
         </div>
-        
+
         <div>
-          <label className="block text-xs font-medium text-gray-700 mb-1">
+          <label className={labelClasses}>
             Valid Until <span className="text-red-500">*</span>
           </label>
-          <div className="relative">
-            <input
-              type="date"
-              defaultValue="2025-09-13"
-              className="w-full px-2 py-1 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-xs bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-            />
-            <Calendar className="absolute right-1 top-1.5 h-2 w-2 text-gray-400" />
-          </div>
+          <input
+            type="date"
+            defaultValue="2025-09-13"
+            className={inputClasses}
+          />
         </div>
-        
+
         <div>
-          <label className="block text-xs font-medium text-gray-700 mb-1">
-            Supply Period (months)
-          </label>
-          <HelpTooltip content="Enter the contract duration in months. For multi-year contracts (over 12 months), additional pricing columns will be enabled for year-over-year price adjustments.">
+          <label className={labelClasses}>Supply Period (months)</label>
+          <HelpTooltip content="Enter the contract duration in months. For multi-year contracts (over 12 months), additional pricing columns will be enabled.">
             <input
               type="number"
-              placeholder="e.g., 36 for 3 years"
+              placeholder="e.g., 36"
               value={supplyPeriod}
               onChange={(e) => handleSupplyPeriodChange(e.target.value)}
-              className="w-full px-2 py-1 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-xs bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+              className={inputClasses}
               min="1"
               max="60"
             />
           </HelpTooltip>
           {parseInt(supplyPeriod) > 12 && (
-            <div className="text-xs text-blue-600 mt-1">
-              Multi-year contract: {Math.ceil(parseInt(supplyPeriod) / 12)} years
+            <div className="text-xs text-[#1a6fb5] mt-1 font-medium">
+              Multi-year: {Math.ceil(parseInt(supplyPeriod) / 12)} years
             </div>
           )}
         </div>
-        
+
         <div>
-          <label className="block text-xs font-medium text-gray-700 mb-1">
-            Ship Until
-          </label>
-          <div className="relative">
-            <input
-              type="date"
-              defaultValue="2025-11-13"
-              className="w-full px-2 py-1 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-xs bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-            />
-            <Calendar className="absolute right-1 top-1.5 h-2 w-2 text-gray-400" />
-          </div>
+          <label className={labelClasses}>Ship Until</label>
+          <input
+            type="date"
+            defaultValue="2025-11-13"
+            className={inputClasses}
+          />
         </div>
       </div>
-      
+
       {quoteType === 'Bid' && (
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-          <div className="flex items-center space-x-2 mb-4">
-            <FileText className="h-3 w-3 text-blue-600" />
-            <span className="text-xs font-medium text-blue-900">Bid Requirements</span>
+        <div className="bg-[#f0f6ff] border border-[#c4d9f2] rounded-lg p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <FileText className="h-4 w-4 text-[#1a6fb5]" />
+            <span className="text-xs font-semibold text-[#1a6fb5] uppercase tracking-wide">Bid Requirements</span>
           </div>
-          
+
           <div className="space-y-4">
-            {/* Original Requirements Row */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              <div>
-                <label className="block text-xs font-medium text-blue-700 mb-1">
-                  DBE Requirement?
-                </label>
-                <div className="relative">
-                  <select
-                    value={dbeRequired}
-                    onChange={(e) => setDbeRequired(e.target.value)}
-                    className="appearance-none w-full px-2 py-1 border border-blue-300 dark:border-blue-600 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                  >
-                    <option value="N">No</option>
-                    <option value="Y">Yes</option>
-                  </select>
-                  <ChevronDown className="absolute right-1 top-1.5 h-2 w-2 text-blue-400" />
+              {[
+                { label: 'DBE Requirement?', value: dbeRequired, onChange: setDbeRequired },
+                { label: 'Bid Bond Required?', value: bidBondRequired, onChange: setBidBondRequired },
+                { label: 'Performance Bond?', value: performanceBondRequired, onChange: setPerformanceBondRequired },
+                { label: 'Insurance Required?', value: insuranceRequired, onChange: setInsuranceRequired },
+              ].map((field) => (
+                <div key={field.label}>
+                  <label className="block text-xs font-medium text-[#3d6b9e] mb-1.5">{field.label}</label>
+                  <div className="relative">
+                    <select
+                      value={field.value}
+                      onChange={(e) => field.onChange(e.target.value)}
+                      className="appearance-none w-full px-3 py-2 border border-[#c4d9f2] rounded-md text-sm bg-white text-[#1a1f36] focus:ring-2 focus:ring-[#1a6fb5]"
+                    >
+                      <option value="N">No</option>
+                      <option value="Y">Yes</option>
+                    </select>
+                    <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[#8c939d] pointer-events-none" />
+                  </div>
                 </div>
-              </div>
-              
-              <div>
-                <label className="block text-xs font-medium text-blue-700 mb-1">
-                  Bid Bond Required?
-                </label>
-                <div className="relative">
-                  <select
-                    value={bidBondRequired}
-                    onChange={(e) => setBidBondRequired(e.target.value)}
-                    className="appearance-none w-full px-2 py-1 border border-blue-300 dark:border-blue-600 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                  >
-                    <option value="N">No</option>
-                    <option value="Y">Yes</option>
-                  </select>
-                  <ChevronDown className="absolute right-1 top-1.5 h-2 w-2 text-blue-400" />
-                </div>
-              </div>
-              
-              <div>
-                <label className="block text-xs font-medium text-blue-700 mb-1">
-                  Performance Bond Required?
-                </label>
-                <div className="relative">
-                  <select
-                    value={performanceBondRequired}
-                    onChange={(e) => setPerformanceBondRequired(e.target.value)}
-                    className="appearance-none w-full px-2 py-1 border border-blue-300 dark:border-blue-600 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                  >
-                    <option value="N">No</option>
-                    <option value="Y">Yes</option>
-                  </select>
-                  <ChevronDown className="absolute right-1 top-1.5 h-2 w-2 text-blue-400" />
-                </div>
-              </div>
-              
-              <div>
-                <label className="block text-xs font-medium text-blue-700 mb-1">
-                  Insurance Required?
-                </label>
-                <div className="relative">
-                  <select
-                    value={insuranceRequired}
-                    onChange={(e) => setInsuranceRequired(e.target.value)}
-                    className="appearance-none w-full px-2 py-1 border border-blue-300 dark:border-blue-600 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                  >
-                    <option value="N">No</option>
-                    <option value="Y">Yes</option>
-                  </select>
-                  <ChevronDown className="absolute right-1 top-1.5 h-2 w-2 text-blue-400" />
-                </div>
-              </div>
+              ))}
             </div>
 
-            {/* Additional Requirements - Row 1 */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              <div>
-                <label className="block text-xs font-medium text-blue-700 mb-1">
-                  Customer Delivery Requirement?
-                </label>
-                <div className="relative">
-                  <select
-                    value={customerDeliveryReq}
-                    onChange={(e) => setCustomerDeliveryReq(e.target.value)}
-                    className="appearance-none w-full px-2 py-1 border border-blue-300 dark:border-blue-600 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                  >
-                    <option value="N">No</option>
-                    <option value="Y">Yes</option>
-                  </select>
-                  <ChevronDown className="absolute right-1 top-1.5 h-2 w-2 text-blue-400" />
+              {[
+                { label: 'Customer Delivery Req?', value: customerDeliveryReq, onChange: setCustomerDeliveryReq },
+                { label: 'Stock Requirement?', value: stockRequirement, onChange: setStockRequirement },
+                { label: 'Inventory Impact?', value: inventoryImpact, onChange: setInventoryImpact },
+                { label: 'Packaging & Labelling?', value: packagingLabelling, onChange: setPackagingLabelling },
+              ].map((field) => (
+                <div key={field.label}>
+                  <label className="block text-xs font-medium text-[#3d6b9e] mb-1.5">{field.label}</label>
+                  <div className="relative">
+                    <select
+                      value={field.value}
+                      onChange={(e) => field.onChange(e.target.value)}
+                      className="appearance-none w-full px-3 py-2 border border-[#c4d9f2] rounded-md text-sm bg-white text-[#1a1f36] focus:ring-2 focus:ring-[#1a6fb5]"
+                    >
+                      <option value="N">No</option>
+                      <option value="Y">Yes</option>
+                    </select>
+                    <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[#8c939d] pointer-events-none" />
+                  </div>
                 </div>
-              </div>
-              
-              <div>
-                <label className="block text-xs font-medium text-blue-700 mb-1">
-                  Stock Requirement?
-                </label>
-                <div className="relative">
-                  <select
-                    value={stockRequirement}
-                    onChange={(e) => setStockRequirement(e.target.value)}
-                    className="appearance-none w-full px-2 py-1 border border-blue-300 dark:border-blue-600 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                  >
-                    <option value="N">No</option>
-                    <option value="Y">Yes</option>
-                  </select>
-                  <ChevronDown className="absolute right-1 top-1.5 h-2 w-2 text-blue-400" />
-                </div>
-              </div>
-              
-              <div>
-                <label className="block text-xs font-medium text-blue-700 mb-1">
-                  Inventory Impact?
-                </label>
-                <div className="relative">
-                  <select
-                    value={inventoryImpact}
-                    onChange={(e) => setInventoryImpact(e.target.value)}
-                    className="appearance-none w-full px-2 py-1 border border-blue-300 dark:border-blue-600 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                  >
-                    <option value="N">No</option>
-                    <option value="Y">Yes</option>
-                  </select>
-                  <ChevronDown className="absolute right-1 top-1.5 h-2 w-2 text-blue-400" />
-                </div>
-              </div>
-              
-              <div>
-                <label className="block text-xs font-medium text-blue-700 mb-1">
-                  Packaging & Labelling?
-                </label>
-                <div className="relative">
-                  <select
-                    value={packagingLabelling}
-                    onChange={(e) => setPackagingLabelling(e.target.value)}
-                    className="appearance-none w-full px-2 py-1 border border-blue-300 dark:border-blue-600 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                  >
-                    <option value="N">No</option>
-                    <option value="Y">Yes</option>
-                  </select>
-                  <ChevronDown className="absolute right-1 top-1.5 h-2 w-2 text-blue-400" />
-                </div>
-              </div>
+              ))}
             </div>
 
-            {/* Additional Requirements - Row 2 */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              <div>
-                <label className="block text-xs font-medium text-blue-700 mb-1">
-                  Special Requirements?
-                </label>
-                <div className="relative">
-                  <select
-                    value={specialRequirements}
-                    onChange={(e) => setSpecialRequirements(e.target.value)}
-                    className="appearance-none w-full px-2 py-1 border border-blue-300 dark:border-blue-600 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                  >
-                    <option value="N">No</option>
-                    <option value="Y">Yes</option>
-                  </select>
-                  <ChevronDown className="absolute right-1 top-1.5 h-2 w-2 text-blue-400" />
+              {[
+                { label: 'Special Requirements?', value: specialRequirements, onChange: setSpecialRequirements },
+                { label: 'Liquidated Damages?', value: liquidatedDamages, onChange: setLiquidatedDamages },
+                { label: 'Buy America (>$150K)?', value: buyAmericaReq, onChange: setBuyAmericaReq },
+                { label: 'EEO/APP?', value: eeoApp, onChange: setEeoApp },
+              ].map((field) => (
+                <div key={field.label}>
+                  <label className="block text-xs font-medium text-[#3d6b9e] mb-1.5">{field.label}</label>
+                  <div className="relative">
+                    <select
+                      value={field.value}
+                      onChange={(e) => field.onChange(e.target.value)}
+                      className="appearance-none w-full px-3 py-2 border border-[#c4d9f2] rounded-md text-sm bg-white text-[#1a1f36] focus:ring-2 focus:ring-[#1a6fb5]"
+                    >
+                      <option value="N">No</option>
+                      <option value="Y">Yes</option>
+                    </select>
+                    <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[#8c939d] pointer-events-none" />
+                  </div>
                 </div>
-              </div>
-              
-              <div>
-                <label className="block text-xs font-medium text-blue-700 mb-1">
-                  Liquidated Damages?
-                </label>
-                <div className="relative">
-                  <select
-                    value={liquidatedDamages}
-                    onChange={(e) => setLiquidatedDamages(e.target.value)}
-                    className="appearance-none w-full px-2 py-1 border border-blue-300 dark:border-blue-600 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                  >
-                    <option value="N">No</option>
-                    <option value="Y">Yes</option>
-                  </select>
-                  <ChevronDown className="absolute right-1 top-1.5 h-2 w-2 text-blue-400" />
-                </div>
-              </div>
-              
-              <div>
-                <label className="block text-xs font-medium text-blue-700 mb-1">
-                  Meet Buy America if Over $150,000?
-                </label>
-                <div className="relative">
-                  <select
-                    value={buyAmericaReq}
-                    onChange={(e) => setBuyAmericaReq(e.target.value)}
-                    className="appearance-none w-full px-2 py-1 border border-blue-300 dark:border-blue-600 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                  >
-                    <option value="N">No</option>
-                    <option value="Y">Yes</option>
-                  </select>
-                  <ChevronDown className="absolute right-1 top-1.5 h-2 w-2 text-blue-400" />
-                </div>
-              </div>
-              
-              <div>
-                <label className="block text-xs font-medium text-blue-700 mb-1">
-                  EEO/APP?
-                </label>
-                <div className="relative">
-                  <select
-                    value={eeoApp}
-                    onChange={(e) => setEeoApp(e.target.value)}
-                    className="appearance-none w-full px-2 py-1 border border-blue-300 dark:border-blue-600 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                  >
-                    <option value="N">No</option>
-                    <option value="Y">Yes</option>
-                  </select>
-                  <ChevronDown className="absolute right-1 top-1.5 h-2 w-2 text-blue-400" />
-                </div>
-              </div>
+              ))}
             </div>
 
-            {/* Additional Requirements - Row 3 */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              <div>
-                <label className="block text-xs font-medium text-blue-700 mb-1">
-                  All or Nothing Bid?
-                </label>
-                <div className="relative">
-                  <select
-                    value={allOrNothingBid}
-                    onChange={(e) => setAllOrNothingBid(e.target.value)}
-                    className="appearance-none w-full px-2 py-1 border border-blue-300 dark:border-blue-600 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                  >
-                    <option value="N">No</option>
-                    <option value="Y">Yes</option>
-                  </select>
-                  <ChevronDown className="absolute right-1 top-1.5 h-2 w-2 text-blue-400" />
+              {[
+                { label: 'All or Nothing Bid?', value: allOrNothingBid, onChange: setAllOrNothingBid },
+                { label: 'One Time Buy?', value: oneTimeBuy, onChange: setOneTimeBuy },
+                { label: 'Contract Details?', value: contractDetails, onChange: setContractDetails },
+                { label: 'Amendments?', value: amendments, onChange: setAmendments },
+              ].map((field) => (
+                <div key={field.label}>
+                  <label className="block text-xs font-medium text-[#3d6b9e] mb-1.5">{field.label}</label>
+                  <div className="relative">
+                    <select
+                      value={field.value}
+                      onChange={(e) => field.onChange(e.target.value)}
+                      className="appearance-none w-full px-3 py-2 border border-[#c4d9f2] rounded-md text-sm bg-white text-[#1a1f36] focus:ring-2 focus:ring-[#1a6fb5]"
+                    >
+                      <option value="N">No</option>
+                      <option value="Y">Yes</option>
+                    </select>
+                    <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[#8c939d] pointer-events-none" />
+                  </div>
                 </div>
-              </div>
-              
-              <div>
-                <label className="block text-xs font-medium text-blue-700 mb-1">
-                  One Time Buy?
-                </label>
-                <div className="relative">
-                  <select
-                    value={oneTimeBuy}
-                    onChange={(e) => setOneTimeBuy(e.target.value)}
-                    className="appearance-none w-full px-2 py-1 border border-blue-300 dark:border-blue-600 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                  >
-                    <option value="N">No</option>
-                    <option value="Y">Yes</option>
-                  </select>
-                  <ChevronDown className="absolute right-1 top-1.5 h-2 w-2 text-blue-400" />
-                </div>
-              </div>
-              
-              <div>
-                <label className="block text-xs font-medium text-blue-700 mb-1">
-                  Contract Details?
-                </label>
-                <div className="relative">
-                  <select
-                    value={contractDetails}
-                    onChange={(e) => setContractDetails(e.target.value)}
-                    className="appearance-none w-full px-2 py-1 border border-blue-300 dark:border-blue-600 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                  >
-                    <option value="N">No</option>
-                    <option value="Y">Yes</option>
-                  </select>
-                  <ChevronDown className="absolute right-1 top-1.5 h-2 w-2 text-blue-400" />
-                </div>
-              </div>
-              
-              <div>
-                <label className="block text-xs font-medium text-blue-700 mb-1">
-                  Amendments?
-                </label>
-                <div className="relative">
-                  <select
-                    value={amendments}
-                    onChange={(e) => setAmendments(e.target.value)}
-                    className="appearance-none w-full px-2 py-1 border border-blue-300 dark:border-blue-600 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                  >
-                    <option value="N">No</option>
-                    <option value="Y">Yes</option>
-                  </select>
-                  <ChevronDown className="absolute right-1 top-1.5 h-2 w-2 text-blue-400" />
-                </div>
-              </div>
+              ))}
             </div>
 
-            {/* Additional Requirements - Row 4 */}
             <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-              <div>
-                <label className="block text-xs font-medium text-blue-700 mb-1">
-                  Alternates Allowed?
-                </label>
-                <div className="relative">
-                  <select
-                    value={alternatesAllowed}
-                    onChange={(e) => setAlternatesAllowed(e.target.value)}
-                    className="appearance-none w-full px-2 py-1 border border-blue-300 dark:border-blue-600 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                  >
-                    <option value="N">No</option>
-                    <option value="Y">Yes</option>
-                  </select>
-                  <ChevronDown className="absolute right-1 top-1.5 h-2 w-2 text-blue-400" />
+              {[
+                { label: 'Alternates Allowed?', value: alternatesAllowed, onChange: setAlternatesAllowed },
+                { label: 'OEM Brand Specific?', value: oemBrandSpecific, onChange: setOemBrandSpecific },
+                { label: 'Kinetik?', value: kinetik, onChange: setKinetik },
+                { label: 'Price Negotiable?', value: priceNegotiable, onChange: setPriceNegotiable },
+              ].map((field) => (
+                <div key={field.label}>
+                  <label className="block text-xs font-medium text-[#3d6b9e] mb-1.5">{field.label}</label>
+                  <div className="relative">
+                    <select
+                      value={field.value}
+                      onChange={(e) => field.onChange(e.target.value)}
+                      className="appearance-none w-full px-3 py-2 border border-[#c4d9f2] rounded-md text-sm bg-white text-[#1a1f36] focus:ring-2 focus:ring-[#1a6fb5]"
+                    >
+                      <option value="N">No</option>
+                      <option value="Y">Yes</option>
+                    </select>
+                    <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[#8c939d] pointer-events-none" />
+                  </div>
                 </div>
-              </div>
-              
-              <div>
-                <label className="block text-xs font-medium text-blue-700 mb-1">
-                  OEM Brand Specific?
-                </label>
-                <div className="relative">
-                  <select
-                    value={oemBrandSpecific}
-                    onChange={(e) => setOemBrandSpecific(e.target.value)}
-                    className="appearance-none w-full px-2 py-1 border border-blue-300 dark:border-blue-600 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                  >
-                    <option value="N">No</option>
-                    <option value="Y">Yes</option>
-                  </select>
-                  <ChevronDown className="absolute right-1 top-1.5 h-2 w-2 text-blue-400" />
-                </div>
-              </div>
-              
-              <div>
-                <label className="block text-xs font-medium text-blue-700 mb-1">
-                  Kinetik?
-                </label>
-                <div className="relative">
-                  <select
-                    value={kinetik}
-                    onChange={(e) => setKinetik(e.target.value)}
-                    className="appearance-none w-full px-2 py-1 border border-blue-300 dark:border-blue-600 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                  >
-                    <option value="N">No</option>
-                    <option value="Y">Yes</option>
-                  </select>
-                  <ChevronDown className="absolute right-1 top-1.5 h-2 w-2 text-blue-400" />
-                </div>
-              </div>
-              
-              <div>
-                <label className="block text-xs font-medium text-blue-700 mb-1">
-                  Price Negotiable?
-                </label>
-                <div className="relative">
-                  <select
-                    value={priceNegotiable}
-                    onChange={(e) => setPriceNegotiable(e.target.value)}
-                    className="appearance-none w-full px-2 py-1 border border-blue-300 dark:border-blue-600 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                  >
-                    <option value="N">No</option>
-                    <option value="Y">Yes</option>
-                  </select>
-                  <ChevronDown className="absolute right-1 top-1.5 h-2 w-2 text-blue-400" />
-                </div>
-              </div>
+              ))}
             </div>
 
-            {/* Date and Numeric Fields */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3 pt-3 border-t border-blue-200">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t border-[#c4d9f2]">
               <div>
-                <label className="block text-xs font-medium text-blue-700 mb-1">
-                  Question Period
-                </label>
-                <div className="relative">
-                  <input
-                    type="date"
-                    value={questionPeriod}
-                    onChange={(e) => setQuestionPeriod(e.target.value)}
-                    className="w-full px-2 py-1 border border-blue-300 dark:border-blue-600 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                  />
-                  <Calendar className="absolute right-1 top-1.5 h-2 w-2 text-blue-400" />
-                </div>
+                <label className="block text-xs font-medium text-[#3d6b9e] mb-1.5">Question Period</label>
+                <input
+                  type="date"
+                  value={questionPeriod}
+                  onChange={(e) => setQuestionPeriod(e.target.value)}
+                  className="w-full px-3 py-2 border border-[#c4d9f2] rounded-md text-sm bg-white text-[#1a1f36] focus:ring-2 focus:ring-[#1a6fb5]"
+                />
               </div>
-              
+
               <div>
-                <label className="block text-xs font-medium text-blue-700 mb-1">
-                  Acceptance Period (Days)
-                </label>
+                <label className="block text-xs font-medium text-[#3d6b9e] mb-1.5">Acceptance Period (Days)</label>
                 <input
                   type="number"
                   value={acceptancePeriod}
                   onChange={(e) => setAcceptancePeriod(e.target.value)}
                   placeholder="e.g., 30"
-                  className="w-full px-2 py-1 border border-blue-300 dark:border-blue-600 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                  className="w-full px-3 py-2 border border-[#c4d9f2] rounded-md text-sm bg-white text-[#1a1f36] focus:ring-2 focus:ring-[#1a6fb5]"
                   min="1"
                 />
               </div>
-              
+
               <div>
-                <label className="block text-xs font-medium text-blue-700 mb-1">
-                  Estimated Award Date
-                </label>
-                <div className="relative">
-                  <input
-                    type="date"
-                    value={estimatedAwardDate}
-                    onChange={(e) => setEstimatedAwardDate(e.target.value)}
-                    className="w-full px-2 py-1 border border-blue-300 dark:border-blue-600 rounded-lg text-xs focus:ring-2 focus:ring-blue-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-                  />
-                  <Calendar className="absolute right-1 top-1.5 h-2 w-2 text-blue-400" />
-                </div>
+                <label className="block text-xs font-medium text-[#3d6b9e] mb-1.5">Estimated Award Date</label>
+                <input
+                  type="date"
+                  value={estimatedAwardDate}
+                  onChange={(e) => setEstimatedAwardDate(e.target.value)}
+                  className="w-full px-3 py-2 border border-[#c4d9f2] rounded-md text-sm bg-white text-[#1a1f36] focus:ring-2 focus:ring-[#1a6fb5]"
+                />
               </div>
             </div>
           </div>
         </div>
       )}
-      
+
       {showLossData && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-          <div className="flex items-center space-x-2 mb-4">
-            <AlertTriangle className="h-3 w-3 text-red-600" />
-            <span className="text-xs font-medium text-red-900">Loss Data Tracking</span>
+        <div className="bg-red-50 border border-red-200 rounded-lg p-5">
+          <div className="flex items-center gap-2 mb-4">
+            <AlertTriangle className="h-4 w-4 text-red-600" />
+            <span className="text-xs font-semibold text-red-800 uppercase tracking-wide">Loss Data Tracking</span>
           </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-medium text-red-700 mb-1">
-                Winning Competitor
-              </label>
+              <label className="block text-xs font-medium text-red-700 mb-1.5">Winning Competitor</label>
               <input
                 type="text"
                 placeholder="Company that won the business"
-                className="w-full px-2 py-1 border border-red-300 dark:border-red-600 rounded-lg text-xs focus:ring-2 focus:ring-red-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                className="w-full px-3 py-2 border border-red-200 rounded-md text-sm bg-white text-[#1a1f36] focus:ring-2 focus:ring-red-500"
               />
             </div>
-            
+
             <div>
-              <label className="block text-xs font-medium text-red-700 mb-1">
-                Loss Reason
-              </label>
-              <select className="appearance-none w-full px-2 py-1 border border-red-300 dark:border-red-600 rounded-lg text-xs focus:ring-2 focus:ring-red-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100">
-                <option value="">Select reason...</option>
-                <option value="price">Price too high</option>
-                <option value="delivery">Delivery time</option>
-                <option value="specifications">Product specifications</option>
-                <option value="relationship">Existing relationship</option>
-                <option value="other">Other</option>
-              </select>
+              <label className="block text-xs font-medium text-red-700 mb-1.5">Loss Reason</label>
+              <div className="relative">
+                <select className="appearance-none w-full px-3 py-2 border border-red-200 rounded-md text-sm bg-white text-[#1a1f36] focus:ring-2 focus:ring-red-500">
+                  <option value="">Select reason...</option>
+                  <option value="price">Price too high</option>
+                  <option value="delivery">Delivery time</option>
+                  <option value="specifications">Product specifications</option>
+                  <option value="relationship">Existing relationship</option>
+                  <option value="other">Other</option>
+                </select>
+                <ChevronDown className="absolute right-2.5 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-[#8c939d] pointer-events-none" />
+              </div>
             </div>
-            
+
             <div className="md:col-span-2">
-              <label className="block text-xs font-medium text-red-700 mb-1">
-                Additional Notes
-              </label>
+              <label className="block text-xs font-medium text-red-700 mb-1.5">Additional Notes</label>
               <textarea
                 placeholder="Additional details about why we lost this opportunity..."
-                className="w-full px-2 py-1 border border-red-300 dark:border-red-600 rounded-lg text-xs focus:ring-2 focus:ring-red-500 bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
+                className="w-full px-3 py-2 border border-red-200 rounded-md text-sm bg-white text-[#1a1f36] focus:ring-2 focus:ring-red-500"
                 rows={3}
               />
             </div>

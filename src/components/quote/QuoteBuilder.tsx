@@ -145,11 +145,11 @@ export const QuoteBuilder: React.FC = () => {
   const getStatusBadge = (status: string) => {
     switch (status) {
       case 'pending_approval':
-        return 'bg-amber-100 text-amber-800 border border-amber-300';
+        return 'bg-amber-50 text-amber-700 border border-amber-200';
       case 'approved':
-        return 'bg-green-100 text-green-800 border border-green-300';
+        return 'bg-emerald-50 text-emerald-700 border border-emerald-200';
       default:
-        return 'bg-gray-100 text-gray-700 border border-gray-300';
+        return 'bg-gray-50 text-gray-600 border border-gray-200';
     }
   };
 
@@ -162,90 +162,106 @@ export const QuoteBuilder: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#f0f0f0]">
+    <div className="min-h-screen bg-[#f4f5f7]">
       {isLoadingQuote && (
-        <div className="fixed top-0 left-0 right-0 z-50 bg-[#428bca] text-white px-4 py-2 text-sm flex items-center justify-center gap-2">
+        <div className="fixed top-0 left-0 right-0 z-50 bg-[#1a6fb5] text-white px-4 py-2 text-sm flex items-center justify-center gap-2">
           <div className="animate-spin rounded-full h-4 w-4 border-2 border-white border-t-transparent"></div>
           Loading quote data...
         </div>
       )}
 
-      {/* Oro-style Header */}
-      <div className="bg-white border-b border-[#d4d4d4]">
-        <div className="px-5 py-3">
-          {/* Breadcrumb */}
-          <div className="text-xs text-[#999] mb-2">
+      <div className="bg-white border-b border-[#dce0e6] shadow-sm">
+        <div className="px-6 py-4">
+          <div className="text-xs text-[#8c939d] mb-1.5 tracking-wide uppercase font-medium">
             Sales / Quotes
           </div>
 
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <h1 className="text-xl font-normal text-[#333]">
+              <h1 className="text-xl font-semibold text-[#1a1f36]">
                 {currentQuote ? (
-                  <span>Quote <span className="font-semibold">{currentQuote.quote_number}</span></span>
+                  <span>Quote <span className="text-[#1a6fb5]">{currentQuote.quote_number}</span></span>
                 ) : (
                   'New Quote'
                 )}
               </h1>
               {currentQuote && (
-                <span className={`px-2.5 py-1 rounded text-xs font-medium ${getStatusBadge(currentQuote.quote_status)}`}>
+                <span className={`px-2.5 py-1 rounded-md text-xs font-medium ${getStatusBadge(currentQuote.quote_status)}`}>
                   {getStatusLabel(currentQuote.quote_status)}
                 </span>
               )}
               {currentQuote && (
-                <span className="text-xs text-[#666]">
+                <span className="text-xs text-[#8c939d]">
                   Created {new Date(currentQuote.created_at).toLocaleDateString()}
                   {createdByEmail && ` by ${createdByEmail}`}
                 </span>
               )}
             </div>
 
-            <div className="flex items-center gap-2">
+            <div className="flex items-center gap-1.5">
               {currentQuote && (
                 <>
                   <HelpTooltip content="Ask the AI assistant questions about this quote, customer, line items, or anything else in the database. Get instant insights and analysis.">
                     <button
                       onClick={() => setShowAIAgent(!showAIAgent)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-[#666] hover:text-[#333] hover:bg-[#f5f5f5] rounded border border-transparent hover:border-[#d4d4d4] transition-colors"
+                      className={`flex items-center gap-1.5 px-3 py-2 text-sm rounded-md transition-all ${
+                        showAIAgent
+                          ? 'bg-[#e8f0fe] text-[#1a6fb5] font-medium'
+                          : 'text-[#5f6672] hover:text-[#1a1f36] hover:bg-[#f4f5f7]'
+                      }`}
                     >
                       <Bot className="w-4 h-4" />
-                      AI Assistant
+                      AI
                     </button>
                   </HelpTooltip>
-                  <HelpTooltip content="View and manage tasks for this quote. Create, assign, and track tasks to ensure nothing falls through the cracks.">
+                  <HelpTooltip content="View and manage tasks for this quote.">
                     <button
                       onClick={() => setShowTasks(!showTasks)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-[#666] hover:text-[#333] hover:bg-[#f5f5f5] rounded border border-transparent hover:border-[#d4d4d4] transition-colors"
+                      className={`flex items-center gap-1.5 px-3 py-2 text-sm rounded-md transition-all ${
+                        showTasks
+                          ? 'bg-[#e8f0fe] text-[#1a6fb5] font-medium'
+                          : 'text-[#5f6672] hover:text-[#1a1f36] hover:bg-[#f4f5f7]'
+                      }`}
                     >
                       <CheckSquare className="w-4 h-4" />
                       Tasks
                     </button>
                   </HelpTooltip>
-                  <HelpTooltip content="View and add messages to coordinate with team members on this quote. Messages are visible to all users who can access this quote.">
+                  <HelpTooltip content="View and add messages to coordinate with team members on this quote.">
                     <button
                       onClick={() => setShowMessages(!showMessages)}
-                      className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-[#666] hover:text-[#333] hover:bg-[#f5f5f5] rounded border border-transparent hover:border-[#d4d4d4] transition-colors"
+                      className={`flex items-center gap-1.5 px-3 py-2 text-sm rounded-md transition-all ${
+                        showMessages
+                          ? 'bg-[#e8f0fe] text-[#1a6fb5] font-medium'
+                          : 'text-[#5f6672] hover:text-[#1a1f36] hover:bg-[#f4f5f7]'
+                      }`}
                     >
                       <MessageCircle className="w-4 h-4" />
                       Messages
                     </button>
                   </HelpTooltip>
+
+                  <div className="w-px h-6 bg-[#dce0e6] mx-1" />
                 </>
               )}
-              <HelpTooltip content="Toggle quote options like quote number, PO number, terms, and expiration date. These details help manage and track your quotes effectively.">
+              <HelpTooltip content="Toggle quote options like quote number, PO number, terms, and expiration date.">
                 <button
                   onClick={() => setShowQuoteDetails(!showQuoteDetails)}
-                  className="flex items-center gap-1.5 px-3 py-1.5 text-sm text-[#666] hover:text-[#333] hover:bg-[#f5f5f5] rounded border border-transparent hover:border-[#d4d4d4] transition-colors"
+                  className={`flex items-center gap-1.5 px-3 py-2 text-sm rounded-md transition-all ${
+                    showQuoteDetails
+                      ? 'bg-[#e8f0fe] text-[#1a6fb5] font-medium'
+                      : 'text-[#5f6672] hover:text-[#1a1f36] hover:bg-[#f4f5f7]'
+                  }`}
                 >
                   <Settings className="w-4 h-4" />
                   Options
                   {showQuoteDetails ? <ChevronDown className="w-3.5 h-3.5" /> : <ChevronRight className="w-3.5 h-3.5" />}
                 </button>
               </HelpTooltip>
-              <HelpTooltip content="Start a new quote from scratch. This will clear the current quote and allow you to select a new customer and add fresh line items.">
+              <HelpTooltip content="Start a new quote from scratch.">
                 <button
                   onClick={handleNewQuote}
-                  className="flex items-center gap-1.5 px-4 py-1.5 bg-[#428bca] hover:bg-[#3276b1] text-white text-sm font-medium rounded transition-colors"
+                  className="flex items-center gap-1.5 px-4 py-2 bg-[#1a6fb5] hover:bg-[#155a94] text-white text-sm font-medium rounded-md transition-colors shadow-sm"
                 >
                   <Plus className="w-4 h-4" />
                   New Quote
@@ -256,22 +272,20 @@ export const QuoteBuilder: React.FC = () => {
         </div>
       </div>
 
-      {/* Main Content */}
-      <div className="p-5 space-y-4">
-        {/* Customer Selection Panel */}
-        <div className="bg-white rounded border border-[#d4d4d4]">
+      <div className="p-6 space-y-5 max-w-[1920px] mx-auto">
+        <div className="bg-white rounded-lg border border-[#dce0e6] shadow-sm overflow-hidden">
           <button
             onClick={() => setShowCustomerDetails(!showCustomerDetails)}
-            className="w-full px-4 py-3 flex items-center justify-between hover:bg-[#fafafa] transition-colors border-b border-[#eee]"
+            className="w-full px-5 py-3.5 flex items-center justify-between hover:bg-[#f8f9fb] transition-colors"
           >
             <div className="flex items-center gap-3">
-              <div className={`w-2 h-2 rounded-full ${selectedCustomer ? 'bg-green-500' : 'bg-[#d4d4d4]'}`}></div>
+              <div className={`w-2.5 h-2.5 rounded-full transition-colors ${selectedCustomer ? 'bg-emerald-500' : 'bg-[#cdd1d9]'}`}></div>
               <div className="text-left">
-                <div className="text-sm font-medium text-[#333]">
+                <div className="text-sm font-semibold text-[#1a1f36]">
                   {selectedCustomer ? selectedCustomer.name : 'Select Customer'}
                 </div>
                 {selectedCustomer && (
-                  <div className="text-xs text-[#666]">
+                  <div className="text-xs text-[#8c939d] mt-0.5">
                     #{selectedCustomer.customer_number}
                     {selectedCustomer.contract_number && ` | Contract: ${selectedCustomer.contract_number}`}
                     {selectedCustomer.primary_warehouse && ` | Warehouse: ${selectedCustomer.primary_warehouse}`}
@@ -281,37 +295,36 @@ export const QuoteBuilder: React.FC = () => {
             </div>
             <div className="flex items-center gap-2">
               {selectedCustomer?.tier && (
-                <span className={`px-2 py-0.5 rounded text-xs font-medium ${
+                <span className={`px-2 py-0.5 rounded-md text-xs font-medium ${
                   selectedCustomer.tier === 'platinum' ? 'bg-[#1a3a5c] text-white' :
                   selectedCustomer.tier === 'gold' ? 'bg-[#c9a227] text-white' :
-                  selectedCustomer.tier === 'silver' ? 'bg-[#8d8d8d] text-white' :
-                  'bg-[#428bca] text-white'
+                  selectedCustomer.tier === 'silver' ? 'bg-[#6c757d] text-white' :
+                  'bg-[#1a6fb5] text-white'
                 }`}>
                   {selectedCustomer.tier.charAt(0).toUpperCase() + selectedCustomer.tier.slice(1)}
                 </span>
               )}
               {showCustomerDetails ? (
-                <ChevronDown className="w-4 h-4 text-[#999]" />
+                <ChevronDown className="w-4 h-4 text-[#8c939d]" />
               ) : (
-                <ChevronRight className="w-4 h-4 text-[#999]" />
+                <ChevronRight className="w-4 h-4 text-[#8c939d]" />
               )}
             </div>
           </button>
 
           {showCustomerDetails && (
-            <div className="px-4 pb-4 pt-3">
+            <div className="px-5 pb-5 pt-3 border-t border-[#eef0f3]">
               <CustomerSelector />
             </div>
           )}
         </div>
 
-        {/* Quote Details Panel */}
         {showQuoteDetails && (
-          <div className="bg-white rounded border border-[#d4d4d4] overflow-hidden">
-            <div className="px-4 py-3 bg-[#fafafa] border-b border-[#eee]">
-              <h3 className="text-sm font-medium text-[#333]">Quote Options</h3>
+          <div className="bg-white rounded-lg border border-[#dce0e6] shadow-sm overflow-hidden">
+            <div className="px-5 py-3 bg-[#f8f9fb] border-b border-[#eef0f3]">
+              <h3 className="text-sm font-semibold text-[#1a1f36]">Quote Options</h3>
             </div>
-            <div className="p-4">
+            <div className="p-5">
               <QuoteDetails
                 quoteStatus="draft"
                 onSupplyPeriodChange={setSupplyPeriodMonths}
@@ -320,7 +333,6 @@ export const QuoteBuilder: React.FC = () => {
           </div>
         )}
 
-        {/* Line Items */}
         <LineItems
           onProductSelect={setSelectedProduct}
           onShowCostAnalysis={setShowCostAnalysis}
@@ -333,7 +345,6 @@ export const QuoteBuilder: React.FC = () => {
           selectedCustomer={selectedCustomer}
         />
 
-        {/* Quote Summary */}
         <QuoteSummary
           lineItems={lineItems}
           onSaveSuccess={() => {
@@ -342,7 +353,6 @@ export const QuoteBuilder: React.FC = () => {
         />
       </div>
 
-      {/* Modals */}
       {showCostAnalysis && (
         <CostAnalysis
           product={selectedProduct}
@@ -360,17 +370,16 @@ export const QuoteBuilder: React.FC = () => {
         />
       )}
 
-      {/* Task Manager Panel */}
       {showTasks && currentQuote && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-6xl w-full max-h-[90vh] overflow-y-auto">
-            <div className="sticky top-0 bg-white dark:bg-gray-800 border-b border-gray-200 dark:border-gray-700 px-6 py-4 flex items-center justify-between">
-              <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-lg shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-y-auto border border-[#dce0e6]">
+            <div className="sticky top-0 bg-white border-b border-[#dce0e6] px-6 py-4 flex items-center justify-between">
+              <h2 className="text-lg font-semibold text-[#1a1f36]">
                 Tasks - Quote {currentQuote.quote_number}
               </h2>
               <button
                 onClick={() => setShowTasks(false)}
-                className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
+                className="p-1.5 hover:bg-[#f4f5f7] rounded-md text-[#8c939d] hover:text-[#1a1f36] transition-colors"
               >
                 <ChevronRight className="h-5 w-5" />
               </button>
@@ -382,7 +391,6 @@ export const QuoteBuilder: React.FC = () => {
         </div>
       )}
 
-      {/* Message Panel */}
       {showMessages && currentQuote && (
         <MessagePanel
           quoteId={currentQuote.id}
@@ -391,7 +399,6 @@ export const QuoteBuilder: React.FC = () => {
         />
       )}
 
-      {/* AI Agent Panel */}
       {showAIAgent && currentQuote && (
         <AIAgentPanel
           onClose={() => setShowAIAgent(false)}

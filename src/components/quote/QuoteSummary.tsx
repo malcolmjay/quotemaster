@@ -85,7 +85,6 @@ export const QuoteSummary: React.FC<QuoteSummaryProps> = ({ lineItems = [], onSa
         await syncLineItems(lineItems, currentQuote.id);
         setSaveMessage(`Quote ${currentQuote.quote_number} saved`);
 
-        // If quote is already approved, trigger export
         if (currentQuote.quote_status === 'approved') {
           import('../../services/quoteExportService').then(({ quoteExportService }) => {
             quoteExportService.exportQuote(currentQuote.id).catch(error => {
@@ -223,38 +222,38 @@ export const QuoteSummary: React.FC<QuoteSummaryProps> = ({ lineItems = [], onSa
   };
 
   return (
-    <div className="bg-white dark:bg-slate-800 rounded border border-[#d4d4d4] dark:border-slate-700 shadow-sm overflow-hidden">
-      <div className="px-5 py-4 bg-[#f0f0f0] dark:bg-slate-800 border-b border-[#d4d4d4] dark:border-slate-700">
+    <div className="bg-white rounded-lg border border-[#dce0e6] shadow-sm overflow-hidden">
+      <div className="px-5 py-4 bg-[#f8f9fb] border-b border-[#eef0f3]">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded bg-[#dff0d8] flex items-center justify-center">
-              <FileText className="w-5 h-5 text-[#3c763d]" />
+            <div className="w-8 h-8 rounded-md bg-emerald-50 flex items-center justify-center">
+              <FileText className="w-4 h-4 text-emerald-700" />
             </div>
             <div>
-              <h3 className="text-sm font-semibold text-[#333] dark:text-white">Quote Summary</h3>
-              <p className="text-xs text-[#666] dark:text-slate-400">{totalLineItems} items</p>
+              <h3 className="text-sm font-semibold text-[#1a1f36]">Quote Summary</h3>
+              <p className="text-xs text-[#8c939d]">{totalLineItems} item{totalLineItems !== 1 ? 's' : ''}</p>
             </div>
           </div>
 
           {saveMessage && (
-            <div className={`px-3 py-1.5 rounded text-sm font-medium ${
+            <div className={`px-3 py-1.5 rounded-md text-sm font-medium ${
               saveMessage.includes('saved') || saveMessage.includes('created') || saveMessage.includes('approved') || saveMessage.includes('submitted')
-                ? 'bg-[#dff0d8] text-[#3c763d] border border-[#d6e9c6]'
-                : 'bg-[#f2dede] text-[#a94442] border border-[#ebccd1]'
+                ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
+                : 'bg-red-50 text-red-700 border border-red-200'
             }`}>
               {saveMessage}
             </div>
           )}
 
           <div className="flex items-center gap-2">
-            <HelpTooltip content="Save the quote as a draft. The quote will be saved but not submitted for approval. You can continue editing it later.">
+            <HelpTooltip content="Save the quote as a draft. You can continue editing it later.">
               <button
                 onClick={handleSaveDraft}
                 disabled={saving}
-                className={`flex items-center gap-2 px-4 py-2 rounded text-sm font-medium transition-colors ${
+                className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
                   saving
-                    ? 'bg-[#e8e8e8] text-[#999] cursor-not-allowed'
-                    : 'border border-[#d4d4d4] text-[#333] hover:bg-[#f0f0f0] dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-700'
+                    ? 'bg-[#eef0f3] text-[#8c939d] cursor-not-allowed'
+                    : 'border border-[#dce0e6] text-[#5f6672] hover:text-[#1a1f36] hover:bg-[#f4f5f7]'
                 }`}
               >
                 <Save className="w-4 h-4" />
@@ -262,14 +261,14 @@ export const QuoteSummary: React.FC<QuoteSummaryProps> = ({ lineItems = [], onSa
               </button>
             </HelpTooltip>
 
-            <HelpTooltip content="Submit the quote for approval and booking. Quotes are automatically approved if within your approval limit, or sent to managers for review if over your limit. Ensure all line items and pricing are complete.">
+            <HelpTooltip content="Submit the quote for approval and booking. Quotes are automatically approved if within your approval limit.">
               <button
                 onClick={handleBookQuote}
                 disabled={saving || !currentQuote}
-                className={`flex items-center gap-2 px-4 py-2 rounded text-sm font-medium transition-colors ${
+                className={`flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium transition-colors ${
                   saving || !currentQuote
-                    ? 'bg-[#e8e8e8] text-[#999] cursor-not-allowed'
-                    : 'bg-[#5cb85c] text-white hover:bg-[#449d44]'
+                    ? 'bg-[#eef0f3] text-[#8c939d] cursor-not-allowed'
+                    : 'bg-emerald-600 text-white hover:bg-emerald-700 shadow-sm'
                 }`}
               >
                 <Send className="w-4 h-4" />
@@ -277,10 +276,10 @@ export const QuoteSummary: React.FC<QuoteSummaryProps> = ({ lineItems = [], onSa
               </button>
             </HelpTooltip>
 
-            <HelpTooltip content="Generate a PDF version of the quote for printing or emailing to the customer. The PDF includes all line items, pricing, and terms.">
+            <HelpTooltip content="Generate a PDF version of the quote for printing or emailing.">
               <button
                 onClick={generateQuotePDF}
-                className="flex items-center gap-2 px-4 py-2 bg-[#428bca] hover:bg-[#3276b1] text-white rounded text-sm font-medium transition-colors"
+                className="flex items-center gap-2 px-4 py-2 bg-[#1a6fb5] hover:bg-[#155a94] text-white rounded-md text-sm font-medium transition-colors shadow-sm"
               >
                 <Download className="w-4 h-4" />
                 PDF
@@ -291,60 +290,60 @@ export const QuoteSummary: React.FC<QuoteSummaryProps> = ({ lineItems = [], onSa
       </div>
 
       <div className="p-5">
-        <div className="grid grid-cols-5 gap-4">
-          <div className="bg-[#f5f5f5] dark:bg-slate-700/50 rounded p-4 text-center border border-[#e8e8e8] dark:border-slate-600">
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <DollarSign className="w-4 h-4 text-[#666]" />
-              <span className="text-xs font-medium text-[#666] dark:text-slate-400">Cost</span>
+        <div className="grid grid-cols-5 gap-3">
+          <div className="bg-[#f8f9fb] rounded-lg p-4 text-center border border-[#eef0f3]">
+            <div className="flex items-center justify-center gap-1.5 mb-2">
+              <DollarSign className="w-3.5 h-3.5 text-[#8c939d]" />
+              <span className="text-[11px] font-semibold text-[#8c939d] uppercase tracking-wider">Cost</span>
             </div>
-            <div className="text-lg font-bold text-[#333] dark:text-white">
+            <div className="text-lg font-bold text-[#1a1f36] tabular-nums">
               ${totalCost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
           </div>
 
-          <div className="bg-[#fcf8e3] dark:bg-amber-900/20 rounded p-4 text-center border border-[#faebcc] dark:border-amber-800">
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <PiggyBank className="w-4 h-4 text-[#8a6d3b]" />
-              <span className="text-xs font-medium text-[#8a6d3b] dark:text-amber-400">Carrying</span>
+          <div className="bg-amber-50 rounded-lg p-4 text-center border border-amber-100">
+            <div className="flex items-center justify-center gap-1.5 mb-2">
+              <PiggyBank className="w-3.5 h-3.5 text-amber-600" />
+              <span className="text-[11px] font-semibold text-amber-600 uppercase tracking-wider">Carrying</span>
             </div>
-            <div className="text-lg font-bold text-[#8a6d3b] dark:text-amber-300">
+            <div className="text-lg font-bold text-amber-800 tabular-nums">
               ${totalCarryingCost.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
           </div>
 
-          <div className="bg-[#d9edf7] dark:bg-sky-900/20 rounded p-4 text-center border border-[#bce8f1] dark:border-sky-800">
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <Truck className="w-4 h-4 text-[#31708f]" />
-              <span className="text-xs font-medium text-[#31708f] dark:text-sky-400">Freight</span>
+          <div className="bg-sky-50 rounded-lg p-4 text-center border border-sky-100">
+            <div className="flex items-center justify-center gap-1.5 mb-2">
+              <Truck className="w-3.5 h-3.5 text-sky-600" />
+              <span className="text-[11px] font-semibold text-sky-600 uppercase tracking-wider">Freight</span>
             </div>
-            <div className="text-lg font-bold text-[#31708f] dark:text-sky-300">
+            <div className="text-lg font-bold text-sky-800 tabular-nums">
               ${totalFreightOut.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
           </div>
 
-          <div className="bg-[#d9edf7] dark:bg-blue-900/20 rounded p-4 text-center border border-[#bce8f1] dark:border-blue-800">
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <FileText className="w-4 h-4 text-[#428bca]" />
-              <span className="text-xs font-medium text-[#428bca] dark:text-blue-400">Total</span>
+          <div className="bg-[#e8f0fe] rounded-lg p-4 text-center border border-[#c4d9f2]">
+            <div className="flex items-center justify-center gap-1.5 mb-2">
+              <FileText className="w-3.5 h-3.5 text-[#1a6fb5]" />
+              <span className="text-[11px] font-semibold text-[#1a6fb5] uppercase tracking-wider">Total</span>
             </div>
-            <div className="text-lg font-bold text-[#428bca] dark:text-blue-300">
+            <div className="text-lg font-bold text-[#0d3f6e] tabular-nums">
               ${total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
           </div>
 
-          <div className={`rounded p-4 text-center border ${
-            grossProfit >= 0 ? 'bg-[#dff0d8] border-[#d6e9c6] dark:bg-emerald-900/20 dark:border-emerald-800' : 'bg-[#f2dede] border-[#ebccd1] dark:bg-red-900/20 dark:border-red-800'
+          <div className={`rounded-lg p-4 text-center border ${
+            grossProfit >= 0 ? 'bg-emerald-50 border-emerald-100' : 'bg-red-50 border-red-100'
           }`}>
-            <div className="flex items-center justify-center gap-2 mb-2">
-              <TrendingUp className={`w-4 h-4 ${grossProfit >= 0 ? 'text-[#3c763d]' : 'text-[#a94442]'}`} />
-              <span className={`text-xs font-medium ${
-                grossProfit >= 0 ? 'text-[#3c763d] dark:text-emerald-400' : 'text-[#a94442] dark:text-red-400'
+            <div className="flex items-center justify-center gap-1.5 mb-2">
+              <TrendingUp className={`w-3.5 h-3.5 ${grossProfit >= 0 ? 'text-emerald-600' : 'text-red-600'}`} />
+              <span className={`text-[11px] font-semibold uppercase tracking-wider ${
+                grossProfit >= 0 ? 'text-emerald-600' : 'text-red-600'
               }`}>
                 Profit ({totalMargin.toFixed(1)}%)
               </span>
             </div>
-            <div className={`text-lg font-bold ${
-              grossProfit >= 0 ? 'text-[#3c763d] dark:text-emerald-300' : 'text-[#a94442] dark:text-red-300'
+            <div className={`text-lg font-bold tabular-nums ${
+              grossProfit >= 0 ? 'text-emerald-800' : 'text-red-800'
             }`}>
               ${grossProfit.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
             </div>
@@ -352,7 +351,7 @@ export const QuoteSummary: React.FC<QuoteSummaryProps> = ({ lineItems = [], onSa
         </div>
 
         {currentQuote && (
-          <div className="mt-4 pt-4 border-t border-[#d4d4d4] dark:border-slate-700">
+          <div className="mt-4 pt-4 border-t border-[#eef0f3]">
             <ApprovalStatus
               quoteId={currentQuote.id}
               quoteValue={total}
@@ -367,43 +366,43 @@ export const QuoteSummary: React.FC<QuoteSummaryProps> = ({ lineItems = [], onSa
       </div>
 
       {showNegativeMarginModal && (
-        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
-          <div className="bg-white dark:bg-slate-800 rounded shadow-xl max-w-md w-full mx-4 overflow-hidden border border-[#d4d4d4] dark:border-slate-700">
-            <div className="px-5 py-4 border-b border-[#d4d4d4] dark:border-slate-700 flex items-center justify-between bg-[#f0f0f0] dark:bg-slate-800">
+        <div className="fixed inset-0 bg-black/40 backdrop-blur-sm flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg shadow-2xl max-w-md w-full mx-4 overflow-hidden border border-[#dce0e6]">
+            <div className="px-5 py-4 border-b border-[#eef0f3] flex items-center justify-between bg-[#f8f9fb]">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-[#f2dede] rounded-full flex items-center justify-center">
-                  <AlertTriangle className="w-5 h-5 text-[#a94442]" />
+                <div className="w-10 h-10 bg-red-50 rounded-full flex items-center justify-center">
+                  <AlertTriangle className="w-5 h-5 text-red-600" />
                 </div>
-                <h2 className="text-lg font-semibold text-[#333] dark:text-white">Negative Margin</h2>
+                <h2 className="text-lg font-semibold text-[#1a1f36]">Negative Margin</h2>
               </div>
-              <button onClick={() => setShowNegativeMarginModal(false)} className="p-1 hover:bg-[#e8e8e8] dark:hover:bg-slate-700 rounded">
-                <X className="w-5 h-5 text-[#666]" />
+              <button onClick={() => setShowNegativeMarginModal(false)} className="p-1.5 hover:bg-[#eef0f3] rounded-md transition-colors">
+                <X className="w-5 h-5 text-[#8c939d]" />
               </button>
             </div>
 
             <div className="p-5 space-y-4">
-              <p className="text-sm text-[#666] dark:text-slate-300">
+              <p className="text-sm text-[#5f6672]">
                 This quote has a negative gross margin and cannot be booked. Please review the pricing.
               </p>
 
-              <div className="bg-[#f5f5f5] dark:bg-slate-700/50 rounded p-4 space-y-2 border border-[#e8e8e8] dark:border-slate-600">
+              <div className="bg-[#f8f9fb] rounded-lg p-4 space-y-2.5 border border-[#eef0f3]">
                 <div className="flex justify-between text-sm">
-                  <span className="text-[#666]">Quote Total</span>
-                  <span className="font-medium text-[#333] dark:text-white">${subtotal.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                  <span className="text-[#5f6672]">Quote Total</span>
+                  <span className="font-medium text-[#1a1f36] tabular-nums">${subtotal.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
                 </div>
                 <div className="flex justify-between text-sm">
-                  <span className="text-[#666]">Total Cost</span>
-                  <span className="font-medium text-[#333] dark:text-white">${totalCost.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                  <span className="text-[#5f6672]">Total Cost</span>
+                  <span className="font-medium text-[#1a1f36] tabular-nums">${totalCost.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
                 </div>
-                <div className="flex justify-between text-sm pt-2 border-t border-[#d4d4d4] dark:border-slate-600">
-                  <span className="text-[#a94442] font-medium">Gross Profit</span>
-                  <span className="text-[#a94442] font-bold">${grossProfit.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                <div className="flex justify-between text-sm pt-2.5 border-t border-[#dce0e6]">
+                  <span className="text-red-700 font-semibold">Gross Profit</span>
+                  <span className="text-red-700 font-bold tabular-nums">${grossProfit.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
                 </div>
               </div>
 
               <button
                 onClick={() => setShowNegativeMarginModal(false)}
-                className="w-full px-4 py-2.5 bg-[#428bca] hover:bg-[#3276b1] text-white rounded font-medium transition-colors"
+                className="w-full px-4 py-2.5 bg-[#1a6fb5] hover:bg-[#155a94] text-white rounded-md font-medium transition-colors"
               >
                 Review Pricing
               </button>
