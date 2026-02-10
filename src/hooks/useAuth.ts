@@ -56,11 +56,16 @@ export const useAuth = () => {
     // Listen for auth changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange((_event, session) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
       if (mounted) {
         setSession(session)
         setUser(session?.user ?? null)
         setLoading(false)
+
+        // Set flag for fresh login (not page refresh)
+        if (event === 'SIGNED_IN') {
+          sessionStorage.setItem('show_welcome_modal', 'true')
+        }
       }
     })
 
@@ -97,6 +102,7 @@ export const useAuth = () => {
   const handleSignOut = async () => {
     try {
       setLoading(true)
+      sessionStorage.removeItem('show_welcome_modal')
       await signOut()
     } catch (error) {
       setLoading(false)

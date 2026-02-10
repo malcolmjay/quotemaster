@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useAuthContext } from './AuthProvider'
 import { LoginForm } from './LoginForm'
 import { WelcomeModal } from './WelcomeModal'
@@ -10,13 +10,15 @@ interface ProtectedRouteProps {
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const { user, loading } = useAuthContext()
   const [showWelcome, setShowWelcome] = useState(false)
-  const previousUserRef = useRef<string | null>(null)
 
   useEffect(() => {
-    if (!loading && user && previousUserRef.current === null) {
-      setShowWelcome(true)
+    if (!loading && user) {
+      const shouldShow = sessionStorage.getItem('show_welcome_modal')
+      if (shouldShow === 'true') {
+        setShowWelcome(true)
+        sessionStorage.removeItem('show_welcome_modal')
+      }
     }
-    previousUserRef.current = user?.id ?? null
   }, [user, loading])
 
   if (loading) {
@@ -34,7 +36,8 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     return <LoginForm />
   }
 
-  const displayName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'User'
+  const rawName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'User'
+  const displayName = rawName.charAt(0).toUpperCase() + rawName.slice(1)
 
   return (
     <>
