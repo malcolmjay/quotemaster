@@ -351,59 +351,10 @@ export const QuoteBuilder: React.FC = () => {
               <QuoteDetails
                 quoteStatus="draft"
                 onSupplyPeriodChange={setSupplyPeriodMonths}
+                carryingCostPercent={carryingCostPercent}
+                freightOverheadPercent={freightOverheadPercent}
+                onOverheadUpdate={handleOverheadUpdate}
               />
-            </div>
-          </div>
-        )}
-
-        {currentQuote && (
-          <div className="bg-white dark:bg-slate-800 rounded-lg border border-[#dce0e6] dark:border-slate-700 shadow-sm overflow-hidden">
-            <div className="px-5 py-3 bg-[#f8f9fb] dark:bg-slate-700 border-b border-[#eef0f3] dark:border-slate-600">
-              <h3 className="text-sm font-semibold text-[#1a1f36] dark:text-white">Cost Overhead Settings</h3>
-            </div>
-            <div className="p-5">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-2xl">
-                <div>
-                  <label className="block text-xs font-medium text-[#5f6672] dark:text-slate-400 mb-1.5">
-                    Carrying Cost (%)
-                  </label>
-                  <HelpTooltip content="The carrying cost percentage applied to line item costs. This is used in margin calculations across all line items.">
-                    <input
-                      type="number"
-                      min="0"
-                      max="100"
-                      step="0.01"
-                      value={carryingCostPercent}
-                      onChange={(e) => {
-                        const value = parseFloat(e.target.value) || 0;
-                        handleOverheadUpdate(value, freightOverheadPercent);
-                      }}
-                      className="w-full px-3 py-2 border border-[#dce0e6] dark:border-slate-700 rounded-md text-sm bg-white dark:bg-slate-900 text-[#1a1f36] dark:text-white focus:ring-2 focus:ring-[#1a6fb5] focus:border-[#1a6fb5] transition-all"
-                      placeholder="e.g., 1.87"
-                    />
-                  </HelpTooltip>
-                </div>
-                <div>
-                  <label className="block text-xs font-medium text-[#5f6672] dark:text-slate-400 mb-1.5">
-                    Freight Overhead (%)
-                  </label>
-                  <HelpTooltip content="The freight overhead percentage applied to line item costs. This is used in margin calculations across all line items.">
-                    <input
-                      type="number"
-                      min="0"
-                      max="100"
-                      step="0.01"
-                      value={freightOverheadPercent}
-                      onChange={(e) => {
-                        const value = parseFloat(e.target.value) || 0;
-                        handleOverheadUpdate(carryingCostPercent, value);
-                      }}
-                      className="w-full px-3 py-2 border border-[#dce0e6] dark:border-slate-700 rounded-md text-sm bg-white dark:bg-slate-900 text-[#1a1f36] dark:text-white focus:ring-2 focus:ring-[#1a6fb5] focus:border-[#1a6fb5] transition-all"
-                      placeholder="e.g., 6.00"
-                    />
-                  </HelpTooltip>
-                </div>
-              </div>
             </div>
           </div>
         )}

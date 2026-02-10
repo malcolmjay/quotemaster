@@ -6,9 +6,19 @@ interface QuoteDetailsProps {
   quoteStatus?: string;
   onStatusChange?: (status: string) => void;
   onSupplyPeriodChange?: (months: number) => void;
+  carryingCostPercent?: number;
+  freightOverheadPercent?: number;
+  onOverheadUpdate?: (carrying: number, freight: number) => void;
 }
 
-export const QuoteDetails: React.FC<QuoteDetailsProps> = ({ quoteStatus = 'draft', onStatusChange, onSupplyPeriodChange }) => {
+export const QuoteDetails: React.FC<QuoteDetailsProps> = ({
+  quoteStatus = 'draft',
+  onStatusChange,
+  onSupplyPeriodChange,
+  carryingCostPercent = 0,
+  freightOverheadPercent = 0,
+  onOverheadUpdate
+}) => {
   const [showLossData, setShowLossData] = React.useState(quoteStatus === 'lost');
   const [quoteType, setQuoteType] = React.useState('Daily Quote');
   const [supplyPeriod, setSupplyPeriod] = React.useState('');
@@ -137,6 +147,48 @@ export const QuoteDetails: React.FC<QuoteDetailsProps> = ({ quoteStatus = 'draft
             defaultValue="2025-11-13"
             className={inputClasses}
           />
+        </div>
+
+        <div>
+          <label className={labelClasses}>Carrying Cost (%)</label>
+          <HelpTooltip content="The carrying cost percentage applied to line item costs. This is used in margin calculations across all line items.">
+            <input
+              type="number"
+              min="0"
+              max="100"
+              step="0.01"
+              value={carryingCostPercent}
+              onChange={(e) => {
+                const value = parseFloat(e.target.value) || 0;
+                if (onOverheadUpdate) {
+                  onOverheadUpdate(value, freightOverheadPercent);
+                }
+              }}
+              className={inputClasses}
+              placeholder="e.g., 1.87"
+            />
+          </HelpTooltip>
+        </div>
+
+        <div>
+          <label className={labelClasses}>Freight Overhead (%)</label>
+          <HelpTooltip content="The freight overhead percentage applied to line item costs. This is used in margin calculations across all line items.">
+            <input
+              type="number"
+              min="0"
+              max="100"
+              step="0.01"
+              value={freightOverheadPercent}
+              onChange={(e) => {
+                const value = parseFloat(e.target.value) || 0;
+                if (onOverheadUpdate) {
+                  onOverheadUpdate(carryingCostPercent, value);
+                }
+              }}
+              className={inputClasses}
+              placeholder="e.g., 6.00"
+            />
+          </HelpTooltip>
         </div>
       </div>
 
