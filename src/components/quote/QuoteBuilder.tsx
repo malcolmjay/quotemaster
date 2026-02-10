@@ -38,6 +38,7 @@ export const QuoteBuilder: React.FC = () => {
     setSelectedCustomer(null);
     setLineItems([]);
     sessionStorage.removeItem('focusQuoteId');
+    sessionStorage.removeItem('customerCleared');
     localStorage.removeItem('currentQuoteId');
   };
 
@@ -47,19 +48,10 @@ export const QuoteBuilder: React.FC = () => {
     const focusQuoteId = sessionStorage.getItem('focusQuoteId');
     if (focusQuoteId && !currentQuote) {
       sessionStorage.removeItem('focusQuoteId');
-      const quoteToFocus = quotes.find(q => q.id === focusQuoteId);
-      if (quoteToFocus) {
-        console.log('Restoring focus to quote:', quoteToFocus.quote_number);
-      }
     }
 
     if (currentQuote) {
-      console.log('QuoteBuilder: currentQuote loaded', currentQuote.quote_number);
-      console.log('QuoteBuilder: selectedCustomer', selectedCustomer?.name || 'none');
-      console.log('QuoteBuilder: customer in quote', currentQuote.customers);
-
-      if (!selectedCustomer && currentQuote.customers) {
-        console.log('QuoteBuilder: Setting customer from currentQuote');
+      if (!selectedCustomer && currentQuote.customers && !sessionStorage.getItem('customerCleared')) {
         setSelectedCustomer(currentQuote.customers);
       }
 
@@ -273,10 +265,10 @@ export const QuoteBuilder: React.FC = () => {
       </div>
 
       <div className="p-6 space-y-5 max-w-[1920px] mx-auto">
-        <div className="bg-white rounded-lg border border-[#dce0e6] shadow-sm overflow-hidden">
+        <div className="bg-white rounded-lg border border-[#dce0e6] shadow-sm">
           <button
             onClick={() => setShowCustomerDetails(!showCustomerDetails)}
-            className="w-full px-5 py-3.5 flex items-center justify-between hover:bg-[#f8f9fb] transition-colors"
+            className="w-full px-5 py-3.5 flex items-center justify-between hover:bg-[#f8f9fb] transition-colors rounded-t-lg"
           >
             <div className="flex items-center gap-3">
               <div className={`w-2.5 h-2.5 rounded-full transition-colors ${selectedCustomer ? 'bg-emerald-500' : 'bg-[#cdd1d9]'}`}></div>
