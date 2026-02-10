@@ -9,6 +9,7 @@ import { Header } from './components/layout/Header';
 import { Navigation } from './components/layout/Navigation';
 import { CustomerProvider } from './context/CustomerContext';
 import { InventoryProvider } from './context/InventoryContext';
+import { PermissionsProvider } from './context/PermissionsContext';
 import { TabId, getTabConfig, isValidTabId } from './config/tabs';
 
 export type ActiveTab = TabId;
@@ -57,21 +58,23 @@ function App() {
       <HelpProvider>
         <AuthProvider>
           <ProtectedRoute>
-            <SupabaseQuoteProvider>
-              <QuoteProvider>
-                <CustomerProvider>
-                  <InventoryProvider>
-                    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
-                      <Header />
-                      <Navigation activeTab={activeTab} onTabChange={setActiveTab} />
-                      <main className="p-3 pt-20">
-                        {renderActiveTab()}
-                      </main>
-                    </div>
-                  </InventoryProvider>
-                </CustomerProvider>
-              </QuoteProvider>
-            </SupabaseQuoteProvider>
+            <PermissionsProvider>
+              <SupabaseQuoteProvider>
+                <QuoteProvider>
+                  <CustomerProvider>
+                    <InventoryProvider>
+                      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 transition-colors">
+                        <Header />
+                        <Navigation activeTab={activeTab} onTabChange={setActiveTab} />
+                        <main className="p-3 pt-20">
+                          {renderActiveTab()}
+                        </main>
+                      </div>
+                    </InventoryProvider>
+                  </CustomerProvider>
+                </QuoteProvider>
+              </SupabaseQuoteProvider>
+            </PermissionsProvider>
           </ProtectedRoute>
         </AuthProvider>
       </HelpProvider>
