@@ -6,6 +6,7 @@ import { SupersessionModal } from './SupersessionModal';
 import { HistoryModal } from './HistoryModal';
 import { CSVUploadModal } from './CSVUploadModal';
 import { LostDetailsModal } from './LostDetailsModal';
+import { LineItemDetailTabs } from './LineItemDetailTabs';
 import { DeleteConfirmationModal } from '../common/DeleteConfirmationModal';
 import { useQuote } from '../../context/QuoteContext';
 import { useInventory } from '../../context/InventoryContext';
@@ -1027,87 +1028,93 @@ export const LineItems: React.FC<LineItemsProps> = ({
                 {expandedItem === item.id && (
                   <tr className="bg-[#f8f9fb]/50 dark:bg-slate-700/30">
                     <td colSpan={10} className="px-6 py-4">
-                      <div className="space-y-3">
-                        <PriceRequestInfo itemId={item.id} />
+                      <LineItemDetailTabs
+                        item={item}
+                        setLineItems={setLineItems}
+                        detailsContent={
+                          <>
+                            <PriceRequestInfo itemId={item.id} />
 
-                        {item.crossReference && (
-                          <div className="bg-[#e8f0fe] dark:bg-blue-900/20 border border-[#bce8f1] dark:border-blue-800 rounded p-3">
-                            <div className="text-xs font-medium text-[#1a6fb5] dark:text-blue-200 mb-1">Cross-Reference</div>
-                            <div className="grid grid-cols-3 gap-4 text-xs">
-                              {item.crossReference.customer_part_number && <div><span className="text-[#5f6672]">Customer Part:</span> <span className="text-[#1a1f36]">{item.crossReference.customer_part_number}</span></div>}
-                              {item.crossReference.supplier_part_number && <div><span className="text-[#5f6672]">Supplier Part:</span> <span className="text-[#1a1f36]">{item.crossReference.supplier_part_number}</span></div>}
-                              <div><span className="text-[#5f6672]">Internal:</span> <span className="text-[#1a1f36]">{item.crossReference.internal_part_number}</span></div>
+                            {item.crossReference && (
+                              <div className="bg-[#e8f0fe] dark:bg-blue-900/20 border border-[#bce8f1] dark:border-blue-800 rounded p-3">
+                                <div className="text-xs font-medium text-[#1a6fb5] dark:text-blue-200 mb-1">Cross-Reference</div>
+                                <div className="grid grid-cols-3 gap-4 text-xs">
+                                  {item.crossReference.customer_part_number && <div><span className="text-[#5f6672]">Customer Part:</span> <span className="text-[#1a1f36]">{item.crossReference.customer_part_number}</span></div>}
+                                  {item.crossReference.supplier_part_number && <div><span className="text-[#5f6672]">Supplier Part:</span> <span className="text-[#1a1f36]">{item.crossReference.supplier_part_number}</span></div>}
+                                  <div><span className="text-[#5f6672]">Internal:</span> <span className="text-[#1a1f36]">{item.crossReference.internal_part_number}</span></div>
+                                </div>
+                              </div>
+                            )}
+
+                            {item.isReplacement && (
+                              <div className="bg-[#fcf8e3] border border-[#faebcc] rounded p-3">
+                                <div className="text-xs font-medium text-[#8a6d3b] mb-1">Replacement Details</div>
+                                <div className="grid grid-cols-2 gap-4 text-xs">
+                                  <div><span className="text-[#5f6672]">Original:</span> <span className="text-[#1a1f36]">{item.originalCustomerSku} - {item.originalCustomerName}</span></div>
+                                  <div><span className="text-[#5f6672]">Reason:</span> <span className="text-[#1a1f36]">{item.replacementReason}</span></div>
+                                </div>
+                              </div>
+                            )}
+
+                            <div className="grid grid-cols-2 gap-4">
+                              {customerAddresses.length > 0 && (
+                                <div>
+                                  <label className="block text-xs font-medium text-[#5f6672] mb-1">Ship-To Address</label>
+                                  <select
+                                    value={item.ship_to_address_id || ''}
+                                    onChange={(e) => setLineItems(prev => prev.map(li => li.id === item.id ? { ...li, ship_to_address_id: e.target.value || null } : li))}
+                                    className="w-full px-3 py-2 border border-[#dce0e6] dark:border-slate-600 rounded text-xs bg-white dark:bg-slate-700"
+                                  >
+                                    <option value="">Primary address</option>
+                                    {customerAddresses.map((addr) => (
+                                      <option key={addr.id} value={addr.id}>
+                                        {addr.address_line_1}, {addr.city}, {addr.state}
+                                      </option>
+                                    ))}
+                                  </select>
+                                </div>
+                              )}
+                              <div>
+                                <label className="block text-xs font-medium text-[#5f6672] mb-1">Warehouse</label>
+                                <select
+                                  value={item.warehouse || ''}
+                                  onChange={(e) => setLineItems(prev => prev.map(li => li.id === item.id ? { ...li, warehouse: e.target.value || null } : li))}
+                                  className="w-full px-3 py-2 border border-[#dce0e6] dark:border-slate-600 rounded text-xs bg-white dark:bg-slate-700"
+                                >
+                                  <option value="">Select warehouse...</option>
+                                  {warehouseOptions.map((warehouse) => (
+                                    <option key={warehouse} value={warehouse}>
+                                      {warehouse}
+                                    </option>
+                                  ))}
+                                </select>
+                              </div>
                             </div>
-                          </div>
-                        )}
-
-                        {item.isReplacement && (
-                          <div className="bg-[#fcf8e3] border border-[#faebcc] rounded p-3">
-                            <div className="text-xs font-medium text-[#8a6d3b] mb-1">Replacement Details</div>
-                            <div className="grid grid-cols-2 gap-4 text-xs">
-                              <div><span className="text-[#5f6672]">Original:</span> <span className="text-[#1a1f36]">{item.originalCustomerSku} - {item.originalCustomerName}</span></div>
-                              <div><span className="text-[#5f6672]">Reason:</span> <span className="text-[#1a1f36]">{item.replacementReason}</span></div>
-                            </div>
-                          </div>
-                        )}
-
-                        <div className="grid grid-cols-2 gap-4">
-                          {customerAddresses.length > 0 && (
                             <div>
-                              <label className="block text-xs font-medium text-[#5f6672] mb-1">Ship-To Address</label>
-                              <select
-                                value={item.ship_to_address_id || ''}
-                                onChange={(e) => setLineItems(prev => prev.map(li => li.id === item.id ? { ...li, ship_to_address_id: e.target.value || null } : li))}
+                              <label className="block text-xs font-medium text-[#5f6672] mb-1">Shipping Instructions</label>
+                              <textarea
+                                value={item.shippingInstructions || ''}
+                                onChange={(e) => setLineItems(prev => prev.map(li => li.id === item.id ? { ...li, shippingInstructions: e.target.value } : li))}
+                                placeholder="Special instructions..."
+                                rows={2}
                                 className="w-full px-3 py-2 border border-[#dce0e6] dark:border-slate-600 rounded text-xs bg-white dark:bg-slate-700"
-                              >
-                                <option value="">Primary address</option>
-                                {customerAddresses.map((addr) => (
-                                  <option key={addr.id} value={addr.id}>
-                                    {addr.address_line_1}, {addr.city}, {addr.state}
-                                  </option>
-                                ))}
-                              </select>
+                              />
                             </div>
-                          )}
-                          <div>
-                            <label className="block text-xs font-medium text-[#5f6672] mb-1">Warehouse</label>
-                            <select
-                              value={item.warehouse || ''}
-                              onChange={(e) => setLineItems(prev => prev.map(li => li.id === item.id ? { ...li, warehouse: e.target.value || null } : li))}
-                              className="w-full px-3 py-2 border border-[#dce0e6] dark:border-slate-600 rounded text-xs bg-white dark:bg-slate-700"
-                            >
-                              <option value="">Select warehouse...</option>
-                              {warehouseOptions.map((warehouse) => (
-                                <option key={warehouse} value={warehouse}>
-                                  {warehouse}
-                                </option>
-                              ))}
-                            </select>
-                          </div>
-                        </div>
-                        <div>
-                          <label className="block text-xs font-medium text-[#5f6672] mb-1">Shipping Instructions</label>
-                          <textarea
-                            value={item.shippingInstructions || ''}
-                            onChange={(e) => setLineItems(prev => prev.map(li => li.id === item.id ? { ...li, shippingInstructions: e.target.value } : li))}
-                            placeholder="Special instructions..."
-                            rows={2}
-                            className="w-full px-3 py-2 border border-[#dce0e6] dark:border-slate-600 rounded text-xs bg-white dark:bg-slate-700"
-                          />
-                        </div>
 
-                        {getLineItemCostDates(item).to && (
-                          <div className={`rounded p-3 ${isLineItemCostExpired(item) ? 'bg-[#f2dede] border border-[#ebccd1]' : 'bg-[#f8f9fb] border border-[#dce0e6]'}`}>
-                            <div className="flex items-center justify-between">
-                              <span className="text-xs font-medium text-[#5f6672]">Cost Effective Period</span>
-                              {isLineItemCostExpired(item) && <span className="text-xs text-red-600 font-medium">EXPIRED</span>}
-                            </div>
-                            <div className="text-xs text-[#5f6672] mt-1">
-                              {getLineItemCostDates(item).from && new Date(getLineItemCostDates(item).from!).toLocaleDateString()} to {new Date(getLineItemCostDates(item).to!).toLocaleDateString()}
-                            </div>
-                          </div>
-                        )}
-                      </div>
+                            {getLineItemCostDates(item).to && (
+                              <div className={`rounded p-3 ${isLineItemCostExpired(item) ? 'bg-[#f2dede] border border-[#ebccd1]' : 'bg-[#f8f9fb] border border-[#dce0e6]'}`}>
+                                <div className="flex items-center justify-between">
+                                  <span className="text-xs font-medium text-[#5f6672]">Cost Effective Period</span>
+                                  {isLineItemCostExpired(item) && <span className="text-xs text-red-600 font-medium">EXPIRED</span>}
+                                </div>
+                                <div className="text-xs text-[#5f6672] mt-1">
+                                  {getLineItemCostDates(item).from && new Date(getLineItemCostDates(item).from!).toLocaleDateString()} to {new Date(getLineItemCostDates(item).to!).toLocaleDateString()}
+                                </div>
+                              </div>
+                            )}
+                          </>
+                        }
+                      />
                     </td>
                   </tr>
                 )}

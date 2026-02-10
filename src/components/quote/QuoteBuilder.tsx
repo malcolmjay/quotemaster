@@ -113,7 +113,16 @@ export const QuoteBuilder: React.FC = () => {
           originalCustomerName: item.original_customer_name || '',
           priceRequestId: item.price_request_id || null,
           cost_effective_from: item.cost_effective_from,
-          cost_effective_to: item.cost_effective_to
+          cost_effective_to: item.cost_effective_to,
+          award_company_id: item.award_company_id || null,
+          award_price: item.award_price ?? null,
+          award_quantity: item.award_quantity ?? null,
+          award_contract_number: item.award_contract_number || null,
+          bid_competitor_1_id: item.bid_competitor_1_id || null,
+          bid_price_1: item.bid_price_1 ?? null,
+          bid_price_2: item.bid_price_2 ?? null,
+          bid_competitor_2_id: item.bid_competitor_2_id || null,
+          bid_competitor_2_price: item.bid_competitor_2_price ?? null
         }));
         setLineItems(transformedLineItems);
       } else {

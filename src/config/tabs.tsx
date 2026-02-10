@@ -40,6 +40,7 @@ const CustomerManagement = lazy(() => import('../components/management/CustomerM
 const ItemInquiry = lazy(() => import('../components/inquiry/ItemInquiry').then(m => ({ default: m.ItemInquiry })));
 const AIAgentChat = lazy(() => import('../components/agent/AIAgentChat').then(m => ({ default: m.AIAgentChat })));
 const EventLog = lazy(() => import('../components/management/EventLog').then(m => ({ default: m.EventLog })));
+const CompanyManagement = lazy(() => import('../components/management/CompanyManagement').then(m => ({ default: m.CompanyManagement })));
 
 export interface TabConfig {
   id: string;
@@ -123,6 +124,15 @@ export const TAB_CONFIG: readonly TabConfig[] = [
     component: CustomerManagement,
     showInNav: true,
     table: 'customers'
+  },
+  {
+    id: 'company-management',
+    label: 'Company Management',
+    icon: Building,
+    help: 'Manage competitor and award company names used in quote line item tracking.',
+    component: CompanyManagement,
+    showInNav: true,
+    table: 'companies'
   },
   {
     id: 'quote-management',
