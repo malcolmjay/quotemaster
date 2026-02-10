@@ -1,13 +1,21 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
-import { ChevronDown, Search, X, Building2, User, MapPin, Loader2, RefreshCw } from 'lucide-react';
+import { ChevronDown, Search, X, Building2, User, MapPin, Loader2, RefreshCw, Truck } from 'lucide-react';
 import { useCustomer } from '../../context/CustomerContext';
 import { useSupabaseQuote } from '../../context/SupabaseQuoteContext';
-import { searchCustomers } from '../../lib/supabase';
+import { searchCustomers, supabase } from '../../lib/supabase';
 import { useDebounce } from '../../hooks/useDebounce';
 import { useToast } from '../../context/ToastContext';
 import { HelpTooltip } from '../common/HelpTooltip';
 
-export const CustomerSelector: React.FC = () => {
+interface CustomerSelectorProps {
+  onShipToChange?: (addressId: string | null) => void;
+  selectedShipToId?: string | null;
+}
+
+export const CustomerSelector: React.FC<CustomerSelectorProps> = ({
+  onShipToChange,
+  selectedShipToId
+}) => {
   const { selectedCustomer, setSelectedCustomer } = useCustomer();
   const { currentQuote, updateCurrentQuote } = useSupabaseQuote();
   const { showToast } = useToast();
@@ -62,6 +70,7 @@ export const CustomerSelector: React.FC = () => {
         await updateCurrentQuote({ customer_id: customer.id });
         setSelectedCustomer(customer);
         sessionStorage.removeItem('customerCleared');
+        if (onShipToChange) onShipToChange(null);
         showToast('success', 'Customer updated', `Quote customer changed to ${customer.name}`);
       } catch (error) {
         showToast('error', 'Failed to update customer', error instanceof Error ? error.message : 'Please try again.');
@@ -101,18 +110,25 @@ export const CustomerSelector: React.FC = () => {
     setShowResults(false);
   };
 
-  const primaryContact = React.useMemo(() => {
-    if (!selectedCustomer?.contacts?.length) return null;
-    return selectedCustomer.contacts.find((c: any) => c.is_primary) || selectedCustomer.contacts[0];
+  const shippingAddresses = React.useMemo(() => {
+    if (!selectedCustomer?.addresses?.length) return [];
+    return selectedCustomer.addresses.filter((addr: any) => addr.is_shipping || addr.is_primary);
   }, [selectedCustomer]);
 
-  const primaryAddress = React.useMemo(() => {
-    if (!selectedCustomer?.addresses?.length) return null;
-    const primary = selectedCustomer.addresses.find((addr: any) => addr.is_primary);
-    if (primary) return primary;
-    const shipping = selectedCustomer.addresses.find((addr: any) => addr.is_shipping);
-    return shipping || selectedCustomer.addresses[0];
-  }, [selectedCustomer]);
+  const handleShipToChange = async (addressId: string) => {
+    const id = addressId || null;
+    if (onShipToChange) onShipToChange(id);
+    if (hasActiveQuote) {
+      try {
+        await supabase
+          .from('quotes')
+          .update({ ship_to_address_id: id })
+          .eq('id', currentQuote!.id);
+      } catch (error) {
+        showToast('error', 'Failed to update ship-to address', 'Please try again.');
+      }
+    }
+  };
 
   const renderSearchInput = () => (
     <>
@@ -203,7 +219,7 @@ export const CustomerSelector: React.FC = () => {
 
   return (
     <div className="space-y-4">
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
         <div>
           <label className="block text-xs font-medium text-[#666] dark:text-slate-400 mb-1.5">
             Customer <span className="text-red-500">*</span>
@@ -263,89 +279,53 @@ export const CustomerSelector: React.FC = () => {
             <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#666] pointer-events-none" />
           </div>
         </div>
+
+        <div>
+          <label className="block text-xs font-medium text-[#666] dark:text-slate-400 mb-1.5">
+            Ship To Location
+          </label>
+          <div className="relative">
+            <HelpTooltip content="Select the shipping destination for this quote. Choose from the customer's registered shipping addresses.">
+              <select
+                value={selectedShipToId || ''}
+                onChange={(e) => handleShipToChange(e.target.value)}
+                className="w-full appearance-none px-3 py-2.5 bg-white dark:bg-slate-700 border border-[#d4d4d4] dark:border-slate-600 rounded text-sm text-[#333] dark:text-white focus:ring-2 focus:ring-[#428bca] focus:border-[#428bca] transition-all"
+                disabled={!selectedCustomer}
+              >
+                <option value="">Select ship-to address...</option>
+                {shippingAddresses.map((addr: any) => (
+                  <option key={addr.id} value={addr.id}>
+                    {addr.address_line_1}, {addr.city}{addr.state ? `, ${addr.state}` : ''} {addr.postal_code}
+                    {addr.is_primary ? ' (Primary)' : ''}
+                  </option>
+                ))}
+                {selectedCustomer?.addresses?.filter((a: any) => !a.is_shipping && !a.is_primary).map((addr: any) => (
+                  <option key={addr.id} value={addr.id}>
+                    {addr.address_line_1}, {addr.city}{addr.state ? `, ${addr.state}` : ''} {addr.postal_code}
+                  </option>
+                ))}
+              </select>
+            </HelpTooltip>
+            <Truck className="absolute right-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#666] pointer-events-none" />
+          </div>
+        </div>
       </div>
 
-      {selectedCustomer && !showChangeConfirm && (
-        <div className="space-y-3">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-            <div className="bg-[#f0f0f0] dark:bg-slate-700/50 rounded p-3 border border-[#e8e8e8] dark:border-slate-600">
-              <div className="flex items-center gap-2 mb-2">
-                <Building2 className="h-3.5 w-3.5 text-[#666]" />
-                <span className="text-xs font-medium text-[#666] dark:text-slate-400">Customer</span>
-              </div>
-              <div className="text-sm font-medium text-[#333] dark:text-white">{selectedCustomer.name}</div>
-              <div className="text-xs text-[#666] dark:text-slate-400 mt-0.5">
-                #{selectedCustomer.customer_number} | {selectedCustomer.type}
-              </div>
-              {selectedCustomer.primary_warehouse && (
-                <div className="text-xs text-[#666] dark:text-slate-400 mt-1">
-                  Warehouse: {selectedCustomer.primary_warehouse}
-                </div>
-              )}
-              <div className="flex items-center gap-2 mt-2">
-                {selectedCustomer.tier && (
-                  <span className={`px-2 py-0.5 rounded text-xs font-medium ${
-                    selectedCustomer.tier === 'platinum' ? 'bg-[#1a3a5c] text-white' :
-                    selectedCustomer.tier === 'gold' ? 'bg-[#c9a227] text-white' :
-                    selectedCustomer.tier === 'silver' ? 'bg-[#6c757d] text-white' :
-                    'bg-[#428bca] text-white'
-                  }`}>
-                    {selectedCustomer.tier.charAt(0).toUpperCase() + selectedCustomer.tier.slice(1)}
-                  </span>
-                )}
-                <span className="px-2 py-0.5 rounded text-xs font-medium bg-[#5cb85c] text-white">
-                  {selectedCustomer.currency}
-                </span>
+      {selectedCustomer?.customer_notes && !showChangeConfirm && (
+        <div className="bg-[#fff9e6] dark:bg-slate-700/50 rounded p-3 border border-[#ffe58f] dark:border-slate-600">
+          <div className="flex items-start gap-2">
+            <div className="flex-shrink-0 mt-0.5">
+              <svg className="h-4 w-4 text-[#d4a028]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <div className="flex-1 min-w-0">
+              <div className="text-xs font-medium text-[#8a6d3b] dark:text-yellow-400 mb-1">Customer Notes</div>
+              <div className="text-xs text-[#333] dark:text-slate-300 whitespace-pre-wrap break-words">
+                {selectedCustomer.customer_notes}
               </div>
             </div>
-
-            {primaryContact && (
-              <div className="bg-[#f0f0f0] dark:bg-slate-700/50 rounded p-3 border border-[#e8e8e8] dark:border-slate-600">
-                <div className="flex items-center gap-2 mb-2">
-                  <User className="h-3.5 w-3.5 text-[#666]" />
-                  <span className="text-xs font-medium text-[#666] dark:text-slate-400">Primary Contact</span>
-                </div>
-                <div className="text-sm font-medium text-[#333] dark:text-white">
-                  {primaryContact.first_name} {primaryContact.last_name}
-                </div>
-                <div className="text-xs text-[#666] dark:text-slate-400 mt-0.5 truncate">
-                  {primaryContact.title && <>{primaryContact.title} | </>}
-                  {primaryContact.email}
-                </div>
-              </div>
-            )}
-
-            {primaryAddress && (
-              <div className="bg-[#f0f0f0] dark:bg-slate-700/50 rounded p-3 border border-[#e8e8e8] dark:border-slate-600">
-                <div className="flex items-center gap-2 mb-2">
-                  <MapPin className="h-3.5 w-3.5 text-[#666]" />
-                  <span className="text-xs font-medium text-[#666] dark:text-slate-400">Ship To</span>
-                </div>
-                <div className="text-xs text-[#333] dark:text-slate-300 leading-relaxed">
-                  {primaryAddress.address_line_1}<br />
-                  {primaryAddress.city}, {primaryAddress.state} {primaryAddress.postal_code}
-                </div>
-              </div>
-            )}
           </div>
-
-          {selectedCustomer.customer_notes && (
-            <div className="bg-[#fff9e6] dark:bg-slate-700/50 rounded p-3 border border-[#ffe58f] dark:border-slate-600">
-              <div className="flex items-start gap-2">
-                <div className="flex-shrink-0 mt-0.5">
-                  <svg className="h-4 w-4 text-[#d4a028]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                  </svg>
-                </div>
-                <div className="flex-1 min-w-0">
-                  <div className="text-xs font-medium text-[#8a6d3b] dark:text-yellow-400 mb-1">Customer Notes</div>
-                  <div className="text-xs text-[#333] dark:text-slate-300 whitespace-pre-wrap break-words">
-                    {selectedCustomer.customer_notes}
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
         </div>
       )}
     </div>

@@ -8,7 +8,7 @@ import { MultiYearPricing } from './MultiYearPricing';
 import { useSupabaseQuote } from '../../context/SupabaseQuoteContext';
 import { useCustomer } from '../../context/CustomerContext';
 import { supabase } from '../../lib/supabase';
-import { Plus, ChevronDown, ChevronRight, Settings, MessageCircle, CheckSquare, Bot } from 'lucide-react';
+import { Plus, ChevronDown, ChevronRight, Settings, MessageCircle, CheckSquare, Bot, Building2, User, MapPin, Truck } from 'lucide-react';
 import { HelpTooltip } from '../common/HelpTooltip';
 import { MessagePanel } from '../common/MessagePanel';
 import { TaskManager } from './TaskManager';
@@ -31,13 +31,41 @@ export const QuoteBuilder: React.FC = () => {
   const [showAIAgent, setShowAIAgent] = useState(false);
   const [carryingCostPercent, setCarryingCostPercent] = useState(0);
   const [freightOverheadPercent, setFreightOverheadPercent] = useState(0);
+  const [selectedShipToId, setSelectedShipToId] = useState<string | null>(null);
 
   const { currentQuote, quotes, setCurrentQuote } = useSupabaseQuote();
   const { selectedCustomer, setSelectedCustomer } = useCustomer();
 
+  const primaryContact = React.useMemo(() => {
+    if (!selectedCustomer?.contacts?.length) return null;
+    return selectedCustomer.contacts.find((c: any) => c.is_primary) || selectedCustomer.contacts[0];
+  }, [selectedCustomer]);
+
+  const selectedShipToAddress = React.useMemo(() => {
+    if (!selectedShipToId || !selectedCustomer?.addresses?.length) return null;
+    return selectedCustomer.addresses.find((a: any) => a.id === selectedShipToId) || null;
+  }, [selectedShipToId, selectedCustomer]);
+
+  const primaryAddress = React.useMemo(() => {
+    if (!selectedCustomer?.addresses?.length) return null;
+    const primary = selectedCustomer.addresses.find((addr: any) => addr.is_primary);
+    if (primary) return primary;
+    const shipping = selectedCustomer.addresses.find((addr: any) => addr.is_shipping);
+    return shipping || selectedCustomer.addresses[0];
+  }, [selectedCustomer]);
+
+  React.useEffect(() => {
+    if (currentQuote && (currentQuote as any).ship_to_address_id) {
+      setSelectedShipToId((currentQuote as any).ship_to_address_id);
+    } else {
+      setSelectedShipToId(null);
+    }
+  }, [currentQuote?.id]);
+
   const handleNewQuote = () => {
     setCurrentQuote(null);
     setSelectedCustomer(null);
+    setSelectedShipToId(null);
     setLineItems([]);
     sessionStorage.removeItem('focusQuoteId');
     sessionStorage.removeItem('customerCleared');
@@ -335,9 +363,72 @@ export const QuoteBuilder: React.FC = () => {
             </div>
           </button>
 
+          {selectedCustomer && !showCustomerDetails && (
+            <div className="px-5 pb-4 pt-3 border-t border-[#eef0f3] dark:border-slate-700">
+              <div className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                <div className="flex items-center gap-2.5 bg-[#f8f9fb] dark:bg-slate-700/50 rounded-md px-3 py-2.5 border border-[#eef0f3] dark:border-slate-600">
+                  <Building2 className="h-3.5 w-3.5 text-[#8c939d] flex-shrink-0" />
+                  <div className="min-w-0">
+                    <div className="text-[10px] uppercase tracking-wide text-[#8c939d] dark:text-slate-400 font-medium">Customer</div>
+                    <div className="text-xs font-medium text-[#1a1f36] dark:text-white truncate">{selectedCustomer.name}</div>
+                    <div className="text-[10px] text-[#8c939d] dark:text-slate-400">
+                      #{selectedCustomer.customer_number} | {selectedCustomer.type}
+                      {selectedCustomer.currency && ` | ${selectedCustomer.currency}`}
+                    </div>
+                  </div>
+                </div>
+
+                {primaryContact && (
+                  <div className="flex items-center gap-2.5 bg-[#f8f9fb] dark:bg-slate-700/50 rounded-md px-3 py-2.5 border border-[#eef0f3] dark:border-slate-600">
+                    <User className="h-3.5 w-3.5 text-[#8c939d] flex-shrink-0" />
+                    <div className="min-w-0">
+                      <div className="text-[10px] uppercase tracking-wide text-[#8c939d] dark:text-slate-400 font-medium">Contact</div>
+                      <div className="text-xs font-medium text-[#1a1f36] dark:text-white truncate">
+                        {primaryContact.first_name} {primaryContact.last_name}
+                      </div>
+                      <div className="text-[10px] text-[#8c939d] dark:text-slate-400 truncate">
+                        {primaryContact.email}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {(selectedShipToAddress || primaryAddress) && (
+                  <div className="flex items-center gap-2.5 bg-[#f8f9fb] dark:bg-slate-700/50 rounded-md px-3 py-2.5 border border-[#eef0f3] dark:border-slate-600">
+                    <Truck className="h-3.5 w-3.5 text-[#8c939d] flex-shrink-0" />
+                    <div className="min-w-0">
+                      <div className="text-[10px] uppercase tracking-wide text-[#8c939d] dark:text-slate-400 font-medium">
+                        Ship To{selectedShipToAddress ? '' : ' (Default)'}
+                      </div>
+                      <div className="text-xs font-medium text-[#1a1f36] dark:text-white truncate">
+                        {(selectedShipToAddress || primaryAddress).address_line_1}
+                      </div>
+                      <div className="text-[10px] text-[#8c939d] dark:text-slate-400">
+                        {(selectedShipToAddress || primaryAddress).city}, {(selectedShipToAddress || primaryAddress).state} {(selectedShipToAddress || primaryAddress).postal_code}
+                      </div>
+                    </div>
+                  </div>
+                )}
+
+                {selectedCustomer.primary_warehouse && (
+                  <div className="flex items-center gap-2.5 bg-[#f8f9fb] dark:bg-slate-700/50 rounded-md px-3 py-2.5 border border-[#eef0f3] dark:border-slate-600">
+                    <MapPin className="h-3.5 w-3.5 text-[#8c939d] flex-shrink-0" />
+                    <div className="min-w-0">
+                      <div className="text-[10px] uppercase tracking-wide text-[#8c939d] dark:text-slate-400 font-medium">Warehouse</div>
+                      <div className="text-xs font-medium text-[#1a1f36] dark:text-white truncate">{selectedCustomer.primary_warehouse}</div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
+
           {showCustomerDetails && (
             <div className="px-5 pb-5 pt-3 border-t border-[#eef0f3] dark:border-slate-700">
-              <CustomerSelector />
+              <CustomerSelector
+                onShipToChange={setSelectedShipToId}
+                selectedShipToId={selectedShipToId}
+              />
             </div>
           )}
         </div>
