@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Building, Search, Plus, Pencil, MapPin, Users, User } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { CustomerEditModal } from './CustomerEditModal';
@@ -7,6 +7,9 @@ import { ContactManagement } from './ContactManagement';
 import { Pagination } from '../common/Pagination';
 import { HelpTooltip } from '../common/HelpTooltip';
 import { PermissionGuard, PermissionBadge } from '../common/PermissionGuard';
+import { useToast } from '../../context/ToastContext';
+import { logError } from '../../services/eventLogService';
+import { sanitizeSearchTerm } from '../../utils/validation';
 
 export const CustomerManagement: React.FC = () => {
   const [customers, setCustomers] = useState<any[]>([]);
@@ -20,6 +23,7 @@ export const CustomerManagement: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
   const pageSize = 50;
+  const { showToast } = useToast();
 
   useEffect(() => {
     fetchCustomers();
@@ -42,7 +46,8 @@ export const CustomerManagement: React.FC = () => {
         .order('name');
 
       if (searchTerm) {
-        query = query.or(`name.ilike.%${searchTerm}%,customer_number.ilike.%${searchTerm}%,type.ilike.%${searchTerm}%`);
+        const sanitized = sanitizeSearchTerm(searchTerm);
+        query = query.or(`name.ilike.%${sanitized}%,customer_number.ilike.%${sanitized}%,type.ilike.%${sanitized}%`);
       }
 
       const { data: customersData, error: customersError, count } = await query
@@ -55,24 +60,32 @@ export const CustomerManagement: React.FC = () => {
       if (customersData && customersData.length > 0) {
         const customerNumbers = customersData.map(c => c.customer_number);
 
-        const { data: addressesData, error: addressesError } = await supabase
-          .from('customer_addresses')
-          .select('*')
-          .in('customer_number', customerNumbers);
+        const [{ data: addressesData, error: addressesError }, { data: contactsData, error: contactsError }] = await Promise.all([
+          supabase.from('customer_addresses').select('*').in('customer_number', customerNumbers),
+          supabase.from('customer_contacts').select('*').in('customer_number', customerNumbers)
+        ]);
 
         if (addressesError) throw addressesError;
-
-        const { data: contactsData, error: contactsError } = await supabase
-          .from('customer_contacts')
-          .select('*')
-          .in('customer_number', customerNumbers);
-
         if (contactsError) throw contactsError;
+
+        const addressMap = new Map<string, any[]>();
+        addressesData?.forEach(addr => {
+          const list = addressMap.get(addr.customer_number) || [];
+          list.push(addr);
+          addressMap.set(addr.customer_number, list);
+        });
+
+        const contactMap = new Map<string, any[]>();
+        contactsData?.forEach(contact => {
+          const list = contactMap.get(contact.customer_number) || [];
+          list.push(contact);
+          contactMap.set(contact.customer_number, list);
+        });
 
         const customersWithData = customersData.map(customer => ({
           ...customer,
-          addresses: addressesData?.filter(addr => addr.customer_number === customer.customer_number) || [],
-          contacts: contactsData?.filter(contact => contact.customer_number === customer.customer_number) || []
+          addresses: addressMap.get(customer.customer_number) || [],
+          contacts: contactMap.get(customer.customer_number) || []
         }));
 
         setCustomers(customersWithData);
@@ -80,7 +93,9 @@ export const CustomerManagement: React.FC = () => {
         setCustomers([]);
       }
     } catch (err) {
-      console.error('Error fetching customers:', err);
+      const msg = err instanceof Error ? err.message : 'Unknown error';
+      showToast('error', 'Failed to load customers', msg);
+      logError('CustomerManagement', 'Failed to fetch customers', err);
     } finally {
       setLoading(false);
     }

@@ -17,6 +17,7 @@ import {
   Bell,
   Bot,
   ShieldCheck,
+  ScrollText,
   LucideIcon
 } from 'lucide-react';
 
@@ -38,6 +39,7 @@ const RoleManagement = lazy(() => import('../components/management/RoleManagemen
 const CustomerManagement = lazy(() => import('../components/management/CustomerManagement').then(m => ({ default: m.CustomerManagement })));
 const ItemInquiry = lazy(() => import('../components/inquiry/ItemInquiry').then(m => ({ default: m.ItemInquiry })));
 const AIAgentChat = lazy(() => import('../components/agent/AIAgentChat').then(m => ({ default: m.AIAgentChat })));
+const EventLog = lazy(() => import('../components/management/EventLog').then(m => ({ default: m.EventLog })));
 
 export interface TabConfig {
   id: string;
@@ -185,6 +187,16 @@ export const TAB_CONFIG: readonly TabConfig[] = [
     showInNav: true,
     adminOnly: true,
     table: 'roles'
+  },
+  {
+    id: 'event-log',
+    label: 'Event Log',
+    icon: ScrollText,
+    help: 'View and export system event logs for troubleshooting and auditing purposes.',
+    component: EventLog,
+    showInNav: true,
+    adminOnly: true,
+    table: 'event_logs'
   },
   {
     id: 'training-guide',

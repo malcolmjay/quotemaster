@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Search, Package, Warehouse, TrendingUp, TrendingDown, Truck, CheckCircle, AlertCircle, Info, ChevronLeft } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { logger } from '../../utils/logger';
+import { sanitizeSearchTerm } from '../../utils/validation';
 
 interface ProductData {
   id: string;
@@ -105,7 +106,7 @@ export const ItemInquiry: React.FC = () => {
               inventory_levels (quantity_on_hand, warehouse)
             )
           `)
-          .or(`customer_part_number.eq.${term},supplier_part_number.eq.${term}`)
+          .or(`customer_part_number.eq.${sanitizeSearchTerm(term)},supplier_part_number.eq.${sanitizeSearchTerm(term)}`)
           .maybeSingle();
 
         if (crossRefError && crossRefError.code !== 'PGRST116') {

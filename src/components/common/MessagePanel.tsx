@@ -10,6 +10,7 @@ import {
 } from '../../lib/supabase';
 import { useAuthContext } from '../auth/AuthProvider';
 import { supabase } from '../../lib/supabase';
+import { sanitizeSearchTerm } from '../../utils/validation';
 
 interface UserSuggestion {
   id: string;
@@ -118,7 +119,7 @@ export const MessagePanel: React.FC<MessagePanelProps> = ({
       const { data, error } = await supabase
         .from('user_display_info')
         .select('id, email, display_name')
-        .or(`display_name.ilike.%${query}%,email.ilike.%${query}%`)
+        .or(`display_name.ilike.%${sanitizeSearchTerm(query)}%,email.ilike.%${sanitizeSearchTerm(query)}%`)
         .limit(5);
 
       if (error) throw error;

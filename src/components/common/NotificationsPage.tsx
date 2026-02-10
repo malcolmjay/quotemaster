@@ -2,11 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { Bell, CheckCheck, Trash2, MessageSquare } from 'lucide-react';
 import { getNotifications, markNotificationAsRead, markAllNotificationsAsRead } from '../../lib/supabase';
 import { NotificationWithDetails } from '../../types';
+import { useToast } from '../../context/ToastContext';
 
 export const NotificationsPage: React.FC = () => {
   const [notifications, setNotifications] = useState<NotificationWithDetails[]>([]);
   const [loading, setLoading] = useState(false);
   const [filter, setFilter] = useState<'all' | 'unread'>('all');
+  const { showToast } = useToast();
 
   useEffect(() => {
     fetchNotifications();
@@ -18,7 +20,7 @@ export const NotificationsPage: React.FC = () => {
       const data = await getNotifications(100);
       setNotifications(data as NotificationWithDetails[]);
     } catch (error) {
-      console.error('Failed to fetch notifications:', error);
+      showToast('error', 'Failed to load notifications', error instanceof Error ? error.message : 'Please try again.');
     } finally {
       setLoading(false);
     }
@@ -37,7 +39,7 @@ export const NotificationsPage: React.FC = () => {
         window.location.hash = `quote-builder?lineItemId=${notification.message.line_item_id}`;
       }
     } catch (error) {
-      console.error('Failed to mark notification as read:', error);
+      showToast('error', 'Could not update notification', error instanceof Error ? error.message : 'Please try again.');
     }
   };
 
@@ -46,7 +48,7 @@ export const NotificationsPage: React.FC = () => {
       await markAllNotificationsAsRead();
       await fetchNotifications();
     } catch (error) {
-      console.error('Failed to mark all as read:', error);
+      showToast('error', 'Could not mark all as read', error instanceof Error ? error.message : 'Please try again.');
     }
   };
 

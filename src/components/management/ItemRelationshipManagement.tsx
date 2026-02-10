@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Plus, Search, Trash2, Edit, Filter } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { Database } from '../../lib/database.types';
 import ItemRelationshipEditModal from './ItemRelationshipEditModal';
 import { DeleteConfirmationModal } from '../common/DeleteConfirmationModal';
+import { useToast } from '../../context/ToastContext';
+import { logError } from '../../services/eventLogService';
 
 type ItemRelationship = Database['public']['Tables']['item_relationships']['Row'];
 
@@ -21,8 +23,8 @@ interface ItemRelationshipWithDetails extends ItemRelationship {
 }
 
 export default function ItemRelationshipManagement() {
+  const { showToast } = useToast();
   const [relationships, setRelationships] = useState<ItemRelationshipWithDetails[]>([]);
-  const [filteredRelationships, setFilteredRelationships] = useState<ItemRelationshipWithDetails[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [typeFilter, setTypeFilter] = useState<string>('');
@@ -34,10 +36,6 @@ export default function ItemRelationshipManagement() {
   useEffect(() => {
     loadRelationships();
   }, []);
-
-  useEffect(() => {
-    filterRelationships();
-  }, [searchTerm, typeFilter, relationships]);
 
   const loadRelationships = async () => {
     try {
@@ -61,14 +59,15 @@ export default function ItemRelationshipManagement() {
 
       setRelationships(relsWithDetails);
     } catch (error) {
-      console.error('Error loading item relationships:', error);
+      showToast('error', 'Failed to load item relationships', error instanceof Error ? error.message : 'Unknown error');
+      logError('ItemRelationshipManagement', 'Failed to load item relationships', error);
     } finally {
       setLoading(false);
     }
   };
 
-  const filterRelationships = () => {
-    let filtered = [...relationships];
+  const filteredRelationships = useMemo(() => {
+    let filtered = relationships;
 
     if (searchTerm) {
       const term = searchTerm.toLowerCase();
@@ -85,8 +84,8 @@ export default function ItemRelationshipManagement() {
       filtered = filtered.filter(rel => rel.type === typeFilter);
     }
 
-    setFilteredRelationships(filtered);
-  };
+    return filtered;
+  }, [relationships, searchTerm, typeFilter]);
 
   const handleEdit = (relationship: ItemRelationship) => {
     setSelectedRelationship(relationship);

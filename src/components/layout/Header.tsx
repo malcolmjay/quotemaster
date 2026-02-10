@@ -5,6 +5,7 @@ import { useCustomer } from '../../context/CustomerContext';
 import { useSupabaseQuote } from '../../context/SupabaseQuoteContext';
 import { useTheme } from '../../context/ThemeContext';
 import { useHelp } from '../../context/HelpContext';
+import { useToast } from '../../context/ToastContext';
 import { HelpTooltip } from '../common/HelpTooltip';
 import { NotificationDropdown } from '../common/NotificationDropdown';
 import { getUnreadNotificationCount, subscribeToNotifications } from '../../lib/supabase';
@@ -15,6 +16,7 @@ export const Header: React.FC = () => {
   const { quotes } = useSupabaseQuote();
   const { theme, toggleTheme } = useTheme();
   const { helpMode, toggleHelpMode } = useHelp();
+  const { showToast } = useToast();
   const [loggingOut, setLoggingOut] = useState(false);
   const [unreadCount, setUnreadCount] = useState(0);
   const [showNotifications, setShowNotifications] = useState(false);
@@ -49,7 +51,7 @@ export const Header: React.FC = () => {
       setLoggingOut(true);
       await signOut();
     } catch (error) {
-      console.error('Error logging out:', error);
+      showToast('error', 'Logout failed', 'Please try again or close the browser window.');
     } finally {
       setLoggingOut(false);
     }

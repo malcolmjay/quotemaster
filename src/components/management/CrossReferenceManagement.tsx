@@ -1,8 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Search, Edit2, Plus, Filter, X, Download, RefreshCw } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 import { Database } from '../../lib/database.types';
 import CrossReferenceEditModal from './CrossReferenceEditModal';
+import { useToast } from '../../context/ToastContext';
+import { logError } from '../../services/eventLogService';
 
 type CrossReference = Database['public']['Tables']['cross_references']['Row'];
 type Customer = Database['public']['Tables']['customers']['Row'];
@@ -15,8 +17,8 @@ interface CrossReferenceWithDetails extends CrossReference {
 }
 
 export default function CrossReferenceManagement() {
+  const { showToast } = useToast();
   const [crossReferences, setCrossReferences] = useState<CrossReferenceWithDetails[]>([]);
-  const [filteredReferences, setFilteredReferences] = useState<CrossReferenceWithDetails[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedReference, setSelectedReference] = useState<CrossReferenceWithDetails | null>(null);
@@ -38,10 +40,6 @@ export default function CrossReferenceManagement() {
   useEffect(() => {
     loadCrossReferences();
   }, []);
-
-  useEffect(() => {
-    filterReferences();
-  }, [searchTerm, filters, crossReferences]);
 
   const loadCrossReferences = async () => {
     try {
@@ -74,7 +72,8 @@ export default function CrossReferenceManagement() {
       setCrossReferences(refsWithDetails);
       extractUniqueValues(refsWithDetails, customers || []);
     } catch (error) {
-      console.error('Error loading cross references:', error);
+      showToast('error', 'Failed to load cross references', error instanceof Error ? error.message : 'Unknown error');
+      logError('CrossReferenceManagement', 'Failed to load cross references', error);
     } finally {
       setLoading(false);
     }
@@ -88,7 +87,7 @@ export default function CrossReferenceManagement() {
     setUniqueValues({ customers: customerList, suppliers, types });
   };
 
-  const filterReferences = () => {
+  const computedFilteredReferences = useMemo(() => {
     let filtered = crossReferences;
 
     if (searchTerm) {
@@ -114,8 +113,8 @@ export default function CrossReferenceManagement() {
       filtered = filtered.filter(r => r.type === filters.type);
     }
 
-    setFilteredReferences(filtered);
-  };
+    return filtered;
+  }, [crossReferences, searchTerm, filters]);
 
   const handleEdit = (reference: CrossReferenceWithDetails) => {
     setSelectedReference(reference);
@@ -149,7 +148,7 @@ export default function CrossReferenceManagement() {
       'Product SKU', 'Product Name', 'Supplier', 'Type', 'Description', 'Usage Frequency', 'Last Used'
     ];
 
-    const rows = filteredReferences.map(r => [
+    const rows = computedFilteredReferences.map(r => [
       r.customer_name || '',
       r.customer_part_number,
       r.internal_part_number,
@@ -202,7 +201,7 @@ export default function CrossReferenceManagement() {
                 Cross Reference Management
               </h1>
               <p className="text-xs text-[#666] mt-1">
-                {filteredReferences.length} of {crossReferences.length} cross references
+                {computedFilteredReferences.length} of {crossReferences.length} cross references
               </p>
             </div>
             <div className="flex items-center gap-2">
@@ -334,7 +333,7 @@ export default function CrossReferenceManagement() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-[#eee]">
-                {filteredReferences.map((reference) => (
+                {computedFilteredReferences.map((reference) => (
                   <tr key={reference.id} className="hover:bg-[#fafafa] transition-colors">
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-[#333]">
                       {reference.customer_name || '-'}
@@ -393,7 +392,7 @@ export default function CrossReferenceManagement() {
             </table>
           </div>
 
-          {filteredReferences.length === 0 && (
+          {computedFilteredReferences.length === 0 && (
             <div className="text-center py-12">
               <p className="text-[#666]">No cross references found</p>
               {hasActiveFilters && (

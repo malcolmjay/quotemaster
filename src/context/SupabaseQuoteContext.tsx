@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react'
 import { useAuthContext } from '../components/auth/AuthProvider'
 import { createQuote, updateQuote, createLineItem, updateLineItem, deleteLineItem, deleteQuote, getQuotes, supabase } from '../lib/supabase'
+import { logger } from '../utils/logger'
 
 interface Quote {
   id: string
@@ -143,7 +144,7 @@ export const SupabaseQuoteProvider: React.FC<SupabaseQuoteProviderProps> = ({ ch
             table: 'quote_line_items'
           },
           (payload) => {
-            console.log('Quote line item changed:', payload)
+            logger.debug('Quote line item changed')
             if (refreshTimeout) {
               clearTimeout(refreshTimeout)
             }
@@ -160,7 +161,7 @@ export const SupabaseQuoteProvider: React.FC<SupabaseQuoteProviderProps> = ({ ch
             table: 'quotes'
           },
           (payload) => {
-            console.log('Quote changed:', payload)
+            logger.debug('Quote changed')
             if (refreshTimeout) {
               clearTimeout(refreshTimeout)
             }
@@ -189,7 +190,7 @@ export const SupabaseQuoteProvider: React.FC<SupabaseQuoteProviderProps> = ({ ch
       if (persistedQuoteId && !currentQuote) {
         const persistedQuote = quotes.find(q => q.id === persistedQuoteId)
         if (persistedQuote) {
-          console.log('Restoring persisted quote:', persistedQuote.quote_number)
+          logger.debug('Restoring persisted quote')
           setCurrentQuote(persistedQuote)
         } else {
           localStorage.removeItem(QUOTE_PERSISTENCE_KEY)
@@ -218,7 +219,7 @@ export const SupabaseQuoteProvider: React.FC<SupabaseQuoteProviderProps> = ({ ch
     if (!user) throw new Error('User not authenticated')
 
     try {
-      console.log('🔄 Creating new quote with data:', quoteData);
+      logger.debug('Creating new quote');
       setLoading(true)
       setError(null)
 
@@ -237,15 +238,15 @@ export const SupabaseQuoteProvider: React.FC<SupabaseQuoteProviderProps> = ({ ch
         ...quoteData
       }
       
-      console.log('📤 Formatted quote data for database:', newQuote);
+      logger.debug('Quote data formatted for database');
 
       const createdQuote = await createQuote(newQuote)
-      console.log('✅ Quote created successfully:', createdQuote);
+      logger.debug('Quote created successfully');
       setCurrentQuoteWithPersistence(createdQuote)
       await refreshQuotes()
       return createdQuote
     } catch (err) {
-      console.error('❌ Error creating quote:', err);
+      logger.error('Error creating quote', err);
       const errorMessage = err instanceof Error ? err.message : 'Failed to create quote'
       setError(errorMessage)
       throw new Error(errorMessage)
@@ -258,16 +259,16 @@ export const SupabaseQuoteProvider: React.FC<SupabaseQuoteProviderProps> = ({ ch
     if (!currentQuote) throw new Error('No current quote selected')
 
     try {
-      console.log('🔄 Updating quote:', currentQuote.id, 'with updates:', updates);
+      logger.debug('Updating quote');
       setLoading(true)
       setError(null)
 
       const updatedQuote = await updateQuote(currentQuote.id, updates)
-      console.log('✅ Quote updated successfully:', updatedQuote);
+      logger.debug('Quote updated successfully');
       setCurrentQuote(updatedQuote)
       await refreshQuotes()
     } catch (err) {
-      console.error('❌ Error updating quote:', err);
+      logger.error('Error updating quote', err);
       const errorMessage = err instanceof Error ? err.message : 'Failed to update quote'
       setError(errorMessage)
       throw new Error(errorMessage)
@@ -328,54 +329,34 @@ export const SupabaseQuoteProvider: React.FC<SupabaseQuoteProviderProps> = ({ ch
     if (!targetQuoteId) throw new Error('No quote ID provided and no current quote selected')
 
     try {
-      console.log('🔄 Starting line items synchronization...')
       setLoading(true)
       setError(null)
 
-      // Get current line items from database
       const { data: existingLineItems, error: fetchError } = await supabase
         .from('quote_line_items')
         .select('*')
         .eq('quote_id', targetQuoteId)
 
-      if (fetchError) {
-        console.error('❌ Error fetching existing line items:', fetchError)
-        throw fetchError
-      }
+      if (fetchError) throw fetchError
 
       const existingIds = new Set(existingLineItems?.map(item => item.id) || [])
       const localIds = new Set(localLineItems.filter(item => isUUID(item.id)).map(item => item.id))
-      
-      console.log('📊 Sync analysis:')
-      console.log('- Existing in DB:', existingIds.size)
-      console.log('- Local items:', localLineItems.length)
-      console.log('- Local DB items:', localIds.size)
 
-      // 1. Delete removed items (exist in DB but not in local state)
       const itemsToDelete = Array.from(existingIds).filter(id => !localIds.has(id))
-      console.log('🗑️ Items to delete:', itemsToDelete.length)
-      
-      for (const itemId of itemsToDelete) {
-        console.log('🗑️ Deleting line item:', itemId)
+
+      if (itemsToDelete.length > 0) {
         const { error: deleteError } = await supabase
           .from('quote_line_items')
           .delete()
-          .eq('id', itemId)
-        
-        if (deleteError) {
-          console.error('❌ Error deleting line item:', itemId, deleteError)
-          throw deleteError
-        }
+          .in('id', itemsToDelete)
+
+        if (deleteError) throw deleteError
       }
 
-      // 2. Insert new items (local items without valid UUIDs)
       const newItems = localLineItems.filter(item => !isUUID(item.id))
-      console.log('➕ New items to insert:', newItems.length)
-      
-      for (const item of newItems) {
-        console.log('➕ Inserting new line item:', item.sku)
-        
-        const lineItemData = {
+
+      if (newItems.length > 0) {
+        const insertPayloads = newItems.map(item => ({
           quote_id: targetQuoteId,
           product_id: null,
           sku: item.sku,
@@ -400,26 +381,21 @@ export const SupabaseQuoteProvider: React.FC<SupabaseQuoteProviderProps> = ({ ch
           original_customer_name: item.originalCustomerName,
           cost_effective_from: item.cost_effective_from,
           cost_effective_to: item.cost_effective_to
-        }
-        
+        }))
+
         const { error: insertError } = await supabase
           .from('quote_line_items')
-          .insert(lineItemData)
-        
-        if (insertError) {
-          console.error('❌ Error inserting line item:', item.sku, insertError)
-          throw insertError
-        }
+          .insert(insertPayloads)
+
+        if (insertError) throw insertError
       }
 
-      // 3. Update existing items (items with valid UUIDs)
       const existingItems = localLineItems.filter(item => isUUID(item.id))
-      console.log('🔄 Items to update:', existingItems.length)
-      
-      for (const item of existingItems) {
-        console.log('🔄 Updating line item:', item.sku)
-        
-        const updateData = {
+
+      if (existingItems.length > 0) {
+        const upsertPayloads = existingItems.map(item => ({
+          id: item.id,
+          quote_id: targetQuoteId,
           sku: item.sku,
           product_name: item.name,
           supplier: item.supplier,
@@ -442,25 +418,18 @@ export const SupabaseQuoteProvider: React.FC<SupabaseQuoteProviderProps> = ({ ch
           original_customer_name: item.originalCustomerName,
           cost_effective_from: item.cost_effective_from,
           cost_effective_to: item.cost_effective_to
-        }
-        
-        const { error: updateError } = await supabase
-          .from('quote_line_items')
-          .update(updateData)
-          .eq('id', item.id)
-        
-        if (updateError) {
-          console.error('❌ Error updating line item:', item.sku, updateError)
-          throw updateError
-        }
-      }
+        }))
 
-      console.log('✅ Line items synchronization completed successfully')
+        const { error: upsertError } = await supabase
+          .from('quote_line_items')
+          .upsert(upsertPayloads, { onConflict: 'id' })
+
+        if (upsertError) throw upsertError
+      }
 
       await refreshQuotes()
 
     } catch (error) {
-      console.error('❌ Line items synchronization failed:', error)
       throw error
     } finally {
       setLoading(false)
@@ -497,12 +466,12 @@ export const SupabaseQuoteProvider: React.FC<SupabaseQuoteProviderProps> = ({ ch
       setLoading(true)
       setError(null)
 
-      console.log('🗑️ Removing line item:', lineItemId);
+      logger.debug('Removing line item');
       await deleteLineItem(lineItemId)
-      console.log('✅ Line item removed successfully');
+      logger.debug('Line item removed successfully');
       await refreshQuotes()
     } catch (err) {
-      console.error('❌ Error removing line item:', err);
+      logger.error('Error removing line item', err);
       const errorMessage = err instanceof Error ? err.message : 'Failed to remove line item'
       setError(errorMessage)
       throw new Error(errorMessage)
@@ -516,9 +485,9 @@ export const SupabaseQuoteProvider: React.FC<SupabaseQuoteProviderProps> = ({ ch
       setLoading(true)
       setError(null)
 
-      console.log('🗑️ Deleting quote:', quoteId);
+      logger.debug('Deleting quote');
       await deleteQuote(quoteId)
-      console.log('✅ Quote deleted successfully');
+      logger.debug('Quote deleted successfully');
       
       // Clear current quote if it was the one deleted
       if (currentQuote?.id === quoteId) {
@@ -527,7 +496,7 @@ export const SupabaseQuoteProvider: React.FC<SupabaseQuoteProviderProps> = ({ ch
       
       await refreshQuotes()
     } catch (err) {
-      console.error('❌ Error deleting quote:', err);
+      logger.error('Error deleting quote', err);
       const errorMessage = err instanceof Error ? err.message : 'Failed to delete quote'
       setError(errorMessage)
       throw new Error(errorMessage)
