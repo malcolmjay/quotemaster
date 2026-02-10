@@ -25,6 +25,7 @@ export const CustomerSelector: React.FC<CustomerSelectorProps> = ({
   const [isSearching, setIsSearching] = useState(false);
   const [showChangeConfirm, setShowChangeConfirm] = useState(false);
   const [changingCustomer, setChangingCustomer] = useState(false);
+  const [selectedContactId, setSelectedContactId] = useState<string | null>(null);
   const searchRef = useRef<HTMLDivElement>(null);
 
   const debouncedSearchTerm = useDebounce(searchTerm, 300);
@@ -63,6 +64,51 @@ export const CustomerSelector: React.FC<CustomerSelectorProps> = ({
     return () => document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
+  useEffect(() => {
+    if (currentQuote?.customer_user_id) {
+      setSelectedContactId(currentQuote.customer_user_id);
+    }
+  }, [currentQuote?.customer_user_id]);
+
+  useEffect(() => {
+    if (selectedCustomer?.contacts?.length) {
+      const primaryContact = selectedCustomer.contacts.find((c: any) => c.is_primary) || selectedCustomer.contacts[0];
+      if (primaryContact) {
+        setSelectedContactId(primaryContact.id);
+        if (hasActiveQuote && currentQuote) {
+          supabase
+            .from('quotes')
+            .update({ customer_user_id: primaryContact.id })
+            .eq('id', currentQuote.id)
+            .then(() => {})
+            .catch((error) => console.error('Error updating contact:', error));
+        }
+      }
+    } else {
+      setSelectedContactId(null);
+    }
+  }, [selectedCustomer?.id]);
+
+  useEffect(() => {
+    if (selectedCustomer?.addresses?.length && !selectedShipToId) {
+      const primaryAddr = selectedCustomer.addresses.find((addr: any) => addr.is_primary);
+      const shippingAddr = selectedCustomer.addresses.find((addr: any) => addr.is_shipping);
+      const defaultAddr = primaryAddr || shippingAddr || selectedCustomer.addresses[0];
+
+      if (defaultAddr && onShipToChange) {
+        onShipToChange(defaultAddr.id);
+        if (hasActiveQuote && currentQuote) {
+          supabase
+            .from('quotes')
+            .update({ ship_to_address_id: defaultAddr.id })
+            .eq('id', currentQuote.id)
+            .then(() => {})
+            .catch((error) => console.error('Error updating ship-to address:', error));
+        }
+      }
+    }
+  }, [selectedCustomer?.id]);
+
   const handleCustomerSelect = async (customer: any) => {
     if (hasActiveQuote) {
       try {
@@ -70,6 +116,7 @@ export const CustomerSelector: React.FC<CustomerSelectorProps> = ({
         await updateCurrentQuote({ customer_id: customer.id });
         setSelectedCustomer(customer);
         sessionStorage.removeItem('customerCleared');
+        setSelectedContactId(null);
         if (onShipToChange) onShipToChange(null);
         showToast('success', 'Customer updated', `Quote customer changed to ${customer.name}`);
       } catch (error) {
@@ -114,6 +161,21 @@ export const CustomerSelector: React.FC<CustomerSelectorProps> = ({
     if (!selectedCustomer?.addresses?.length) return [];
     return selectedCustomer.addresses.filter((addr: any) => addr.is_shipping || addr.is_primary);
   }, [selectedCustomer]);
+
+  const handleContactChange = async (contactId: string) => {
+    const id = contactId || null;
+    setSelectedContactId(id);
+    if (hasActiveQuote && currentQuote) {
+      try {
+        await supabase
+          .from('quotes')
+          .update({ customer_user_id: id })
+          .eq('id', currentQuote.id);
+      } catch (error) {
+        showToast('error', 'Failed to update contact', 'Please try again.');
+      }
+    }
+  };
 
   const handleShipToChange = async (addressId: string) => {
     const id = addressId || null;
@@ -264,6 +326,8 @@ export const CustomerSelector: React.FC<CustomerSelectorProps> = ({
           <div className="relative">
             <HelpTooltip content="Select the primary contact person for this quote. This determines who receives quote communications and correspondence.">
               <select
+                value={selectedContactId || ''}
+                onChange={(e) => handleContactChange(e.target.value)}
                 className="w-full appearance-none px-3 py-2.5 bg-white dark:bg-slate-700 border border-[#d4d4d4] dark:border-slate-600 rounded text-sm text-[#333] dark:text-white focus:ring-2 focus:ring-[#428bca] focus:border-[#428bca] transition-all"
                 disabled={!selectedCustomer}
               >
