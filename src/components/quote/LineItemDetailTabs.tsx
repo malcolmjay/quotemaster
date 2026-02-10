@@ -218,21 +218,6 @@ export const LineItemDetailTabs: React.FC<LineItemDetailTabsProps> = ({ item, se
                     </select>
                   )}
                 </div>
-                <div>
-                  <label className="block text-xs font-medium text-[#5f6672] dark:text-slate-400 mb-1">Competitor 2 Price</label>
-                  <div className="relative">
-                    <span className="absolute left-3 top-1/2 -translate-y-1/2 text-xs text-[#999]">$</span>
-                    <input
-                      type="number"
-                      step="0.01"
-                      min="0"
-                      value={item.bid_competitor_2_price ?? ''}
-                      onChange={(e) => updateField('bid_competitor_2_price', e.target.value ? parseFloat(e.target.value) : null)}
-                      placeholder="0.00"
-                      className="w-full pl-7 pr-3 py-2 border border-[#dce0e6] dark:border-slate-600 rounded text-xs bg-white dark:bg-slate-700 text-[#333] dark:text-white focus:ring-2 focus:ring-[#1a6fb5] focus:border-[#1a6fb5] transition-all"
-                    />
-                  </div>
-                </div>
               </div>
             </div>
           </div>
