@@ -11,6 +11,8 @@ interface LineItemDetailTabsProps {
   item: any;
   setLineItems: React.Dispatch<React.SetStateAction<any[]>>;
   detailsContent: React.ReactNode;
+  activeTab?: 'details' | 'award' | 'bid';
+  onTabChange?: (tab: 'details' | 'award' | 'bid') => void;
 }
 
 const useCompanies = () => {
@@ -35,8 +37,10 @@ const useCompanies = () => {
 
 type TabKey = 'details' | 'award' | 'bid';
 
-export const LineItemDetailTabs: React.FC<LineItemDetailTabsProps> = ({ item, setLineItems, detailsContent }) => {
-  const [activeTab, setActiveTab] = useState<TabKey>('details');
+export const LineItemDetailTabs: React.FC<LineItemDetailTabsProps> = ({ item, setLineItems, detailsContent, activeTab: externalTab, onTabChange }) => {
+  const [internalTab, setInternalTab] = useState<TabKey>('details');
+  const activeTab = externalTab || internalTab;
+  const setActiveTab = onTabChange || setInternalTab;
   const { companies, loading: companiesLoading } = useCompanies();
 
   const updateField = (field: string, value: any) => {

@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Package, Plus, Upload, Search, ChevronDown, Trash2, Calendar, AlertCircle, Eye, Calculator, FileCheck, Filter, X, Download, ChevronRight, MessageCircle } from 'lucide-react';
+import { Package, Plus, Upload, Search, ChevronDown, Trash2, Calendar, AlertCircle, Eye, Calculator, FileCheck, Filter, X, Download, ChevronRight, MessageCircle, Info, Trophy, Users } from 'lucide-react';
 import { ProductModal } from '../catalog/ProductModal';
 import { PriceBreakModal } from './PriceBreakModal';
 import { SupersessionModal } from './SupersessionModal';
@@ -133,6 +133,7 @@ export const LineItems: React.FC<LineItemsProps> = ({
   const [showProductModal, setShowProductModal] = useState(false);
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [expandedItem, setExpandedItem] = useState<string | null>(null);
+  const [expandedTab, setExpandedTab] = useState<'details' | 'award' | 'bid'>('details');
   const [newItemSku, setNewItemSku] = useState('');
   const [searchResults, setSearchResults] = useState<any[]>([]);
   const [showSearchResults, setShowSearchResults] = useState(false);
@@ -623,8 +624,20 @@ export const LineItems: React.FC<LineItemsProps> = ({
     ));
   };
 
-  const toggleExpanded = (itemId: string) => {
-    setExpandedItem(expandedItem === itemId ? null : itemId);
+  const toggleExpanded = (itemId: string, tab?: 'details' | 'award' | 'bid') => {
+    if (tab) {
+      if (expandedItem === itemId && expandedTab === tab) {
+        setExpandedItem(null);
+      } else {
+        setExpandedItem(itemId);
+        setExpandedTab(tab);
+      }
+    } else {
+      setExpandedItem(expandedItem === itemId ? null : itemId);
+      if (expandedItem !== itemId) {
+        setExpandedTab('details');
+      }
+    }
   };
 
   const expiredCount = lineItems.filter(item => isLineItemCostExpired(item)).length;
@@ -854,7 +867,7 @@ export const LineItems: React.FC<LineItemsProps> = ({
                       <button onClick={() => toggleExpanded(item.id)} className="p-0.5 hover:bg-[#eef0f3] dark:hover:bg-slate-700 rounded">
                         {expandedItem === item.id ? <ChevronDown className="w-4 h-4 text-[#8c939d] dark:text-slate-400" /> : <ChevronRight className="w-4 h-4 text-[#8c939d] dark:text-slate-400" />}
                       </button>
-                      <div className="min-w-0">
+                      <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-1.5">
                           <span className="font-semibold text-sm text-[#1a1f36] dark:text-white">{item.sku}</span>
                           <button
@@ -872,6 +885,35 @@ export const LineItems: React.FC<LineItemsProps> = ({
                             </button>
                           )}
                           {item.isReplacement && <span className="px-1.5 py-0.5 bg-[#fcf8e3] dark:bg-yellow-900/30 text-[#8a6d3b] dark:text-yellow-400 text-xs rounded border border-[#faebcc] dark:border-yellow-800">Replacement</span>}
+
+                          <div className="flex items-center gap-0.5 ml-2">
+                            {([
+                              { key: 'details' as const, icon: Info, label: 'Details' },
+                              { key: 'award' as const, icon: Trophy, label: 'Award', hasData: item.award_company_id || item.award_price || item.award_quantity || item.award_contract_number },
+                              { key: 'bid' as const, icon: Users, label: 'Bid', hasData: item.bid_competitor_1_id || item.bid_price_1 || item.bid_competitor_2_id },
+                            ]).map((tab) => {
+                              const isActive = expandedItem === item.id && expandedTab === tab.key;
+                              const Icon = tab.icon;
+                              return (
+                                <button
+                                  key={tab.key}
+                                  onClick={(e) => { e.stopPropagation(); toggleExpanded(item.id, tab.key); }}
+                                  title={tab.label}
+                                  className={`relative flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium transition-all ${
+                                    isActive
+                                      ? 'bg-[#1a6fb5] text-white'
+                                      : 'text-[#8c939d] hover:text-[#1a6fb5] hover:bg-[#e8f0fe] dark:text-slate-400 dark:hover:text-blue-400 dark:hover:bg-slate-700'
+                                  }`}
+                                >
+                                  <Icon className="w-3 h-3" />
+                                  <span className="hidden lg:inline">{tab.label}</span>
+                                  {tab.hasData && !isActive && (
+                                    <span className="w-1.5 h-1.5 rounded-full bg-[#1a6fb5] dark:bg-blue-400" />
+                                  )}
+                                </button>
+                              );
+                            })}
+                          </div>
                         </div>
                         <div className="text-xs text-[#5f6672] dark:text-slate-400 truncate max-w-xs">{item.name}</div>
                         <div className="text-xs text-[#1a6fb5] dark:text-blue-400">{item.supplier}</div>
@@ -1031,6 +1073,8 @@ export const LineItems: React.FC<LineItemsProps> = ({
                       <LineItemDetailTabs
                         item={item}
                         setLineItems={setLineItems}
+                        activeTab={expandedTab}
+                        onTabChange={setExpandedTab}
                         detailsContent={
                           <>
                             <PriceRequestInfo itemId={item.id} />
