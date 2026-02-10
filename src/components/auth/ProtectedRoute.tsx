@@ -1,6 +1,7 @@
-import React from 'react'
+import React, { useState, useRef, useEffect } from 'react'
 import { useAuthContext } from './AuthProvider'
 import { LoginForm } from './LoginForm'
+import { WelcomeModal } from './WelcomeModal'
 
 interface ProtectedRouteProps {
   children: React.ReactNode
@@ -8,6 +9,15 @@ interface ProtectedRouteProps {
 
 export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
   const { user, loading } = useAuthContext()
+  const [showWelcome, setShowWelcome] = useState(false)
+  const previousUserRef = useRef<string | null>(null)
+
+  useEffect(() => {
+    if (!loading && user && previousUserRef.current === null) {
+      setShowWelcome(true)
+    }
+    previousUserRef.current = user?.id ?? null
+  }, [user, loading])
 
   if (loading) {
     return (
@@ -24,5 +34,17 @@ export const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children }) => {
     return <LoginForm />
   }
 
-  return <>{children}</>
+  const displayName = user.user_metadata?.full_name || user.email?.split('@')[0] || 'User'
+
+  return (
+    <>
+      {showWelcome && (
+        <WelcomeModal
+          displayName={displayName}
+          onAcknowledge={() => setShowWelcome(false)}
+        />
+      )}
+      {children}
+    </>
+  )
 }
