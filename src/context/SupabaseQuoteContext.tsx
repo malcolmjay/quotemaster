@@ -28,6 +28,7 @@ interface Quote {
   winning_competitor?: string
   loss_reason?: string
   loss_notes?: string
+  currency?: string
   quote_status: 'draft' | 'pending_approval' | 'approved'
   carrying_cost_percent?: number
   freight_overhead_percent?: number

@@ -9,6 +9,8 @@ interface QuoteDetailsProps {
   carryingCostPercent?: number;
   freightOverheadPercent?: number;
   onOverheadUpdate?: (carrying: number, freight: number) => void;
+  currency?: string;
+  onCurrencyChange?: (currency: string) => void;
 }
 
 export const QuoteDetails: React.FC<QuoteDetailsProps> = ({
@@ -17,7 +19,9 @@ export const QuoteDetails: React.FC<QuoteDetailsProps> = ({
   onSupplyPeriodChange,
   carryingCostPercent = 0,
   freightOverheadPercent = 0,
-  onOverheadUpdate
+  onOverheadUpdate,
+  currency = 'USD',
+  onCurrencyChange
 }) => {
   const [showLossData, setShowLossData] = React.useState(quoteStatus === 'lost');
   const [quoteType, setQuoteType] = React.useState('Daily Quote');
@@ -147,6 +151,25 @@ export const QuoteDetails: React.FC<QuoteDetailsProps> = ({
             defaultValue="2025-11-13"
             className={inputClasses}
           />
+        </div>
+
+        <div>
+          <label className={labelClasses}>Currency</label>
+          <HelpTooltip content="The currency for this quote. Defaults from the customer record. Common values: USD, CAD, EUR, GBP.">
+            <input
+              type="text"
+              value={currency}
+              onChange={(e) => {
+                const val = e.target.value.toUpperCase();
+                if (onCurrencyChange) {
+                  onCurrencyChange(val);
+                }
+              }}
+              placeholder="USD"
+              maxLength={3}
+              className={inputClasses}
+            />
+          </HelpTooltip>
         </div>
 
         <div>

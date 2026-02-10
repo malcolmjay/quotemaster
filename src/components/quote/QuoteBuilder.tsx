@@ -32,6 +32,7 @@ export const QuoteBuilder: React.FC = () => {
   const [carryingCostPercent, setCarryingCostPercent] = useState(0);
   const [freightOverheadPercent, setFreightOverheadPercent] = useState(0);
   const [selectedShipToId, setSelectedShipToId] = useState<string | null>(null);
+  const [quoteCurrency, setQuoteCurrency] = useState('USD');
 
   const { currentQuote, quotes, setCurrentQuote } = useSupabaseQuote();
   const { selectedCustomer, setSelectedCustomer } = useCustomer();
@@ -161,11 +162,19 @@ export const QuoteBuilder: React.FC = () => {
     if (currentQuote) {
       setCarryingCostPercent(currentQuote.carrying_cost_percent || 0);
       setFreightOverheadPercent(currentQuote.freight_overhead_percent || 0);
+      setQuoteCurrency((currentQuote as any).currency || selectedCustomer?.currency || 'USD');
     } else {
       setCarryingCostPercent(0);
       setFreightOverheadPercent(0);
+      setQuoteCurrency(selectedCustomer?.currency || 'USD');
     }
   }, [currentQuote]);
+
+  React.useEffect(() => {
+    if (selectedCustomer && !currentQuote) {
+      setQuoteCurrency(selectedCustomer.currency || 'USD');
+    }
+  }, [selectedCustomer?.id]);
 
   const handleOverheadUpdate = async (carrying: number, freight: number) => {
     if (currentQuote) {
@@ -182,6 +191,20 @@ export const QuoteBuilder: React.FC = () => {
         setFreightOverheadPercent(freight);
       } catch (error) {
         console.error('Error updating overhead:', error);
+      }
+    }
+  };
+
+  const handleCurrencyChange = async (value: string) => {
+    setQuoteCurrency(value);
+    if (currentQuote) {
+      try {
+        await supabase
+          .from('quotes')
+          .update({ currency: value })
+          .eq('id', currentQuote.id);
+      } catch (error) {
+        console.error('Error updating currency:', error);
       }
     }
   };
@@ -454,6 +477,8 @@ export const QuoteBuilder: React.FC = () => {
                 carryingCostPercent={carryingCostPercent}
                 freightOverheadPercent={freightOverheadPercent}
                 onOverheadUpdate={handleOverheadUpdate}
+                currency={quoteCurrency}
+                onCurrencyChange={handleCurrencyChange}
               />
             </div>
           </div>

@@ -89,7 +89,8 @@ export const QuoteSummary: React.FC<QuoteSummaryProps> = ({ lineItems = [], onSa
         bid_bond_required: false,
         performance_bond_required: false,
         insurance_required: false,
-        quote_status: 'draft' as const
+        quote_status: 'draft' as const,
+        currency: selectedCustomer.currency || 'USD'
       };
 
       if (currentQuote) {
@@ -170,7 +171,8 @@ export const QuoteSummary: React.FC<QuoteSummaryProps> = ({ lineItems = [], onSa
           bid_bond_required: false,
           performance_bond_required: false,
           insurance_required: false,
-          quote_status: 'draft' as const
+          quote_status: 'draft' as const,
+          currency: selectedCustomer.currency || 'USD'
         };
 
         const newQuote = await createNewQuote(quoteData);

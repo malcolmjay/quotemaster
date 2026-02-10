@@ -113,7 +113,7 @@ export const CustomerSelector: React.FC<CustomerSelectorProps> = ({
     if (hasActiveQuote) {
       try {
         setChangingCustomer(true);
-        await updateCurrentQuote({ customer_id: customer.id });
+        await updateCurrentQuote({ customer_id: customer.id, currency: customer.currency || 'USD' } as any);
         setSelectedCustomer(customer);
         sessionStorage.removeItem('customerCleared');
         setSelectedContactId(null);

@@ -31,6 +31,7 @@ export interface Quote {
   winning_competitor?: string | null;
   loss_reason?: string | null;
   loss_notes?: string | null;
+  currency?: string | null;
   quote_line_items?: LineItem[];
   customers?: any;
 }
