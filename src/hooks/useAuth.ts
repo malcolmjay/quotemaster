@@ -62,9 +62,10 @@ export const useAuth = () => {
         setUser(session?.user ?? null)
         setLoading(false)
 
-        if (event === 'SIGNED_IN' && !hadSessionOnLoad) {
-          sessionStorage.setItem('show_welcome_modal', 'true')
-        }
+        // Welcome modal disabled
+        // if (event === 'SIGNED_IN' && !hadSessionOnLoad) {
+        //   sessionStorage.setItem('show_welcome_modal', 'true')
+        // }
       }
     })
 
