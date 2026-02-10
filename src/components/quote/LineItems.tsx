@@ -811,34 +811,34 @@ export const LineItems: React.FC<LineItemsProps> = ({
       <div className="overflow-x-auto">
         <table className="w-full">
           <thead>
-            <tr className="bg-[#f8f9fb] border-b border-[#dce0e6]">
+            <tr className="bg-[#f8f9fb] dark:bg-slate-800 border-b border-[#dce0e6] dark:border-slate-700">
               <th className="w-10 px-4 py-3">
                 <input
                   type="checkbox"
-                  className="rounded border-[#cdd1d9] text-[#1a6fb5] focus:ring-[#1a6fb5]"
+                  className="rounded border-[#cdd1d9] dark:border-slate-600 text-[#1a6fb5] focus:ring-[#1a6fb5]"
                   checked={selectedItems.length === lineItems.length && lineItems.length > 0}
                   onChange={(e) => setSelectedItems(e.target.checked ? lineItems.map(item => item.id) : [])}
                 />
               </th>
-              <th className="px-4 py-3 text-left text-[11px] font-semibold text-[#8c939d] uppercase tracking-wider">Product</th>
-              <th className="px-3 py-3 text-center text-[11px] font-semibold text-[#8c939d] uppercase tracking-wider w-20">Qty</th>
-              <th className="px-3 py-3 text-right text-[11px] font-semibold text-[#8c939d] uppercase tracking-wider w-24">Price</th>
-              <th className="px-3 py-3 text-right text-[11px] font-semibold text-[#8c939d] uppercase tracking-wider w-24">Cost</th>
-              <th className="px-3 py-3 text-right text-[11px] font-semibold text-[#8c939d] uppercase tracking-wider w-28">Subtotal</th>
-              <th className="px-3 py-3 text-center text-[11px] font-semibold text-[#8c939d] uppercase tracking-wider w-16">Stock</th>
-              <th className="px-3 py-3 text-center text-[11px] font-semibold text-[#8c939d] uppercase tracking-wider w-24">Lead</th>
-              <th className="px-3 py-3 text-center text-[11px] font-semibold text-[#8c939d] uppercase tracking-wider w-28">Status</th>
-              <th className="px-3 py-3 text-center text-[11px] font-semibold text-[#8c939d] uppercase tracking-wider w-16"></th>
+              <th className="px-4 py-3 text-left text-[11px] font-semibold text-[#8c939d] dark:text-slate-400 uppercase tracking-wider">Product</th>
+              <th className="px-3 py-3 text-center text-[11px] font-semibold text-[#8c939d] dark:text-slate-400 uppercase tracking-wider w-20">Qty</th>
+              <th className="px-3 py-3 text-right text-[11px] font-semibold text-[#8c939d] dark:text-slate-400 uppercase tracking-wider w-24">Price</th>
+              <th className="px-3 py-3 text-right text-[11px] font-semibold text-[#8c939d] dark:text-slate-400 uppercase tracking-wider w-24">Cost</th>
+              <th className="px-3 py-3 text-right text-[11px] font-semibold text-[#8c939d] dark:text-slate-400 uppercase tracking-wider w-28">Subtotal</th>
+              <th className="px-3 py-3 text-center text-[11px] font-semibold text-[#8c939d] dark:text-slate-400 uppercase tracking-wider w-16">Stock</th>
+              <th className="px-3 py-3 text-center text-[11px] font-semibold text-[#8c939d] dark:text-slate-400 uppercase tracking-wider w-24">Lead</th>
+              <th className="px-3 py-3 text-center text-[11px] font-semibold text-[#8c939d] dark:text-slate-400 uppercase tracking-wider w-28">Status</th>
+              <th className="px-3 py-3 text-center text-[11px] font-semibold text-[#8c939d] dark:text-slate-400 uppercase tracking-wider w-16"></th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-[#eef0f3]">
+          <tbody className="divide-y divide-[#eef0f3] dark:divide-slate-700">
             {filteredLineItems.map((item, index) => (
               <React.Fragment key={item.id}>
                 <tr className={`transition-colors ${
-                  expandedItem === item.id ? 'bg-[#f0f6ff]' :
-                  selectedItems.includes(item.id) ? 'bg-[#f0f6ff]/50' :
-                  'hover:bg-[#f8f9fb]'
-                } ${isLineItemCostExpired(item) ? 'bg-red-50/60' : ''}`}>
+                  expandedItem === item.id ? 'bg-[#f0f6ff] dark:bg-slate-700' :
+                  selectedItems.includes(item.id) ? 'bg-[#f0f6ff]/50 dark:bg-slate-700/50' :
+                  'hover:bg-[#f8f9fb] dark:hover:bg-slate-800/50'
+                } ${isLineItemCostExpired(item) ? 'bg-red-50/60 dark:bg-red-900/20' : ''}`}>
                   <td className="px-4 py-3">
                     <input
                       type="checkbox"
@@ -851,7 +851,7 @@ export const LineItems: React.FC<LineItemsProps> = ({
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
                       <button onClick={() => toggleExpanded(item.id)} className="p-0.5 hover:bg-[#eef0f3] dark:hover:bg-slate-700 rounded">
-                        {expandedItem === item.id ? <ChevronDown className="w-4 h-4 text-[#8c939d]" /> : <ChevronRight className="w-4 h-4 text-[#8c939d]" />}
+                        {expandedItem === item.id ? <ChevronDown className="w-4 h-4 text-[#8c939d] dark:text-slate-400" /> : <ChevronRight className="w-4 h-4 text-[#8c939d] dark:text-slate-400" />}
                       </button>
                       <div className="min-w-0">
                         <div className="flex items-center gap-1.5">
@@ -860,20 +860,20 @@ export const LineItems: React.FC<LineItemsProps> = ({
                             onClick={() => {
                               window.location.hash = `item-inquiry?sku=${encodeURIComponent(item.sku)}`;
                             }}
-                            className="text-[#1a6fb5] hover:text-[#3276b1]"
+                            className="text-[#1a6fb5] dark:text-blue-400 hover:text-[#3276b1] dark:hover:text-blue-300"
                             title="View in Item Inquiry"
                           >
                             <Search className="w-3.5 h-3.5" />
                           </button>
                           {hasRelationships(item.sku) && (
-                            <button onClick={() => setShowSupersessionModal(item.id)} className="text-[#f0ad4e]" title="Alternatives available">
+                            <button onClick={() => setShowSupersessionModal(item.id)} className="text-[#f0ad4e] dark:text-yellow-400" title="Alternatives available">
                               <AlertCircle className="w-3.5 h-3.5" />
                             </button>
                           )}
-                          {item.isReplacement && <span className="px-1.5 py-0.5 bg-[#fcf8e3] text-[#8a6d3b] text-xs rounded border border-[#faebcc]">Replacement</span>}
+                          {item.isReplacement && <span className="px-1.5 py-0.5 bg-[#fcf8e3] dark:bg-yellow-900/30 text-[#8a6d3b] dark:text-yellow-400 text-xs rounded border border-[#faebcc] dark:border-yellow-800">Replacement</span>}
                         </div>
                         <div className="text-xs text-[#5f6672] dark:text-slate-400 truncate max-w-xs">{item.name}</div>
-                        <div className="text-xs text-[#1a6fb5]">{item.supplier}</div>
+                        <div className="text-xs text-[#1a6fb5] dark:text-blue-400">{item.supplier}</div>
                       </div>
                     </div>
                   </td>
@@ -913,12 +913,12 @@ export const LineItems: React.FC<LineItemsProps> = ({
                         className="w-full text-right hover:bg-[#eef0f3] dark:hover:bg-slate-700 px-2 py-1 rounded"
                       >
                         {item.price === 0 ? (
-                          <span className="text-[#8c939d] text-sm italic">Enter</span>
+                          <span className="text-[#8c939d] dark:text-slate-400 text-sm italic">Enter</span>
                         ) : (
                           <>
-                            <span className="font-medium text-sm text-[#1a1f36]">${item.price.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
+                            <span className="font-medium text-sm text-[#1a1f36] dark:text-white">${item.price.toLocaleString('en-US', { minimumFractionDigits: 2 })}</span>
                             {item.cost > 0 && (
-                              <div className={`text-xs ${((item.price - item.cost) / item.price) * 100 >= 20 ? 'text-emerald-700' : ((item.price - item.cost) / item.price) * 100 >= 10 ? 'text-[#5f6672]' : 'text-red-600'}`}>
+                              <div className={`text-xs ${((item.price - item.cost) / item.price) * 100 >= 20 ? 'text-emerald-700 dark:text-emerald-400' : ((item.price - item.cost) / item.price) * 100 >= 10 ? 'text-[#5f6672] dark:text-slate-400' : 'text-red-600 dark:text-red-400'}`}>
                                 {(((item.price - item.cost) / item.price) * 100).toFixed(1)}%
                               </div>
                             )}
@@ -930,12 +930,12 @@ export const LineItems: React.FC<LineItemsProps> = ({
 
                   <td className={`px-3 py-3 text-right ${isLineItemCostExpired(item) ? 'bg-[#f2dede] dark:bg-red-900/20' : ''}`}>
                     <button onClick={() => setShowPriceBreakModal(item.id)} className="text-right hover:bg-[#eef0f3] dark:hover:bg-slate-700 px-2 py-1 rounded group">
-                      <span className={`font-medium text-sm ${isLineItemCostExpired(item) ? 'text-red-600' : 'text-[#1a1f36]'}`}>
+                      <span className={`font-medium text-sm ${isLineItemCostExpired(item) ? 'text-red-600 dark:text-red-400' : 'text-[#1a1f36] dark:text-white'}`}>
                         ${item.cost.toLocaleString('en-US', { minimumFractionDigits: 2 })}
                       </span>
-                      <ChevronDown className="w-3 h-3 inline ml-0.5 text-[#8c939d]" />
+                      <ChevronDown className="w-3 h-3 inline ml-0.5 text-[#8c939d] dark:text-slate-400" />
                     </button>
-                    {isLineItemCostExpired(item) && <div className="text-xs text-red-600 font-medium mt-0.5">EXPIRED</div>}
+                    {isLineItemCostExpired(item) && <div className="text-xs text-red-600 dark:text-red-400 font-medium mt-0.5">EXPIRED</div>}
                   </td>
 
                   <td className="px-3 py-3 text-right">

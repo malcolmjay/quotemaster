@@ -265,19 +265,19 @@ export const QuoteBuilder: React.FC = () => {
       </div>
 
       <div className="p-6 space-y-5 max-w-[1920px] mx-auto">
-        <div className="bg-white rounded-lg border border-[#dce0e6] shadow-sm">
+        <div className="bg-white dark:bg-slate-800 rounded-lg border border-[#dce0e6] dark:border-slate-700 shadow-sm">
           <button
             onClick={() => setShowCustomerDetails(!showCustomerDetails)}
-            className="w-full px-5 py-3.5 flex items-center justify-between hover:bg-[#f8f9fb] transition-colors rounded-t-lg"
+            className="w-full px-5 py-3.5 flex items-center justify-between hover:bg-[#f8f9fb] dark:hover:bg-slate-700/50 transition-colors rounded-t-lg"
           >
             <div className="flex items-center gap-3">
               <div className={`w-2.5 h-2.5 rounded-full transition-colors ${selectedCustomer ? 'bg-emerald-500' : 'bg-[#cdd1d9]'}`}></div>
               <div className="text-left">
-                <div className="text-sm font-semibold text-[#1a1f36]">
+                <div className="text-sm font-semibold text-[#1a1f36] dark:text-white">
                   {selectedCustomer ? selectedCustomer.name : 'Select Customer'}
                 </div>
                 {selectedCustomer && (
-                  <div className="text-xs text-[#8c939d] mt-0.5">
+                  <div className="text-xs text-[#8c939d] dark:text-slate-400 mt-0.5">
                     #{selectedCustomer.customer_number}
                     {selectedCustomer.contract_number && ` | Contract: ${selectedCustomer.contract_number}`}
                     {selectedCustomer.primary_warehouse && ` | Warehouse: ${selectedCustomer.primary_warehouse}`}
@@ -297,24 +297,24 @@ export const QuoteBuilder: React.FC = () => {
                 </span>
               )}
               {showCustomerDetails ? (
-                <ChevronDown className="w-4 h-4 text-[#8c939d]" />
+                <ChevronDown className="w-4 h-4 text-[#8c939d] dark:text-slate-400" />
               ) : (
-                <ChevronRight className="w-4 h-4 text-[#8c939d]" />
+                <ChevronRight className="w-4 h-4 text-[#8c939d] dark:text-slate-400" />
               )}
             </div>
           </button>
 
           {showCustomerDetails && (
-            <div className="px-5 pb-5 pt-3 border-t border-[#eef0f3]">
+            <div className="px-5 pb-5 pt-3 border-t border-[#eef0f3] dark:border-slate-700">
               <CustomerSelector />
             </div>
           )}
         </div>
 
         {showQuoteDetails && (
-          <div className="bg-white rounded-lg border border-[#dce0e6] shadow-sm overflow-hidden">
-            <div className="px-5 py-3 bg-[#f8f9fb] border-b border-[#eef0f3]">
-              <h3 className="text-sm font-semibold text-[#1a1f36]">Quote Options</h3>
+          <div className="bg-white dark:bg-slate-800 rounded-lg border border-[#dce0e6] dark:border-slate-700 shadow-sm overflow-hidden">
+            <div className="px-5 py-3 bg-[#f8f9fb] dark:bg-slate-700 border-b border-[#eef0f3] dark:border-slate-600">
+              <h3 className="text-sm font-semibold text-[#1a1f36] dark:text-white">Quote Options</h3>
             </div>
             <div className="p-5">
               <QuoteDetails
