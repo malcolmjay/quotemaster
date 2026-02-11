@@ -49,6 +49,12 @@ export function PriceRequests() {
   // Hotkey listener for Shift+S
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
+      // Don't intercept if user is typing in an input, textarea, or select
+      const target = e.target as HTMLElement;
+      if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA' || target.tagName === 'SELECT') {
+        return;
+      }
+
       if (e.shiftKey && e.key === 'S' && !e.ctrlKey && !e.metaKey && !e.altKey) {
         e.preventDefault();
         searchInputRef.current?.focus();
