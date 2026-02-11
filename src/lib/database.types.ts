@@ -165,6 +165,8 @@ export interface Database {
           rep_by: string | null
           unit_cost_currency: string | null
           list_price_currency: string | null
+          supplier_cost: number | null
+          supplier_currency: string | null
           revision: string | null
           created_at: string
           updated_at: string
@@ -207,6 +209,8 @@ export interface Database {
           rep_by?: string | null
           unit_cost_currency?: string | null
           list_price_currency?: string | null
+          supplier_cost?: number | null
+          supplier_currency?: string | null
           revision?: string | null
           created_at?: string
           updated_at?: string
@@ -249,6 +253,8 @@ export interface Database {
           rep_by?: string | null
           unit_cost_currency?: string | null
           list_price_currency?: string | null
+          supplier_cost?: number | null
+          supplier_currency?: string | null
           revision?: string | null
           created_at?: string
           updated_at?: string

@@ -132,7 +132,7 @@ export default function ProductManagement() {
 
   const exportToCSV = () => {
     const headers = [
-      'SKU', 'Name', 'Description', 'Category', 'Supplier', 'Supplier Email', 'Unit Cost', 'Unit Cost Currency', 'List Price', 'List Price Currency',
+      'SKU', 'Name', 'Description', 'Category', 'Supplier', 'Supplier Email', 'Supplier Cost', 'Supplier Currency', 'Unit Cost', 'Unit Cost Currency', 'List Price', 'List Price Currency',
       'Lead Time Days', 'Status', 'Category Set', 'Item Type', 'Unit of Measure', 'MOQ',
       'Weight', 'Length', 'Width', 'Height', 'Country of Origin', 'Rep Code'
     ];
@@ -144,10 +144,12 @@ export default function ProductManagement() {
       p.category,
       p.supplier,
       p.supplier_email || '',
+      p.supplier_cost != null ? p.supplier_cost : '',
+      p.supplier_currency || 'USD',
       p.unit_cost,
-      (p as any).unit_cost_currency || 'USD',
+      p.unit_cost_currency || 'USD',
       p.list_price,
-      (p as any).list_price_currency || 'USD',
+      p.list_price_currency || 'USD',
       p.lead_time_days,
       p.status,
       p.category_set || '',
@@ -363,6 +365,8 @@ export default function ProductManagement() {
                 <th className="px-6 py-3 text-left text-xs font-medium text-[#666] uppercase tracking-wider">Category</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-[#666] uppercase tracking-wider">Supplier</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-[#666] uppercase tracking-wider">Supplier Email</th>
+                <th className="px-6 py-3 text-right text-xs font-medium text-[#666] uppercase tracking-wider">Supplier Cost</th>
+                <th className="px-6 py-3 text-center text-xs font-medium text-[#666] uppercase tracking-wider">Supplier Currency</th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-[#666] uppercase tracking-wider">Unit Cost</th>
                 <th className="px-6 py-3 text-center text-xs font-medium text-[#666] uppercase tracking-wider">Cost Currency</th>
                 <th className="px-6 py-3 text-right text-xs font-medium text-[#666] uppercase tracking-wider">List Price</th>
@@ -402,16 +406,22 @@ export default function ProductManagement() {
                     {product.supplier_email || '-'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-[#333] text-right">
+                    {product.supplier_cost != null ? Number(product.supplier_cost).toFixed(4) : '-'}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-[#666] text-center">
+                    {product.supplier_currency || 'USD'}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-[#333] text-right">
                     ${product.unit_cost.toFixed(2)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-[#666] text-center">
-                    {(product as any).unit_cost_currency || 'USD'}
+                    {product.unit_cost_currency || 'USD'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-[#333] text-right">
                     ${product.list_price.toFixed(2)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-[#666] text-center">
-                    {(product as any).list_price_currency || 'USD'}
+                    {product.list_price_currency || 'USD'}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap">
                     <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${

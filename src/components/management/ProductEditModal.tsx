@@ -13,7 +13,7 @@ interface ProductEditModalProps {
 }
 
 const CURRENCY_OPTIONS = [
-  'USD', 'CAD', 'EUR', 'GBP', 'MXN', 'JPY', 'CNY', 'AUD', 'CHF', 'BRL', 'INR', 'KRW'
+  'USD', 'CAD', 'EUR', 'GBP', 'CNH', 'MXN', 'JPY', 'CNY', 'AUD', 'CHF', 'BRL', 'INR', 'KRW'
 ];
 
 export default function ProductEditModal({ product, onClose, onSave }: ProductEditModalProps) {
@@ -59,8 +59,10 @@ export default function ProductEditModal({ product, onClose, onSave }: ProductEd
     buyer: product?.buyer || '',
     cost_effective_from: product?.cost_effective_from || null,
     cost_effective_to: product?.cost_effective_to || null,
-    unit_cost_currency: (product as any)?.unit_cost_currency || 'USD',
-    list_price_currency: (product as any)?.list_price_currency || 'USD'
+    unit_cost_currency: product?.unit_cost_currency || 'USD',
+    list_price_currency: product?.list_price_currency || 'USD',
+    supplier_cost: product?.supplier_cost || null,
+    supplier_currency: product?.supplier_currency || 'USD'
   });
 
   useEffect(() => {
@@ -357,6 +359,29 @@ export default function ProductEditModal({ product, onClose, onSave }: ProductEd
                 </div>
 
                 <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Supplier Cost</label>
+                  <div className="flex gap-2">
+                    <input
+                      type="number"
+                      step="0.0001"
+                      value={formData.supplier_cost ?? ''}
+                      onChange={(e) => updateField('supplier_cost', e.target.value ? parseFloat(e.target.value) : null)}
+                      placeholder="0.0000"
+                      className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
+                    />
+                    <select
+                      value={formData.supplier_currency || 'USD'}
+                      onChange={(e) => updateField('supplier_currency', e.target.value)}
+                      className="w-24 px-2 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
+                    >
+                      {CURRENCY_OPTIONS.map(c => (
+                        <option key={c} value={c}>{c}</option>
+                      ))}
+                    </select>
+                  </div>
+                </div>
+
+                <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
                   <select
                     value={formData.status}
@@ -380,8 +405,8 @@ export default function ProductEditModal({ product, onClose, onSave }: ProductEd
                       className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                     />
                     <select
-                      value={(formData as any).unit_cost_currency || 'USD'}
-                      onChange={(e) => updateField('unit_cost_currency' as any, e.target.value)}
+                      value={formData.unit_cost_currency || 'USD'}
+                      onChange={(e) => updateField('unit_cost_currency', e.target.value)}
                       className="w-24 px-2 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
                     >
                       {CURRENCY_OPTIONS.map(c => (
@@ -402,8 +427,8 @@ export default function ProductEditModal({ product, onClose, onSave }: ProductEd
                       className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500"
                     />
                     <select
-                      value={(formData as any).list_price_currency || 'USD'}
-                      onChange={(e) => updateField('list_price_currency' as any, e.target.value)}
+                      value={formData.list_price_currency || 'USD'}
+                      onChange={(e) => updateField('list_price_currency', e.target.value)}
                       className="w-24 px-2 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 text-sm"
                     >
                       {CURRENCY_OPTIONS.map(c => (
