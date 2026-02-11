@@ -254,6 +254,38 @@ export interface Database {
           updated_at?: string
         }
       }
+      currency_conversions: {
+        Row: {
+          id: string
+          from_currency: string
+          to_currency: string
+          spot_rate: number
+          effective_from: string
+          effective_to: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          from_currency: string
+          to_currency: string
+          spot_rate: number
+          effective_from: string
+          effective_to?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          from_currency?: string
+          to_currency?: string
+          spot_rate?: number
+          effective_from?: string
+          effective_to?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
       inventory_levels: {
         Row: {
           id: string

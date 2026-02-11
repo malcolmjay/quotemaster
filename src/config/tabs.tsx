@@ -18,6 +18,7 @@ import {
   Bot,
   ShieldCheck,
   ScrollText,
+  ArrowRightLeft,
   LucideIcon
 } from 'lucide-react';
 
@@ -41,6 +42,7 @@ const ItemInquiry = lazy(() => import('../components/inquiry/ItemInquiry').then(
 const AIAgentChat = lazy(() => import('../components/agent/AIAgentChat').then(m => ({ default: m.AIAgentChat })));
 const EventLog = lazy(() => import('../components/management/EventLog').then(m => ({ default: m.EventLog })));
 const CompanyManagement = lazy(() => import('../components/management/CompanyManagement').then(m => ({ default: m.CompanyManagement })));
+const CurrencyConversionManagement = lazy(() => import('../components/management/CurrencyConversionManagement').then(m => ({ default: m.CurrencyConversionManagement })));
 
 export interface TabConfig {
   id: string;
@@ -151,6 +153,15 @@ export const TAB_CONFIG: readonly TabConfig[] = [
     component: ProductManagement,
     showInNav: true,
     table: 'products'
+  },
+  {
+    id: 'currency-conversions',
+    label: 'Currency Conversions',
+    icon: ArrowRightLeft,
+    help: 'Manage exchange rates for converting supplier currencies to customer currencies (USD and CAD).',
+    component: CurrencyConversionManagement,
+    showInNav: true,
+    table: 'currency_conversions'
   },
   {
     id: 'cross-reference-management',
