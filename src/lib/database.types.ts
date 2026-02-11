@@ -163,6 +163,8 @@ export interface Database {
           average_lead_time: number | null
           rep_code: string | null
           rep_by: string | null
+          unit_cost_currency: string | null
+          list_price_currency: string | null
           revision: string | null
           created_at: string
           updated_at: string
@@ -203,6 +205,8 @@ export interface Database {
           average_lead_time?: number | null
           rep_code?: string | null
           rep_by?: string | null
+          unit_cost_currency?: string | null
+          list_price_currency?: string | null
           revision?: string | null
           created_at?: string
           updated_at?: string
@@ -243,6 +247,8 @@ export interface Database {
           average_lead_time?: number | null
           rep_code?: string | null
           rep_by?: string | null
+          unit_cost_currency?: string | null
+          list_price_currency?: string | null
           revision?: string | null
           created_at?: string
           updated_at?: string
