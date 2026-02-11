@@ -1372,6 +1372,8 @@ const extractMentions = (text: string): string[] => {
 const findUsersByNameOrEmail = async (searchTerms: string[]): Promise<any[]> => {
   if (searchTerms.length === 0) return [];
 
+  logger.debug('findUsersByNameOrEmail called', { searchTerms });
+
   const { data, error } = await supabase
     .from('user_display_info')
     .select('id, email, display_name');
@@ -1382,16 +1384,51 @@ const findUsersByNameOrEmail = async (searchTerms: string[]): Promise<any[]> => 
   }
 
   const users = data || [];
+  logger.debug('All users from database', { users, usersCount: users.length });
+
   const matchedUsers: any[] = [];
 
   for (const term of searchTerms) {
-    const lowerTerm = term.toLowerCase();
+    const lowerTerm = term.toLowerCase().trim();
+    logger.debug('Searching for term', { term, lowerTerm });
 
-    const matchingUsers = users.filter(u =>
-      u.display_name.toLowerCase() === lowerTerm ||
-      u.email.toLowerCase() === lowerTerm ||
-      u.email.toLowerCase().startsWith(lowerTerm + '@')
-    );
+    const matchingUsers = users.filter(u => {
+      const displayName = u.display_name.toLowerCase().trim();
+      const email = u.email.toLowerCase().trim();
+
+      // Try multiple matching strategies
+      const exactMatch = displayName === lowerTerm || email === lowerTerm;
+      const emailPrefixMatch = email.startsWith(lowerTerm + '@');
+
+      // Match if display name starts with the term (e.g., "@Matthew" matches "Matthew" or "Matthew Smith")
+      const startsWithMatch = displayName.startsWith(lowerTerm);
+
+      // Match if the term is the first word of display name (e.g., "@Matthew" matches "Matthew Wilson")
+      const firstWordMatch = displayName.split(' ')[0] === lowerTerm;
+
+      // Match if term contains multiple words and display name starts with first word
+      // (e.g., "@Matthew Test" matches "Matthew" by taking just "Matthew")
+      const termFirstWord = lowerTerm.split(' ')[0];
+      const firstWordOfTermMatch = displayName === termFirstWord || displayName.startsWith(termFirstWord + ' ');
+
+      const isMatch = exactMatch || emailPrefixMatch || startsWithMatch || firstWordMatch || firstWordOfTermMatch;
+
+      if (isMatch) {
+        logger.debug('Found matching user', {
+          term,
+          user: u,
+          matchType: exactMatch ? 'exact' :
+                     emailPrefixMatch ? 'email_prefix' :
+                     startsWithMatch ? 'starts_with' :
+                     firstWordMatch ? 'first_word' :
+                     'first_word_of_term'
+        });
+      }
+
+      return isMatch;
+    });
+
+    logger.debug('Matching users for term', { term, matchingUsers, matchCount: matchingUsers.length });
 
     for (const user of matchingUsers) {
       if (!matchedUsers.find(m => m.id === user.id)) {
@@ -1400,6 +1437,7 @@ const findUsersByNameOrEmail = async (searchTerms: string[]): Promise<any[]> => 
     }
   }
 
+  logger.debug('Final matched users', { matchedUsers, matchedCount: matchedUsers.length });
   return matchedUsers;
 };
 
