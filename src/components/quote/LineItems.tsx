@@ -1,8 +1,8 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Package, Plus, Upload, Search, ChevronDown, Trash2, Calendar, AlertCircle, Eye, Calculator, FileCheck, Filter, X, Download, ChevronRight, MessageCircle, Info, Trophy, Users } from 'lucide-react';
+import { Package, Plus, Upload, Search, ChevronDown, Trash2, Calendar, AlertCircle, Eye, Calculator, FileCheck, Filter, X, Download, ChevronRight, MessageCircle, Info, Trophy, Users, ArrowRightLeft } from 'lucide-react';
 import { ProductModal } from '../catalog/ProductModal';
 import { PriceBreakModal } from './PriceBreakModal';
-import { SupersessionModal } from './SupersessionModal';
+import { ItemRelationshipsModal } from './ItemRelationshipsModal';
 import { HistoryModal } from './HistoryModal';
 import { CSVUploadModal } from './CSVUploadModal';
 import { LostDetailsModal } from './LostDetailsModal';
@@ -140,8 +140,9 @@ export const LineItems: React.FC<LineItemsProps> = ({
   const [editingPrice, setEditingPrice] = useState<string | null>(null);
   const [tempPrice, setTempPrice] = useState<number>(0);
   const [showPriceBreakModal, setShowPriceBreakModal] = useState<string | null>(null);
-  const [showSupersessionModal, setShowSupersessionModal] = useState<string | null>(null);
+  const [showRelationshipsModal, setShowRelationshipsModal] = useState<string | null>(null);
   const [showHistoryModal, setShowHistoryModal] = useState<string | null>(null);
+  const [itemRelationshipMap, setItemRelationshipMap] = useState<Record<string, number>>({});
   const [showCSVUploadModal, setShowCSVUploadModal] = useState(false);
   const [csvUploadMode, setCsvUploadMode] = useState<'add' | 'update'>('add');
   const [showDeleteModal, setShowDeleteModal] = useState<string | null>(null);
@@ -309,9 +310,35 @@ export const LineItems: React.FC<LineItemsProps> = ({
     return priceBreaks.find(pb => quantity >= pb.minQty && quantity <= pb.maxQty) || priceBreaks[0];
   };
 
-  const hasRelationships = (sku: string) => {
-    const product = products.find(p => p.sku === sku);
-    return product && product.status === 'superseded';
+  useEffect(() => {
+    const loadItemRelationships = async () => {
+      if (products.length === 0) return;
+      try {
+        const { data, error } = await supabase.from('item_relationships').select('from_item_id, to_item_id, reciprocal');
+        if (error) throw error;
+
+        const productIdToSku: Record<string, string> = {};
+        products.forEach((p: any) => { productIdToSku[p.id] = p.sku; });
+
+        const counts: Record<string, number> = {};
+        for (const rel of (data || [])) {
+          const fromSku = productIdToSku[rel.from_item_id];
+          if (fromSku) counts[fromSku] = (counts[fromSku] || 0) + 1;
+          if (rel.reciprocal) {
+            const toSku = productIdToSku[rel.to_item_id];
+            if (toSku) counts[toSku] = (counts[toSku] || 0) + 1;
+          }
+        }
+        setItemRelationshipMap(counts);
+      } catch (error) {
+        console.error('Error loading item relationships:', error);
+      }
+    };
+    loadItemRelationships();
+  }, [products]);
+
+  const getRelationshipCount = (sku: string): number => {
+    return itemRelationshipMap[sku] || 0;
   };
 
   const handleItemSelect = (itemId: string) => {
@@ -615,7 +642,7 @@ export const LineItems: React.FC<LineItemsProps> = ({
         replacementType: replacement.relationshipType, replacementReason: replacement.reason
       } : item
     ));
-    setShowSupersessionModal(null);
+    setShowRelationshipsModal(null);
   };
 
   const updateItemPrice = (itemId: string, newPrice: number) => {
@@ -879,9 +906,14 @@ export const LineItems: React.FC<LineItemsProps> = ({
                           >
                             <Search className="w-3.5 h-3.5" />
                           </button>
-                          {hasRelationships(item.sku) && (
-                            <button onClick={() => setShowSupersessionModal(item.id)} className="text-[#f0ad4e] dark:text-yellow-400" title="Alternatives available">
-                              <AlertCircle className="w-3.5 h-3.5" />
+                          {getRelationshipCount(item.sku) > 0 && (
+                            <button
+                              onClick={() => setShowRelationshipsModal(item.id)}
+                              className="flex items-center gap-0.5 px-1.5 py-0.5 rounded bg-sky-50 dark:bg-sky-900/20 text-sky-700 dark:text-sky-400 border border-sky-200 dark:border-sky-800 hover:bg-sky-100 dark:hover:bg-sky-900/40 transition-colors"
+                              title={`${getRelationshipCount(item.sku)} related item${getRelationshipCount(item.sku) !== 1 ? 's' : ''} available`}
+                            >
+                              <ArrowRightLeft className="w-3 h-3" />
+                              <span className="text-[10px] font-semibold">{getRelationshipCount(item.sku)}</span>
                             </button>
                           )}
                           {item.isReplacement && <span className="px-1.5 py-0.5 bg-[#fcf8e3] dark:bg-yellow-900/30 text-[#8a6d3b] dark:text-yellow-400 text-xs rounded border border-[#faebcc] dark:border-yellow-800">Replacement</span>}
@@ -1206,7 +1238,10 @@ export const LineItems: React.FC<LineItemsProps> = ({
         const item = lineItems.find(i => i.id === showPriceBreakModal);
         return item ? <PriceBreakModal item={item} onClose={() => setShowPriceBreakModal(null)} onPriceBreakSelect={handlePriceBreakSelect} /> : null;
       })()}
-      {showSupersessionModal && <SupersessionModal item={lineItems.find(i => i.id === showSupersessionModal)} onClose={() => setShowSupersessionModal(null)} onSelectReplacement={handleSupersessionSelect} />}
+      {showRelationshipsModal && (() => {
+        const item = lineItems.find(i => i.id === showRelationshipsModal);
+        return item ? <ItemRelationshipsModal item={item} products={products} onClose={() => setShowRelationshipsModal(null)} onSelectReplacement={handleSupersessionSelect} /> : null;
+      })()}
       {showHistoryModal && <HistoryModal item={lineItems.find(i => i.id === showHistoryModal)} currentQuoteId={currentQuote?.id} customerId={selectedCustomer?.id} onClose={() => setShowHistoryModal(null)} />}
       {showCSVUploadModal && <CSVUploadModal onClose={() => setShowCSVUploadModal(false)} onUpload={handleCSVUpload} mode={csvUploadMode} existingLineItems={lineItems} selectedCustomer={selectedCustomer} />}
       {showDeleteModal && <DeleteConfirmationModal isOpen={true} onClose={() => setShowDeleteModal(null)} onConfirm={confirmDeleteItem} title="Delete Line Item" message="Remove this item from the quote?" itemName={lineItems.find(i => i.id === showDeleteModal)?.name || ''} deleteType="hard" loading={deleteLoading} cascadeWarning="This cannot be undone." />}
