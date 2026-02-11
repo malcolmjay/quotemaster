@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, ArrowRight, Package, Loader2, ArrowRightLeft, TrendingUp, RefreshCw, Link2, ShoppingBag, DollarSign } from 'lucide-react';
+import { X, ArrowRight, Plus, Package, Loader2, ArrowRightLeft, TrendingUp, RefreshCw, Link2, ShoppingBag, DollarSign } from 'lucide-react';
 import { supabase } from '../../lib/supabase';
 
 interface RelatedItem {
@@ -41,6 +41,7 @@ interface ItemRelationshipsModalProps {
   products: any[];
   onClose: () => void;
   onSelectReplacement: (itemId: string, replacement: any) => void;
+  onAddLineItem?: (item: any) => void;
 }
 
 const TYPE_CONFIG: Record<string, { label: string; color: string; bg: string; border: string; icon: React.ElementType; description: string }> = {
@@ -98,7 +99,8 @@ export const ItemRelationshipsModal: React.FC<ItemRelationshipsModalProps> = ({
   item,
   products,
   onClose,
-  onSelectReplacement
+  onSelectReplacement,
+  onAddLineItem
 }) => {
   const [relatedItems, setRelatedItems] = useState<RelatedItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -237,6 +239,23 @@ export const ItemRelationshipsModal: React.FC<ItemRelationshipsModalProps> = ({
     onSelectReplacement(item.id, replacement);
   };
 
+  const handleAddToQuote = (related: RelatedItem) => {
+    if (!onAddLineItem) return;
+    onAddLineItem({
+      sku: related.product.sku,
+      name: related.product.name,
+      supplier: related.product.supplier,
+      cost: related.product.unit_cost,
+      price: related.product.list_price,
+      stock: related.product.stock,
+      leadTime: related.product.lead_time_text || `${related.product.lead_time_days} days`,
+      category: related.product.category,
+      status: related.product.status,
+      sourceItemSku: item.sku,
+      relationshipType: 'mandatory charge',
+    });
+  };
+
   const costDiff = (cost: number) => {
     const diff = cost - item.cost;
     if (Math.abs(diff) < 0.01) return null;
@@ -363,14 +382,25 @@ export const ItemRelationshipsModal: React.FC<ItemRelationshipsModalProps> = ({
                           </div>
                         </div>
 
-                        <button
-                          onClick={() => handleSelect(related)}
-                          className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-[#1a6fb5] dark:text-blue-400 bg-[#e8f0fe] dark:bg-blue-900/20 rounded-md hover:bg-[#d0e2f7] dark:hover:bg-blue-900/40 transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
-                          title="Use this item instead"
-                        >
-                          Switch
-                          <ArrowRight className="w-3 h-3" />
-                        </button>
+                        {related.type === 'Mandatory Charge' ? (
+                          <button
+                            onClick={() => handleAddToQuote(related)}
+                            className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/20 rounded-md hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
+                            title="Add this charge to the quote"
+                          >
+                            Add to Quote
+                            <Plus className="w-3 h-3" />
+                          </button>
+                        ) : (
+                          <button
+                            onClick={() => handleSelect(related)}
+                            className="flex-shrink-0 flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-[#1a6fb5] dark:text-blue-400 bg-[#e8f0fe] dark:bg-blue-900/20 rounded-md hover:bg-[#d0e2f7] dark:hover:bg-blue-900/40 transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
+                            title="Use this item instead"
+                          >
+                            Switch
+                            <ArrowRight className="w-3 h-3" />
+                          </button>
+                        )}
                       </div>
                     </div>
                   );

@@ -645,6 +645,37 @@ export const LineItems: React.FC<LineItemsProps> = ({
     setShowRelationshipsModal(null);
   };
 
+  const handleMandatoryChargeAdd = (chargeItem: any) => {
+    const unitCost = round2(chargeItem.cost);
+    const newItem = {
+      id: `local-${chargeItem.sku}-${Date.now()}`,
+      sku: chargeItem.sku,
+      name: chargeItem.name,
+      supplier: chargeItem.supplier,
+      category: chargeItem.category || 'Mandatory Charge',
+      qty: 1,
+      reserveQty: 0,
+      price: 0,
+      cost: unitCost,
+      subtotal: 0,
+      stock: chargeItem.stock || 0,
+      available: '',
+      status: 'Pending',
+      leadTime: chargeItem.leadTime || '',
+      quotedLeadTime: '',
+      warehouse: selectedCustomer?.primary_warehouse || '',
+      reserved: '0 / 1 units',
+      shippingInstructions: '',
+      selectedPriceBreak: null,
+      stockingRequired: false,
+      partStatus: chargeItem.status,
+      isMandatoryCharge: true,
+      mandatoryChargeSource: chargeItem.sourceItemSku,
+    };
+    setLineItems(prev => [...prev, newItem]);
+    setShowRelationshipsModal(null);
+  };
+
   const updateItemPrice = (itemId: string, newPrice: number) => {
     setLineItems(prev => prev.map(item =>
       item.id === itemId ? { ...item, price: round2(newPrice), subtotal: round2(newPrice * item.qty) } : item
@@ -1240,7 +1271,7 @@ export const LineItems: React.FC<LineItemsProps> = ({
       })()}
       {showRelationshipsModal && (() => {
         const item = lineItems.find(i => i.id === showRelationshipsModal);
-        return item ? <ItemRelationshipsModal item={item} products={products} onClose={() => setShowRelationshipsModal(null)} onSelectReplacement={handleSupersessionSelect} /> : null;
+        return item ? <ItemRelationshipsModal item={item} products={products} onClose={() => setShowRelationshipsModal(null)} onSelectReplacement={handleSupersessionSelect} onAddLineItem={handleMandatoryChargeAdd} /> : null;
       })()}
       {showHistoryModal && <HistoryModal item={lineItems.find(i => i.id === showHistoryModal)} currentQuoteId={currentQuote?.id} customerId={selectedCustomer?.id} onClose={() => setShowHistoryModal(null)} />}
       {showCSVUploadModal && <CSVUploadModal onClose={() => setShowCSVUploadModal(false)} onUpload={handleCSVUpload} mode={csvUploadMode} existingLineItems={lineItems} selectedCustomer={selectedCustomer} />}
