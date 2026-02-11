@@ -312,9 +312,12 @@ export const ItemRelationshipsModal: React.FC<ItemRelationshipsModalProps> = ({
                     >
                       <div className="flex items-start justify-between gap-4">
                         <div className="min-w-0 flex-1">
-                          <div className="flex items-center gap-2 mb-1">
+                          <div className="flex items-center gap-2 mb-1 flex-wrap">
                             <Icon className={`w-3.5 h-3.5 flex-shrink-0 ${TYPE_CONFIG[related.type]?.color || 'text-[#5f6672]'}`} />
                             <span className="font-semibold text-sm text-[#1a1f36] dark:text-white">{related.product.sku}</span>
+                            <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium border ${TYPE_CONFIG[related.type]?.bg || 'bg-slate-50'} ${TYPE_CONFIG[related.type]?.color || 'text-slate-700'} ${TYPE_CONFIG[related.type]?.border || 'border-slate-200'}`}>
+                              {TYPE_CONFIG[related.type]?.label || related.type}
+                            </span>
                             {related.product.stock > 0 ? (
                               <span className="px-1.5 py-0.5 rounded text-[10px] font-medium bg-emerald-50 dark:bg-emerald-900/20 text-emerald-700 dark:text-emerald-400 border border-emerald-100 dark:border-emerald-800">
                                 In Stock ({related.product.stock})
